@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+
+	RewriteRule ^(src/js/|src/css/|favicon\.ico|crossdomain\.xml|robots\.txt) - [NC,L]
+	RewriteRule ^(src/) / [NC,L,R=301]
+	RewriteCond %{REQUEST_FILENAME} -f [OR]
+	RewriteCond %{REQUEST_FILENAME} -d
+	RewriteRule ^.*$ - [NC,L,E=APACHE_MOD_REWRITE:1]
+	RewriteRule ^([A-Za-z_][A-Za-z0-9_]*)/([A-Za-z_][A-Za-z0-9_]*)/?$ index.php?page=$1&action=$2 [NC,L,QSA,E=APACHE_MOD_REWRITE:1]
+	RewriteRule ^([A-Za-z_][A-Za-z0-9_]*)/?$ index.php?page=$1 [NC,L,QSA,E=APACHE_MOD_REWRITE:1]
+</IfModule>
