@@ -1,0 +1,43 @@
+services:
+  web:
+    build: ./web/
+    networks:
+      - bridgenet
+    links:
+      - "db"
+    depends_on:
+      - db
+    volumes:
+      - ../:/var/www/html/
+      - ./web/certs/localhost.crt:/etc/ssl/certs/ssl-cert-snakeoil.pem
+      - ./web/private/localhost.key:/etc/ssl/private/ssl-cert-snakeoil.key
+      - ./web/php.ini:/usr/local/etc/php/php.ini
+    ports:
+      - "8080:80"
+      - "8443:443"
+  db:
+    image: mysql:latest
+    networks:
+      - bridgenet
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-conf.d:/etc/mysql/conf.d
+      - mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=ebooksell
+      - MYSQL_USER=dbuser
+      - MYSQL_PASSWORD=dbpass
+
+volumes:
+  mysql-data:
+
+networks:
+  bridgenet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.24.0.0/16
+          gateway: 172.24.0.1
