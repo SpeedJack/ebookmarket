@@ -1,19 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EbookMarket\Db;
 
 abstract class AbstractStatement
 {
-	public $query;
-	protected $_adapter;
-	protected $_params;
-	public function __construct(AbstractAdapter $adapter, $query, $params = [])
+	protected $query;
+	protected $adapter;
+	protected $params;
+
+	public function __construct(AbstractAdapter $adapter, string $query, ...$params)
 	{
-		$this->_adapter = $adapter;
+		$this->adapter = $adapter;
 		$this->query = $query;
-		$this->_params = is_array($params) ? $params : [$params];
+		$this->params = $params ?? [];
 	}
 
-	public function fetchColumn($column = 0)
+	public function fetchColumn(int $column = 0)
 	{
 		$values = $this->fetch();
 		if (!$values)
@@ -21,7 +25,7 @@ abstract class AbstractStatement
 		return isset($values[$column]) ? $values[$column] : null;
 	}
 
-	public function fetchAll()
+	public function fetchAll(): array
 	{
 		$output = [];
 		while ($v = $this->fetch())
@@ -29,14 +33,15 @@ abstract class AbstractStatement
 		return $output;
 	}
 
-	public function fetchAllColumn($column = 0)
+	public function fetchAllColumn(int $column = 0): array
 	{
 		$output = [];
 		while (($v = $this->fetchColumn($column)) !== false)
 			$output[] = $v;
 		return $output;
 	}
-	protected function _getException($message, $code = 0, $sqlStateCode = null)
+
+	protected function getException(string $message, int $code = 0, ?string $sqlStateCode = null): Exception
 	{
 		if (!$sqlStateCode || $sqlStateCode === '00000')
 			switch ($code) {
@@ -51,12 +56,12 @@ abstract class AbstractStatement
 		return new Exception($message, $code, $sqlStateCode, $this);
 
 	}
-	abstract public function prepare();
 
-	abstract public function fetch();
+	abstract public function prepare(): void;
 
-	abstract public function execute();
+	abstract public function fetch(): array;
 
-	abstract public function rowsAffected();
+	abstract public function execute(): ?bool;
 
+	abstract public function rowsAffected(): ?int;
 }

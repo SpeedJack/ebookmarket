@@ -1,23 +1,24 @@
 <?php
-namespace EbookMarket\Db;
 
+declare(strict_types=1);
+
+namespace EbookMarket\Db;
 
 class MysqliAdapter extends AbstractAdapter
 {
-	public function closeConnection()
+	protected function disconnect(): void
 	{
-		if ($this->isConnected())
-			$this->connection->close();
-		$this->connecttion = null;
+		if (!$this->isConnected())
+			return;
+		$this->connection->close();
 	}
 
-	protected function getStatementClass()
+	protected function getStatementClass(): string
 	{
 		return __NAMESPACE__ . '\MysqliStatement';
 	}
 
-
-	protected function connect()
+	protected function connect(): void
 	{
 		if ($this->isConnected())
 			return;
@@ -31,8 +32,7 @@ class MysqliAdapter extends AbstractAdapter
 				$this->connection->connect_error,
 				$this->connection->connect_errno);
 
-		$this->connection->set_charset($this->config['charset']);
+		if (!$this->connection->set_charset('utf8'))
+			return;
 	}
-
-
 }

@@ -26,7 +26,7 @@ services:
       - mysql-data:/var/lib/mysql
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=ebooksell
+      - MYSQL_DATABASE=ebookmarket
       - MYSQL_USER=dbuser
       - MYSQL_PASSWORD=dbpass
 

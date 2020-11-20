@@ -1,6 +1,10 @@
 <?php
 
-spl_autoload_register(function ($class)
+declare(strict_types=1);
+
+require_once 'panic.php';
+
+spl_autoload_register(function (string $class)
 {
 	$prefix = 'EbookMarket\\';
 	$baseDir = $GLOBALS['SRC_ROOT'] . '/';
@@ -10,17 +14,13 @@ spl_autoload_register(function ($class)
 
 	$classFile = $baseDir . str_replace('\\', '/',
 		substr($class, strlen($prefix))) . '.php';
-	if (!is_file($classFile)) {
-		http_response_code(404);
-		exit(1);
-	}
+	if (!is_file($classFile))
+		panic(404);
 
 	require $classFile;
 
 	if (!(class_exists($class, false)
 		|| interface_exists($class, false)
-		|| trait_exists($class, false))) {
-		http_response_code(501);
-		exit(1);
-	}
+		|| trait_exists($class, false)))
+		panic(501);
 });

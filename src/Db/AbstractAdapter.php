@@ -1,10 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace EbookMarket\Db;
 
 abstract class AbstractAdapter extends \EbookMarket\AbstractSingleton
 {
-
 	protected $connection;
 	protected $statementClass;
 	protected $config;
@@ -17,44 +18,50 @@ abstract class AbstractAdapter extends \EbookMarket\AbstractSingleton
 		$this->connect();
 	}
 
-	public function isConnected()
+	public function isConnected(): bool
 	{
 		return $this->connection !== null;
 	}
 
-	public function getConnection()
+	public function getConnection(): ?object
 	{
-		if (!$this->connection)
+		if (!$this->isConnected())
 			$this->connect();
 		return $this->connection;
 	}
 
-	public function query($query, ...$params)
+	public function closeConnection(): void
 	{
-		return $this->_query($query, $params)->rowsAffected();
+		$this->disconnect();
+		$this->connction = null;
 	}
 
-	public function fetchRow($query, ...$params)
+	public function query(string $query, ...$params): ?int
 	{
-		return $this->_query($query, $params)->fetch();
+		return $this->execute($query, $params)->rowsAffected();
 	}
 
-	public function fetchColumn($query, $params = [], $column = 0)
+	public function fetchRow(string $query, ...$params): array
 	{
-		return $this->_query($query, $params)->fetchColumn($column);
-	}
-	
-	public function fetchAll($query, ...$params)
-	{
-		return $this->_query($query, $params)->fetchAll();
+		return $this->execute($query, $params)->fetch();
 	}
 
-	public function fetchAllColumn($query, $params = [], $column = 0)
+	public function fetchColumn(string $query, array $params = [], int $column = 0)
 	{
-		return $this->_query($query, $params)->fetchAllColumn($column);
+		return $this->execute($query, $params)->fetchColumn($column);
 	}
 
-	private function _query($query, $params = [])
+	public function fetchAll(string $query, ...$params): array
+	{
+		return $this->execute($query, $params)->fetchAll();
+	}
+
+	public function fetchAllColumn(string $query, array $params = [], int $column = 0): array
+	{
+		return $this->execute($query, $params)->fetchAllColumn($column);
+	}
+
+	private function execute(string $query, array $params = []): AbstractStatement
 	{
 		$this->connect();
 
@@ -66,10 +73,9 @@ abstract class AbstractAdapter extends \EbookMarket\AbstractSingleton
 		return $statement;
 	}
 
-	abstract public function closeConnection();
+	abstract protected function disconnect(): void;
 
-	abstract protected function connect();
+	abstract protected function connect(): void;
 
-	abstract protected function getStatementClass();
-
+	abstract protected function getStatementClass(): string;
 }

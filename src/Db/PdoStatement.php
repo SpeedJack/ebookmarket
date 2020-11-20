@@ -1,39 +1,39 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EbookMarket\Db;
 
 class PdoStatement extends AbstractStatement
 {
-
-	protected $_statement;
-
-	public function rowsAffected()
+	public function rowsAffected(): ?int
 	{
-		return $this->_statement ? $this->_statement->rowCount() : null;
+		return $this->statement ? $this->statement->rowCount() : null;
 	}
 
-	public function prepare()
+	public function prepare(): void
 	{
-		if ($this->_statement)
+		if ($this->statement)
 			return;
 
-		$connection = $this->_adapter->getConnection();
+		$connection = $this->adapter->getConnection();
 		try {
-			$this->_statement = $connection->prepare($this->query);
+			$this->statement = $connection->prepare($this->query);
 		} catch (\PDOException $e) {
-			throw $this->_getException($e->errorInfo[2],
+			throw $this->getException($e->errorInfo[2],
 				$e->errorInfo[1], $e->errorInfo[0]);
 		}
 	}
 
-	public function execute()
+	public function execute(): ?bool
 	{
-		if (!$this->_statement)
+		if (!$this->statement)
 			$this->prepare();
 
 		$index = 1;
-		foreach ($this->_params as &$param) {
+		foreach ($this->params as &$param) {
 			switch (gettype($param)) {
-			case 'boolean':
+			case 'bool':
 				$type = \PDO::PARAM_BOOL;
 				break;
 			case 'integer':
@@ -55,32 +55,32 @@ class PdoStatement extends AbstractStatement
 				$type = \PDO::PARAM_NULL;
 			}
 			try {
-				$this->_statement->bindParam($index, $param, $type);
+				$this->statement->bindParam($index, $param, $type);
 			} catch (\PDOException $e) {
-				throw $this->_getException($e->errorInfo[2],
+				throw $this->getException($e->errorInfo[2],
 					$e->errorInfo[1], $e->errorInfo[0]);
 			}
 			$index++;
 		}
 
 		try {
-			$this->_statement->execute();
+			$this->statement->execute();
 		} catch (\PDOException $e) {
-			throw $this->_getException($e->errorInfo[2],
+			throw $this->getException($e->errorInfo[2],
 				$e->errorInfo[1], $e->errorInfo[0]);
 		}
 		return true;
 	}
 
-	public function fetch()
+	public function fetch(): array
 	{
-		if (!$this->_statement)
-			throw new LogicException('Trying to fetch values from an unprepared statement.');
+		if (!$this->statement)
+			throw new LogicException(__('Trying to fetch values from an unprepared statement.'));
 
 		try {
-			$values = $this->_statement->fetch(\PDO::FETCH_BOTH);
+			$values = $this->statement->fetch(\PDO::FETCH_BOTH);
 		} catch (\PDOException $e) {
-			throw $this->_getException($e->errorInfo[2],
+			throw $this->getException($e->errorInfo[2],
 				$e->errorInfo[1], $e->errorInfo[0]);
 		}
 		if ($values === false || $values === null)
@@ -93,5 +93,4 @@ class PdoStatement extends AbstractStatement
 
 		return $values;
 	}
-
 }
