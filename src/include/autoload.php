@@ -2,7 +2,7 @@
 
 spl_autoload_register(function ($class)
 {
-	$prefix = 'EbookSell\\';
+	$prefix = 'EbookMarket\\';
 	$baseDir = $GLOBALS['SRC_ROOT'] . '/';
 
 	if (strpos($class, $prefix) !== 0)

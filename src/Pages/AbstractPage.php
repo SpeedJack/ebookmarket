@@ -1,6 +1,6 @@
 <?php
 
-namespace EbookSell\Pages;
+namespace EbookMarket\Pages;
 
 abstract class AbstractPage
 {

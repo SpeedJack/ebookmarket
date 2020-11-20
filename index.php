@@ -1,6 +1,6 @@
 <?php
 
-namespace EbookSell;
+namespace EbookMarket;
 
 $APP_ROOT = __DIR__;
 $SRC_ROOT = "$APP_ROOT/src";

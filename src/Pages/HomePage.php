@@ -1,6 +1,6 @@
 <?php
 
-namespace EbookSell\Pages;
+namespace EbookMarket\Pages;
 
 class HomePage extends AbstractPage
 {
