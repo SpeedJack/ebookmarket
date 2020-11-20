@@ -15,12 +15,12 @@ spl_autoload_register(function (string $class)
 	$classFile = $baseDir . str_replace('\\', '/',
 		substr($class, strlen($prefix))) . '.php';
 	if (!is_file($classFile))
-		panic(404);
+		throw new LogicException(__("The file '%s' could not be found.", $classFile), 404);
 
 	require $classFile;
 
 	if (!(class_exists($class, false)
 		|| interface_exists($class, false)
 		|| trait_exists($class, false)))
-		panic(501);
+		throw new LogicException(__("File '%s' does not implement class '%s'.", $classFile, $class), 501);
 });

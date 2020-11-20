@@ -17,8 +17,4 @@ require_once 'i18n.php';
 require_once 'panic.php';
 
 $app = App::getInstance($config);
-try {
-	$app->route();
-} catch (InvalidRouteException $ex) {
-	panic(404, $ex);
-}
+$app->route();

@@ -48,12 +48,25 @@ class App extends AbstractSingleton
 	{
 		if (!(error_reporting() & $errno))
 			return false;
-		throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+		throw new \ErrorException($errstr, 500, $errno, $errfile, $errline);
 	}
 
 	public function exception_handler(\Throwable $ex): void
 	{
-		panic(500, $ex);
+		$httpcode = 500;
+		if ($ex instanceof InvalidRouteException
+			|| $ex instanceof Db\Exception)
+			$httpcode = $ex->getCode();
+		else if ($ex instanceof \BadFunctionCallException)
+			$httpcode = 501;
+		try {
+			$errorPage = new Pages\ErrorPage($httpcode, $ex->getMessage());
+			$errorPage->showError();
+		} catch (\Throwable $ex) {
+			echo __('ERROR: can not display error message.');
+		} finally {
+			panic($httpcode, $ex);
+		}
 	}
 
 	public function getDb(): Db\AbstractAdapter
@@ -68,10 +81,7 @@ class App extends AbstractSingleton
 		else if (extension_loaded('mysqli'))
 			$this->db = Db\MysqliAdapter::getInstance($this->config['db']);
 		else
-			throw new \RuntimeException(
-				__('No database extension loaded: PDO or MySQLi is required.'),
-				500
-			);
+			throw new \RuntimeException(__('No database extension loaded: PDO or MySQLi is required.'));
 
 		return $this->db;
 	}
@@ -87,9 +97,13 @@ class App extends AbstractSingleton
 			$action = 'action' . ucfirst($_GET['action']);
 		$class = __NAMESPACE__ . "\\Pages\\$page";
 
-		$page = new $class();
-		if (!method_exists($page, $action))
-			throw new InvalidRouteException($page, $action);
+		try {
+			$page = new $class();
+			if (!method_exists($page, $action))
+				throw new InvalidRouteException($page, $action);
+		} catch (\LogicException $ex) {
+			throw new InvalidRouteException($class, $action, $ex);
+		}
 		$page->$action();
 		exit();
 	}
