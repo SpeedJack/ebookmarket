@@ -8,7 +8,9 @@ require_once 'panic.php';
 
 class App extends AbstractSingleton
 {
-	const SRC_ROOT = __DIR__;
+	public const DEFAULT_PAGE = 'HomePage';
+	public const DEFAULT_ACTION = 'actionIndex';
+	public const SRC_ROOT = __DIR__;
 	protected $https;
 	protected $modrewrite;
 	protected $config;
@@ -34,6 +36,7 @@ class App extends AbstractSingleton
 		return array_replace_recursive([
 				'server_name' => 'localhost',
 				'server_port' => $this->https ? 443 : 80,
+				'app_subdir' => '',
 				'db' => [
 					'host' => 'localhost',
 					'port' => 3306,
@@ -124,8 +127,85 @@ class App extends AbstractSingleton
 		$this->route($getParams, $postParams, $resetParams);
 	}
 
-	public function rerouteHome()
+	public function rerouteHome(): void
 	{
 		$this->reroute(null);
+	}
+
+	public static function externalRedirect(string $link,
+		bool $permanent = false): void
+	{
+		header("Location: $link", true, $permanent ? 301 : 302);
+		exit();
+	}
+
+	public function redirect(?string $page, ?string $action,
+		?array $params = null, bool $permanent = false): void
+	{
+		$link = $this->buildAbsoluteLink($page, $action, $params);
+		self::externalRedirect($link, $permanent);
+	}
+
+	public function redirectPermanently(?string $page, ?string $action,
+		?array $params = null): void
+	{
+		$this->redirect($page, $action, $params, true);
+	}
+
+	public function redirectHome(?array $params = null,
+		bool $permanent = false): void
+	{
+		$this->redirect(null, null, $params, $permanent);
+	}
+
+	public static function buildGetParams(?array $params,
+		bool $append = false): string
+	{
+		if (empty($params))
+			return '';
+		$getstr = $append ? '&' : '?';
+		foreach ($params as $key => $val)
+			$getstr .= urlencode($key) . '=' . urlencode($val) . '&';
+		return rtrim($getstr, '&');
+	}
+
+	public function buildLink(?string $page = null, ?string $action = null,
+		?array $params = null): string
+	{
+		if (empty($page) && empty($action))
+			return '/' . self::buildGetParams($params);
+		$page = $page ?? self::DEFAULT_PAGE;
+		$page = $page === '__current' ?
+			$this->visitor->getPageParam() : $page;
+		$action = $action ?? '';
+		$action = $action === '__current' ?
+			$this->visitor->getActionParam() : $action;
+
+		if (!$this->modrewrite) {
+			$params['page'] = $page;
+			$params['action'] = $action;
+			return '/' . self::buildGetParams($params);
+		}
+		return rtrim("/$page/$action", '/')
+			. self::buildGetParams($params);
+	}
+
+	public function buildAbsoluteLink(?string $page = null,
+		?string $action = null, ?array $params = null): string
+	{
+		$subdir = $this->config['app_subdir'];
+		if ($subdir !== null && $subdir !== '')
+			$subdir = '/' . trim($subdir, '/');
+		$port = $this->config['server_port'];
+		$portstr = (($this->isHttps() && $port == 443)
+			|| (!$this->isHttps() && $port == 80)) ? '' : ':' . $port;
+		return 'http' . ($this->isHttps() ? 's' : '') . '://'
+			. $this->config['server_name'] . $portstr . $subdir
+			. $this->buildLink($page, $action, $params);
+	}
+
+	public function isHttps(): bool
+	{
+		return $this->https;
 	}
 }

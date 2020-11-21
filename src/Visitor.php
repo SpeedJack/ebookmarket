@@ -6,8 +6,8 @@ namespace EbookMarket;
 
 class Visitor
 {
-	protected $page = 'HomePage';
-	protected $action = 'actionIndex';
+	protected $page = App::DEFAULT_PAGE;
+	protected $action = App::DEFAULT_ACTION;
 	protected $getParams = [];
 	protected $postParams = [];
 
@@ -45,8 +45,10 @@ class Visitor
 
 	public function setPage(?string $page): void
 	{
-		if (empty($page))
-			$page = 'home';
+		if (empty($page)) {
+			$this->page = App::DEFAULT_PAGE;
+			return;
+		}
 		$page = ucfirst(strtolower(trim($page)));
 		if (preg_match('/^[A-Za-z_][a-z0-9_]{0,20}$/', $page) !== 1)
 			throw new InvalidRouteException($page);
@@ -55,8 +57,10 @@ class Visitor
 
 	public function setAction(?string $action): void
 	{
-		if (empty($action))
-			$action = 'index';
+		if (empty($action)) {
+			$this->action = App::DEFAULT_ACTION;
+			return;
+		}
 		$action = ucfirst(strtolower(trim($action)));
 		if (preg_match('/^[A-Za-z_][a-z0-9_]{0,20}$/', $action) !== 1)
 			throw new InvalidRouteException(null, $action);
@@ -77,6 +81,16 @@ class Visitor
 	public function getAction(): string
 	{
 		return $this->action;
+	}
+
+	public function getPageParam(): string
+	{
+		return lcfirst(substr($this->page, 0, -4));
+	}
+
+	public function getActionParam(): string
+	{
+		return lcfirst(substr($this->action, 6));
 	}
 
 	public function param(string $key, string $method = 'ANY'): string
