@@ -182,7 +182,7 @@ class App extends AbstractSingleton
 	{
 		if (empty($page) && empty($action))
 			return '/' . self::buildGetParams($params);
-		$page = $page ?? self::DEFAULT_PAGE;
+		$page = $page ?? lcfirst(substr(self::DEFAULT_PAGE, 0, -4));
 		$page = $page === '__current' ?
 			$this->visitor->getPageParam() : $page;
 		$action = $action ?? '';
