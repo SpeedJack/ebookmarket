@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-require_once 'panic.php';
-
 spl_autoload_register(function (string $class)
 {
 	$prefix = 'EbookMarket\\';

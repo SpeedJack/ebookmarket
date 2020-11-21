@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+/* TODO: move inside EbookMarket\App */
+
 function get_previous_exception_desc(\Throwable $ex, int $level = 1): string
 {
 	if ($ex === null || $ex->getPrevious() === null)

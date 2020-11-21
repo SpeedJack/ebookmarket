@@ -31,6 +31,14 @@ class App extends AbstractSingleton
 		$this->visitor = Visitor::getInstance();
 	}
 
+	public static function start(): void
+	{
+		include 'config.php';
+		if (!isset($config))
+			$config = [];
+		self::getInstance($config)->route();
+	}
+
 	protected function mergeConfigDefaults(array $config = []): array
 	{
 		return array_replace_recursive([
@@ -109,7 +117,7 @@ class App extends AbstractSingleton
 		try {
 			$page = new $class();
 			if (!method_exists($page, $action))
-				throw new InvalidRouteException($page, $action);
+				throw new InvalidRouteException($class, $action);
 		} catch (\LogicException $ex) {
 			throw new InvalidRouteException($class, $action, $ex);
 		}
