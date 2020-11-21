@@ -9,8 +9,8 @@ class InvalidRouteException extends \BadMethodCallException
 	protected $pageName;
 	protected $actionName;
 
-	public function __construct(string $pageName, string $actionName,
-		\Throwable $previous = null)
+	public function __construct(?string $pageName,
+		?string $actionName = null, ?\Throwable $previous = null)
 	{
 		$this->pageName = $pageName;
 		$this->actionName = $actionName;
@@ -19,12 +19,12 @@ class InvalidRouteException extends \BadMethodCallException
 			404, $previous);
 	}
 
-	public function getPageName(): string
+	public function getPageName(): ?string
 	{
 		return $this->pageName;
 	}
 
-	public function getActionName(): string
+	public function getActionName(): ?string
 	{
 		return $this->actionName;
 	}

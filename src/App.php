@@ -13,6 +13,7 @@ class App extends AbstractSingleton
 	protected $modrewrite;
 	protected $config;
 	protected $db;
+	protected $visitor;
 
 	protected function __construct(array $config = [])
 	{
@@ -24,6 +25,8 @@ class App extends AbstractSingleton
 		$this->config = $this->mergeConfigDefaults($config);
 
 		error_reporting($this->config['error_reporting']);
+
+		$this->visitor = new Visitor();
 	}
 
 	protected function mergeConfigDefaults(array $config = []): array
@@ -89,15 +92,15 @@ class App extends AbstractSingleton
 		return $this->db;
 	}
 
-	public function route(): void
+	public function route(?array $getParams = null,
+		?array $postParams = null, bool $resetParams = false): void
 	{
-		$page = 'HomePage';
-		$action = 'actionIndex';
-		/* FIXME: GET params are tainted */
-		if (!empty($_GET['page']))
-			$page = ucfirst($_GET['page']) . 'Page';
-		if (!empty($_GET['action']))
-			$action = 'action' . ucfirst($_GET['action']);
+		if ($resetParams)
+			$this->visitor->clearParams();
+		$this->visitor->addParams($getParams, $postParams);
+
+		$page = $this->visitor->getPage();
+		$action = $this->visitor->getAction();
 		$class = __NAMESPACE__ . "\\Pages\\$page";
 
 		try {
@@ -107,7 +110,22 @@ class App extends AbstractSingleton
 		} catch (\LogicException $ex) {
 			throw new InvalidRouteException($class, $action, $ex);
 		}
+
 		$page->$action();
+
 		exit();
+	}
+
+	public function reroute(?string $page, ?string $action = null,
+		?array $getParams = null, ?array $postParams = null,
+		bool $resetParams = false): void
+	{
+		$this->visitor->setRoute($page, $action);
+		$this->route($getParams, $postParams, $resetParams);
+	}
+
+	public function rerouteHome()
+	{
+		$this->reroute(null);
 	}
 }

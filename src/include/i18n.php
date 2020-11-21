@@ -15,5 +15,5 @@ if (function_exists('gettext')) {
 
 function __(string $message, ...$params): string
 {
-	return sprintf(gettext($message, ...$params));
+	return sprintf(gettext($message), ...$params);
 }
