@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace EbookMarket;
 
-class Visitor
+class Visitor extends AbstractSingleton
 {
 	protected $page = App::DEFAULT_PAGE;
 	protected $action = App::DEFAULT_ACTION;
 	protected $getParams = [];
 	protected $postParams = [];
 
-	public function __construct()
+	protected function __construct()
 	{
 		$this->readParams();
 	}
