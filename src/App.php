@@ -28,7 +28,7 @@ class App extends AbstractSingleton
 
 		error_reporting($this->config['error_reporting']);
 
-		$this->visitor = new Visitor();
+		$this->visitor = Visitor::getInstance();
 	}
 
 	protected function mergeConfigDefaults(array $config = []): array
@@ -207,5 +207,10 @@ class App extends AbstractSingleton
 	public function isHttps(): bool
 	{
 		return $this->https;
+	}
+
+	public static function visitor(): Visitor
+	{
+		return Visitor::getInstance();
 	}
 }

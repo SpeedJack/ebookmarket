@@ -6,7 +6,7 @@ namespace EbookMarket\Db;
 
 class PdoAdapter extends AbstractAdapter
 {
-	public function disconnect(): void
+	protected function disconnect(): void
 	{
 		$this->connection = null;
 	}

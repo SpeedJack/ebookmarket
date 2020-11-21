@@ -6,6 +6,8 @@ namespace EbookMarket\Db;
 
 class PdoStatement extends AbstractStatement
 {
+	protected $statement;
+
 	public function rowsAffected(): ?int
 	{
 		return $this->statement ? $this->statement->rowCount() : null;

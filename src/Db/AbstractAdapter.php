@@ -18,6 +18,11 @@ abstract class AbstractAdapter extends \EbookMarket\AbstractSingleton
 		$this->connect();
 	}
 
+	public function __destruct()
+	{
+		$this->closeConnection();
+	}
+
 	public function isConnected(): bool
 	{
 		return $this->connection !== null;
