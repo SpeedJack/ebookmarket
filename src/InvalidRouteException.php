@@ -6,13 +6,26 @@ namespace EbookMarket;
 
 class InvalidRouteException extends \BadMethodCallException
 {
-	public $pageName;
-	public $actionName;
+	protected $pageName;
+	protected $actionName;
 
-	public function __construct(string $pageName, string $actionName, \Throwable $previous = null)
+	public function __construct(string $pageName, string $actionName,
+		\Throwable $previous = null)
 	{
 		$this->pageName = $pageName;
 		$this->actionName = $actionName;
-		parent::__construct(__("The requested page could not be found."), 404, $previous);
+		parent::__construct(
+			__("The requested page could not be found."),
+			404, $previous);
+	}
+
+	public function getPageName(): string
+	{
+		return $this->pageName;
+	}
+
+	public function getActionName(): string
+	{
+		return $this->actionName;
 	}
 }

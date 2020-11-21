@@ -55,7 +55,8 @@ class PdoStatement extends AbstractStatement
 				$type = \PDO::PARAM_NULL;
 			}
 			try {
-				$this->statement->bindParam($index, $param, $type);
+				$this->statement->bindParam($index,
+					$param, $type);
 			} catch (\PDOException $e) {
 				throw $this->getException($e->errorInfo[2],
 					$e->errorInfo[1], $e->errorInfo[0]);
@@ -75,7 +76,8 @@ class PdoStatement extends AbstractStatement
 	public function fetch(): array
 	{
 		if (!$this->statement)
-			throw new LogicException(__('Trying to fetch values from an unprepared statement.'));
+			throw new LogicException(
+				__('Trying to fetch values from an unprepared statement.'));
 
 		try {
 			$values = $this->statement->fetch(\PDO::FETCH_BOTH);
@@ -87,7 +89,8 @@ class PdoStatement extends AbstractStatement
 			return [];
 		foreach ($values as $key => $value)
 			if (is_numeric($value))
-				$values[$key] = ctype_digit($value) ? (int)$value : (float)$value;
+				$values[$key] = ctype_digit($value) ?
+					(int)$value : (float)$value;
 			else if ($value === 'NULL')
 				$values[$key] = null;
 

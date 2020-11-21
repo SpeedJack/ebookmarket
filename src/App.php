@@ -29,18 +29,18 @@ class App extends AbstractSingleton
 	protected function mergeConfigDefaults(array $config = []): array
 	{
 		return array_replace_recursive([
-			'server_name' => 'localhost',
-			'server_port' => $this->https ? 443 : 80,
-			'db' => [
-				'host' => 'localhost',
-				'port' => 3306,
-				'username' => 'root',
-				'password' => '',
-				'dbname' => 'ebookmarket',
-				'use_mysqli' => false
-			],
-			'error_reporting' => E_ALL,
-		], $config);
+				'server_name' => 'localhost',
+				'server_port' => $this->https ? 443 : 80,
+				'db' => [
+					'host' => 'localhost',
+					'port' => 3306,
+					'username' => 'root',
+					'password' => '',
+					'dbname' => 'ebookmarket',
+					'use_mysqli' => false
+				],
+				'error_reporting' => E_ALL,
+			], $config);
 	}
 
 	public function error_handler(int $errno, string $errstr,
@@ -48,7 +48,8 @@ class App extends AbstractSingleton
 	{
 		if (!(error_reporting() & $errno))
 			return false;
-		throw new \ErrorException($errstr, 500, $errno, $errfile, $errline);
+		throw new \ErrorException($errstr, 500, $errno,
+			$errfile, $errline);
 	}
 
 	public function exception_handler(\Throwable $ex): void
@@ -60,10 +61,11 @@ class App extends AbstractSingleton
 		else if ($ex instanceof \BadFunctionCallException)
 			$httpcode = 501;
 		try {
-			$errorPage = new Pages\ErrorPage($httpcode, $ex->getMessage());
+			$errorPage = new Pages\ErrorPage($httpcode,
+				$ex->getMessage());
 			$errorPage->showError();
-		} catch (\Throwable $ex) {
-			echo __('ERROR: can not display error message.');
+		} catch (\Throwable $e) {
+			echo __('Server error. Please try again later.');
 		} finally {
 			panic($httpcode, $ex);
 		}
@@ -81,7 +83,8 @@ class App extends AbstractSingleton
 		else if (extension_loaded('mysqli'))
 			$this->db = Db\MysqliAdapter::getInstance($this->config['db']);
 		else
-			throw new \RuntimeException(__('No database extension loaded: PDO or MySQLi is required.'));
+			throw new \RuntimeException(
+				__('No database extension loaded: PDO or MySQLi is required.'));
 
 		return $this->db;
 	}

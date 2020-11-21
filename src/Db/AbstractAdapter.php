@@ -46,7 +46,8 @@ abstract class AbstractAdapter extends \EbookMarket\AbstractSingleton
 		return $this->execute($query, $params)->fetch();
 	}
 
-	public function fetchColumn(string $query, array $params = [], int $column = 0)
+	public function fetchColumn(string $query, array $params = [],
+		int $column = 0)
 	{
 		return $this->execute($query, $params)->fetchColumn($column);
 	}
@@ -56,12 +57,14 @@ abstract class AbstractAdapter extends \EbookMarket\AbstractSingleton
 		return $this->execute($query, $params)->fetchAll();
 	}
 
-	public function fetchAllColumn(string $query, array $params = [], int $column = 0): array
+	public function fetchAllColumn(string $query, array $params = [],
+		int $column = 0): array
 	{
 		return $this->execute($query, $params)->fetchAllColumn($column);
 	}
 
-	private function execute(string $query, array $params = []): AbstractStatement
+	protected function execute(string $query,
+		array $params = []): AbstractStatement
 	{
 		$this->connect();
 

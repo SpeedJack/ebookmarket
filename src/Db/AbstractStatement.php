@@ -10,7 +10,8 @@ abstract class AbstractStatement
 	protected $adapter;
 	protected $params;
 
-	public function __construct(AbstractAdapter $adapter, string $query, ...$params)
+	public function __construct(AbstractAdapter $adapter,
+		string $query, ...$params)
 	{
 		$this->adapter = $adapter;
 		$this->query = $query;
@@ -22,7 +23,7 @@ abstract class AbstractStatement
 		$values = $this->fetch();
 		if (!$values)
 			return false;
-		return isset($values[$column]) ? $values[$column] : null;
+		return isset($values[$column]) ?? null;
 	}
 
 	public function fetchAll(): array
@@ -41,7 +42,13 @@ abstract class AbstractStatement
 		return $output;
 	}
 
-	protected function getException(string $message, int $code = 0, ?string $sqlStateCode = null): Exception
+	public function getQuery(): string
+	{
+		return $this->query;
+	}
+
+	protected function getException(string $message, int $code = 0,
+		?string $sqlStateCode = null): Exception
 	{
 		if (!$sqlStateCode || $sqlStateCode === '00000')
 			switch ($code) {

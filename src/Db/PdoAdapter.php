@@ -8,6 +8,7 @@ class PdoAdapter extends AbstractAdapter
 {
 	public function disconnect(): void
 	{
+		$this->connection = null;
 	}
 
 	protected function getStatementClass(): string
@@ -20,7 +21,8 @@ class PdoAdapter extends AbstractAdapter
 		if ($this->isConnected())
 			return;
 
-		$this->connection = new \PDO('mysql:host=' . $this->config['host'] .
+		$this->connection = new \PDO(
+			'mysql:host=' . $this->config['host'] .
 			';port=' . $this->config['port'] . ';dbname=' .
 			$this->config['dbname'] . ';charset=utf8',
 			$this->config['username'], $this->config['password'],

@@ -61,7 +61,8 @@ class MysqliStatement extends AbstractStatement
 		}
 		if (!empty($types)) {
 			array_unshift($bind, $types);
-			if (!call_user_func_array([$this->statement, 'bind_param'], $bind))
+			if (!call_user_func_array(
+				[$this->statement, 'bind_param'], $bind))
 				throw $this->getException(
 					$this->statement->error,
 					$this->statement->errno,
@@ -112,7 +113,8 @@ class MysqliStatement extends AbstractStatement
 	public function fetch(): array
 	{
 		if (!$this->statement)
-			throw new \LogicException(__('Trying to fetch values from an unprepared statement.'));
+			throw new \LogicException(
+				__('Trying to fetch values from an unprepared statement.'));
 
 		$success = $this->statement->fetch();
 		if ($success === false)
@@ -126,6 +128,7 @@ class MysqliStatement extends AbstractStatement
 		foreach ($this->values as $v)
 			$values[] = $v;
 		/* Emulates PDO::FETCH_MODE fetch style */
-		return array_merge($values, array_combine($this->keys, $values));
+		return array_merge($values,
+			array_combine($this->keys, $values));
 	}
 }

@@ -8,10 +8,14 @@ function get_previous_exception_desc(\Throwable $ex, int $level = 1): string
 		return '';
 	$pex = $ex->getPrevious();
 	return str_repeat("\t", $level - 1) . 'Previous Exception:' . PHP_EOL
-		. str_repeat("\t", $level) . __('In %s:%d', $pex->getFile(), $pex->getLine()) . PHP_EOL
-		. str_repeat("\t", $level) . __('Exception Type: %s', get_class($pex)) . PHP_EOL
-		. str_repeat("\t", $level) . __('Exception Code: %d', $pex->getCode()) . PHP_EOL
-		. str_repeat("\t", $level) . __('Exception Message: %s', $pex->getMessage()) . PHP_EOL
+		. str_repeat("\t", $level)
+		. __('In %s:%d', $pex->getFile(), $pex->getLine()) . PHP_EOL
+		. str_repeat("\t", $level)
+		. __('Exception Type: %s', get_class($pex)) . PHP_EOL
+		. str_repeat("\t", $level)
+		. __('Exception Code: %d', $pex->getCode()) . PHP_EOL
+		. str_repeat("\t", $level)
+		. __('Exception Message: %s', $pex->getMessage()) . PHP_EOL
 		. get_previous_exception_desc($pex, $level + 1);
 }
 
