@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y libicu-dev locales \
 	&& sed -i -e 's/# it_IT.UTF-8 UTF-8/it_IT.UTF-8 UTF-8/' /etc/locale.gen \
 	&& echo 'LANG="en_US.UTF-8"' > /etc/default/locale \
 	&& dpkg-reconfigure --frontend=noninteractive locales \
-	&& update-locale LANG=en_US.UTF-8
+	&& update-locale LANG=en_US.UTF-8 \
+	&& docker-php-ext-install gettext
 
 # MySQL driver
 RUN docker-php-ext-install pdo_mysql \
