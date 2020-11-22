@@ -4,13 +4,20 @@ declare(strict_types=1);
 
 namespace EbookMarket;
 
-require_once 'panic.php';
-
 class App extends AbstractSingleton
 {
 	public const DEFAULT_PAGE = 'HomePage';
 	public const DEFAULT_ACTION = 'actionIndex';
 	public const SRC_ROOT = __DIR__;
+
+	public const LOG_EMERGENCY = 0;
+	public const LOG_ALERT = 1;
+	public const LOG_CRITICAL = 2;
+	public const LOG_ERROR = 3;
+	public const LOG_WARNING = 4;
+	public const LOG_NOTICE = 5;
+	public const LOG_INFO = 6;
+	public const LOG_DEBUG = 7;
 
 	protected $https;
 	protected $modrewrite;
@@ -56,38 +63,9 @@ class App extends AbstractSingleton
 					'dbname' => 'ebookmarket',
 					'use_mysqli' => false
 				],
+				'log_level' => 6,
 				'error_reporting' => E_ALL,
 			], $config);
-	}
-
-	public function error_handler(int $errno, string $errstr,
-		?string $errfile = null, ?int $errline = null): bool
-	{
-		if (!(error_reporting() & $errno))
-			return false;
-		throw new \ErrorException($errstr, 500, $errno,
-			$errfile, $errline);
-	}
-
-	public function exception_handler(\Throwable $ex): void
-	{
-		while (ob_get_level())
-			@ob_end_clean();
-
-		$httpcode = 500;
-		if ($ex instanceof AppException)
-			$httpcode = $ex->getCode();
-		else if ($ex instanceof \BadFunctionCallException)
-			$httpcode = 501;
-		try {
-			$errorPage = new Pages\ErrorPage($httpcode,
-				$ex->getMessage());
-			$errorPage->showError();
-		} catch (\Throwable $e) {
-			echo __('Server error. Please try again later.');
-		} finally {
-			panic($httpcode, $ex);
-		}
 	}
 
 	public function isHttps(): bool
@@ -229,5 +207,105 @@ class App extends AbstractSingleton
 		return 'http' . ($this->isHttps() ? 's' : '') . '://'
 			. $this->config['server_name'] . $portstr
 			. $this->buildLink($route, $params);
+	}
+
+	public static function getLogLevelName(int $level): string
+	{
+		switch ($level) {
+		case self::LOG_EMERGENCY:
+			return 'EMERGENCY';
+		case self::LOG_ALERT:
+			return 'ALERT';
+		case self::LOG_CRITICAL:
+			return 'CRITICAL';
+		case self::LOG_ERROR:
+			return 'ERROR';
+		case self::LOG_WARNING:
+			return 'WARNING';
+		case self::LOG_NOTICE:
+			return 'NOTICE';
+		case self::LOG_INFO:
+			return 'INFO';
+		case self::LOG_DEBUG:
+			return 'DEBUG';
+		default:
+			return '???';
+		}
+	}
+
+	public function log(string $message,
+		int $level = self::LOG_INFO): void
+	{
+		if (isset($this->config['log_level'])
+			&& $level > $this->config['log_level'])
+			return;
+		// TODO: log to db
+		if ($level < self::LOG_INFO)
+			error_log('[' . self::getLogLevelName($level)
+				. "] $message". PHP_EOL);
+	}
+
+	public function logDebug(string $message): void
+	{
+		$this->log($message, self::LOG_DEBUG);
+	}
+
+	public function logWarning(string $message): void
+	{
+		$this->log($message, self::LOG_WARNING);
+	}
+
+	public function logError(string $message): void
+	{
+		$this->log($message, self::LOG_ERROR);
+	}
+
+	public function logException(?\Throwable $ex = null): void
+	{
+		$method = '';
+		if (Visitor::getMethod() !== Visitor::METHOD_UNKNOWN)
+			$method = $_SERVER['REQUEST_METHOD'];
+		$uri = $_SERVER['REQUEST_URI'];
+		$errormsg .= "Request: $method $uri" . PHP_EOL;
+		$errormsg .= 'HTTP Code: ' . http_response_code() . PHP_EOL;
+		if (isset($ex))
+			$errormsg .= strval($ex);
+		$this->logError($errormsg);
+	}
+
+	public function error_handler(int $errno, string $errstr,
+		?string $errfile = null, ?int $errline = null): bool
+	{
+		if (!(error_reporting() & $errno))
+			return false;
+		throw new \ErrorException($errstr, 500, $errno,
+			$errfile, $errline);
+	}
+
+	public function exception_handler(\Throwable $ex): void
+	{
+		while (ob_get_level())
+			@ob_end_clean();
+
+		$httpcode = 500;
+		if ($ex instanceof AppException)
+			$httpcode = $ex->getCode();
+		else if ($ex instanceof \BadFunctionCallException)
+			$httpcode = 501;
+		try {
+			$errorPage = new Pages\ErrorPage($httpcode,
+				$ex->getMessage());
+			$errorPage->showError();
+		} catch (\Throwable $e) {
+			http_response_code($httpcode);
+			echo __('Server error. Please try again later.');
+		} finally {
+			try {
+				@$this->logException($ex);
+			} catch (\Throwable $ex) {
+				error_log('Can not log exception.');
+			}
+			exit(1);
+		}
 	}
 }
