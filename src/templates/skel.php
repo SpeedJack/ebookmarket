@@ -3,9 +3,9 @@
 <html lang="<?= __('en') ?>">
 	<head>
 		<meta charset="UTF-8">
-		<meta name="keywords" content="<?= self::KEYWORDS ?>">
+		<meta name="keywords" content="<?= static::KEYWORDS ?>">
 		<meta name="description" content="<?= __('EbookMarket is a platform for selling ebooks online.') ?>">
-		<meta name="author" content="<?= self::AUTHOR ?>">
+		<meta name="author" content="<?= static::AUTHOR ?>">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title><?= $this->title ?></title>
 		<link rel="icon" type="image/vnd.microsoft.icon" href="/favicon.ico">

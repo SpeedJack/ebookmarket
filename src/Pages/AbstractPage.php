@@ -41,7 +41,7 @@ abstract class AbstractPage
 
 	protected function setTitle(string $title): void
 	{
-		$this->title = self::htmlEscape($title);
+		$this->title = static::htmlEscape($title);
 	}
 
 	protected function addCss(string $css): void
@@ -70,7 +70,7 @@ abstract class AbstractPage
 
 	protected function loadTemplate(string $template, array $params = []): void
 	{
-		$templatefile = self::getTemplateFile($template);
+		$templatefile = static::getTemplateFile($template);
 		$app = $this->app;
 		$visitor = $this->visitor;
 		extract($params, EXTR_SKIP);
@@ -79,7 +79,7 @@ abstract class AbstractPage
 
 	protected function show(string $template, array $params = []): void
 	{
-		$skelfile = self::getTemplateFile('skel');
+		$skelfile = static::getTemplateFile('skel');
 		include $skelfile;
 	}
 
@@ -140,7 +140,7 @@ abstract class AbstractPage
 		bool $permanent = false): void
 	{
 		$link = $this->app->buildAbsoluteLink($route, $params);
-		self::externalRedirect($link, $permanent);
+		static::externalRedirect($link, $permanent);
 	}
 
 	protected function redirectPermanently(?string $route,

@@ -8,7 +8,7 @@ abstract class AbstractSingleton
 {
 	private static $instances = [];
 
-	public static function getInstance(...$params): self
+	public static final function getInstance(...$params): self
 	{
 		$class = get_called_class();
 		if (!isset(self::$instances[$class]))

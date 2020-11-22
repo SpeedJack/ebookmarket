@@ -24,22 +24,22 @@ class Logger
 
 	public static function emergency(string $message): void
 	{
-		self::log(self::LVL_EMERG, $message);
+		static::log(self::LVL_EMERG, $message);
 	}
 
 	public static function alert(string $message): void
 	{
-		self::log(self::LVL_ALERT, $message);
+		static::log(self::LVL_ALERT, $message);
 	}
 
 	public static function critical(string $message): void
 	{
-		self::log(self::LVL_CRIT, $message);
+		static::log(self::LVL_CRIT, $message);
 	}
 
 	public static function error(string $message): void
 	{
-		self::log(self::LVL_ERR, $message);
+		static::log(self::LVL_ERR, $message);
 	}
 
 	public function exception(?\Throwable $ex = null): void
@@ -52,27 +52,27 @@ class Logger
 		$errormsg .= 'HTTP Code: ' . http_response_code() . PHP_EOL;
 		if (isset($ex))
 			$errormsg .= strval($ex);
-		self::error($errormsg);
+		static::error($errormsg);
 	}
 
 	public static function warning(string $message): void
 	{
-		self::log(self::LVL_WARN, $message);
+		static::log(self::LVL_WARN, $message);
 	}
 
 	public static function notice(string $message): void
 	{
-		self::log(self::LVL_NOTICE, $message);
+		static::log(self::LVL_NOTICE, $message);
 	}
 
 	public static function info(string $message): void
 	{
-		self::log(self::LVL_INFO, $message);
+		static::log(self::LVL_INFO, $message);
 	}
 
 	public static function debug(string $message): void
 	{
-		self::log(self::LVL_DEBUG, $message);
+		static::log(self::LVL_DEBUG, $message);
 	}
 
 	public static function log(int $level, string $message): void
@@ -81,7 +81,7 @@ class Logger
 			return;
 		// TODO: log to db
 		if ($level < self::LVL_INFO)
-			error_log('[' . self::getLogLevelName($level)
+			error_log('[' . static::getLogLevelName($level)
 				. "] $message" . PHP_EOL);
 	}
 

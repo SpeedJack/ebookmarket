@@ -32,7 +32,7 @@ class App extends AbstractSingleton
 
 		$this->https = !empty($_SERVER['HTTPS']);
 		$this->modrewrite = getenv('APACHE_MOD_REWRITE') == true;
-		$this->config = self::mergeConfigDefaults($config);
+		$this->config = static::mergeConfigDefaults($config);
 
 		error_reporting($this->config['error_reporting']);
 
@@ -44,7 +44,7 @@ class App extends AbstractSingleton
 		include 'config.php';
 		if (!isset($config))
 			$config = [];
-		self::getInstance($config)->route();
+		static::getInstance($config)->route();
 	}
 
 	protected static function mergeConfigDefaults(array $config = []): array
@@ -170,7 +170,7 @@ class App extends AbstractSingleton
 		$route = $route ?? '';
 		$route = rtrim($route, '/');
 		if (empty($route))
-			return "$subdir" . self::buildGetParams($params);
+			return "$subdir" . static::buildGetParams($params);
 		$parts = explode('/', $route);
 		if (count($parts) === 2)
 			list($page, $action) = $parts;
@@ -179,8 +179,8 @@ class App extends AbstractSingleton
 		else
 			throw new \InvalidArgumentException(
 				__('Invalid route specified.'));
-		$defpage = lcfirst(substr(self::DEFAULT_PAGE, 0, -4));
-		$defaction = lcfirst(substr(self::DEFAULT_ACTION, 6));
+		$defpage = lcfirst(substr(static::DEFAULT_PAGE, 0, -4));
+		$defaction = lcfirst(substr(static::DEFAULT_ACTION, 6));
 		if (empty($page) && !empty($action))
 			$page = $this->visitor->getPageParam();
 		$page = strtolower($page ?: $defpage);
@@ -190,7 +190,7 @@ class App extends AbstractSingleton
 				$param['page'] = $page;
 			if (strcmp($action, $defaction) !== 0)
 				$params['action'] = $action;
-			return "$subdir" . self::buildGetParams($params);
+			return "$subdir" . static::buildGetParams($params);
 		}
 		if (strcmp($action, $defaction) === 0) {
 			$action = '';
@@ -198,7 +198,7 @@ class App extends AbstractSingleton
 				$page = '';
 		}
 		return rtrim("$subdir/$page/$action", '/')
-			. self::buildGetParams($params);
+			. static::buildGetParams($params);
 	}
 
 	public function buildAbsoluteLink(?string $route,
