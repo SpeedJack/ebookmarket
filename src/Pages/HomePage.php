@@ -8,7 +8,8 @@ class HomePage extends AbstractPage
 {
 	public function actionIndex(): void
 	{
-		$this->actionPhpinfo();
+		$this->setTitle(__('EbookMarket - HomePage'));
+		$this->show('test');
 	}
 
 	public function actionPhpinfo(): void

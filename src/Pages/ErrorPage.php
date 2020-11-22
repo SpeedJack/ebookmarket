@@ -46,26 +46,17 @@ class ErrorPage extends AbstractPage
 
 	public function showError(): void
 	{
-		/* TODO: use template */
-		$title = $this->getTitle();
+		$params = [
+			'title' => parent::htmlEscape($this->getTitle()),
+			'message' => parent::htmlEscape($this->message),
+		];
 		http_response_code($this->code);
-		echo <<<EOT
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>{$this->code} - {$title}</title>
-	</head>
-	<body>
-		<h1>{$title}</h1>
-		<p>{$this->message}</p>
-	</body>
-</html>
-EOT;
+		$this->setTitle($this->code . ' - ' . $this->getTitle());
+		$this->show('error', $params);
 	}
 
 	public function actionIndex(): void
 	{
-		/* TODO: reroute to home */
-		throw new \BadMethodCallException('Not Implemented');
+		$this->app->rerouteHome();
 	}
 }

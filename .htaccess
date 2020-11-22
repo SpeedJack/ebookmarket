@@ -3,7 +3,7 @@
 
 	#RewriteBase /ebookmarket
 
-	RewriteRule ^(src/js/|src/css/|favicon\.ico|crossdomain\.xml|robots\.txt) - [NC,L]
+	RewriteRule ^(js/|css/|favicon\.ico|crossdomain\.xml|robots\.txt) - [NC,L]
 	RewriteRule ^(src/) / [NC,L,R=301]
 	RewriteCond %{REQUEST_FILENAME} -f [OR]
 	RewriteCond %{REQUEST_FILENAME} -d

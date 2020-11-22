@@ -11,6 +11,7 @@ class App extends AbstractSingleton
 	public const DEFAULT_PAGE = 'HomePage';
 	public const DEFAULT_ACTION = 'actionIndex';
 	public const SRC_ROOT = __DIR__;
+
 	protected $https;
 	protected $modrewrite;
 	protected $config;
@@ -24,7 +25,7 @@ class App extends AbstractSingleton
 
 		$this->https = !empty($_SERVER['HTTPS']);
 		$this->modrewrite = getenv('APACHE_MOD_REWRITE') == true;
-		$this->config = $this->mergeConfigDefaults($config);
+		$this->config = self::mergeConfigDefaults($config);
 
 		error_reporting($this->config['error_reporting']);
 
@@ -39,11 +40,13 @@ class App extends AbstractSingleton
 		self::getInstance($config)->route();
 	}
 
-	protected function mergeConfigDefaults(array $config = []): array
+	protected static function mergeConfigDefaults(array $config = []): array
 	{
+		if (isset($config['app_subdir']) && $config['app_subdir'] !== '')
+			$config['app_subdir'] = '/' . trim($config['app_subdir'], '/');
 		return array_replace_recursive([
 				'server_name' => 'localhost',
-				'server_port' => $this->https ? 443 : 80,
+				'server_port' => !empty($_SERVER['HTTPS']) ? 443 : 80,
 				'app_subdir' => '',
 				'db' => [
 					'host' => 'localhost',
@@ -68,6 +71,9 @@ class App extends AbstractSingleton
 
 	public function exception_handler(\Throwable $ex): void
 	{
+		while (ob_get_level())
+			@ob_end_clean();
+
 		$httpcode = 500;
 		if ($ex instanceof InvalidRouteException
 			|| $ex instanceof Db\Exception)
@@ -85,7 +91,17 @@ class App extends AbstractSingleton
 		}
 	}
 
-	public function getDb(): Db\AbstractAdapter
+	public function isHttps(): bool
+	{
+		return $this->https;
+	}
+
+	public static function visitor(): Visitor
+	{
+		return Visitor::getInstance();
+	}
+
+	public function db(): Db\AbstractAdapter
 	{
 		if (isset($this->db))
 			return $this->db;
@@ -140,30 +156,22 @@ class App extends AbstractSingleton
 		$this->reroute(null);
 	}
 
-	public static function externalRedirect(string $link,
-		bool $permanent = false): void
+	public function getCssFile(string $cssname): string
 	{
-		header("Location: $link", true, $permanent ? 301 : 302);
-		exit();
+		$file = "/css/$cssname.css";
+		if (!file_exists($GLOBALS['APP_ROOT'] . $file))
+			throw new \InvalidArgumentException(
+				__('The required CSS file does not exists.'));
+		return $this->config['app_subdir'] . $file;
 	}
 
-	public function redirect(?string $page, ?string $action,
-		?array $params = null, bool $permanent = false): void
+	public function getJsFile(string $jsname): string
 	{
-		$link = $this->buildAbsoluteLink($page, $action, $params);
-		self::externalRedirect($link, $permanent);
-	}
-
-	public function redirectPermanently(?string $page, ?string $action,
-		?array $params = null): void
-	{
-		$this->redirect($page, $action, $params, true);
-	}
-
-	public function redirectHome(?array $params = null,
-		bool $permanent = false): void
-	{
-		$this->redirect(null, null, $params, $permanent);
+		$file = "/js/$jsname.js";
+		if (!file_exists($GLOBALS['APP_ROOT'] . $file))
+			throw new \InvalidArgumentException(
+				__('The required JavaScript file does not exists.'));
+		return $this->config['app_subdir'] . $file;
 	}
 
 	public static function buildGetParams(?array $params,
@@ -180,8 +188,9 @@ class App extends AbstractSingleton
 	public function buildLink(?string $page = null, ?string $action = null,
 		?array $params = null): string
 	{
+		$subdir = $this->config['app_subdir'];
 		if (empty($page) && empty($action))
-			return '/' . self::buildGetParams($params);
+			return $subdir . '/' . self::buildGetParams($params);
 		$page = $page ?? lcfirst(substr(self::DEFAULT_PAGE, 0, -4));
 		$page = $page === '__current' ?
 			$this->visitor->getPageParam() : $page;
@@ -192,33 +201,20 @@ class App extends AbstractSingleton
 		if (!$this->modrewrite) {
 			$params['page'] = $page;
 			$params['action'] = $action;
-			return '/' . self::buildGetParams($params);
+			return $subdir . '/' . self::buildGetParams($params);
 		}
-		return rtrim("/$page/$action", '/')
+		return rtrim("$subdir/$page/$action", '/')
 			. self::buildGetParams($params);
 	}
 
 	public function buildAbsoluteLink(?string $page = null,
 		?string $action = null, ?array $params = null): string
 	{
-		$subdir = $this->config['app_subdir'];
-		if ($subdir !== null && $subdir !== '')
-			$subdir = '/' . trim($subdir, '/');
 		$port = $this->config['server_port'];
 		$portstr = (($this->isHttps() && $port == 443)
 			|| (!$this->isHttps() && $port == 80)) ? '' : ':' . $port;
 		return 'http' . ($this->isHttps() ? 's' : '') . '://'
-			. $this->config['server_name'] . $portstr . $subdir
+			. $this->config['server_name'] . $portstr
 			. $this->buildLink($page, $action, $params);
-	}
-
-	public function isHttps(): bool
-	{
-		return $this->https;
-	}
-
-	public static function visitor(): Visitor
-	{
-		return Visitor::getInstance();
 	}
 }
