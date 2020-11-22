@@ -6,6 +6,17 @@ namespace EbookMarket;
 
 class Visitor extends AbstractSingleton
 {
+	public const METHOD_UNKNOWN = 0;
+	public const METHOD_GET = 1;
+	public const METHOD_HEAD = 1 << 1;
+	public const METHOD_POST = 1 << 2;
+	public const METHOD_PUT = 1 << 3;
+	public const METHOD_DELETE = 1 << 4;
+	public const METHOD_CONNECT = 1 << 5;
+	public const METHOD_OPTIONS = 1 << 6;
+	public const METHOD_TRACE = 1 << 7;
+	public const METHOD_PATCH = 1 << 8;
+
 	protected $page = App::DEFAULT_PAGE;
 	protected $action = App::DEFAULT_ACTION;
 	protected $getParams = [];
@@ -115,6 +126,33 @@ class Visitor extends AbstractSingleton
 		default:
 			return $this->postParams[$key] ??
 				$this->getParams[$key] ?? null;
+		}
+	}
+
+	public static function getMethod(): int
+	{
+		$method = $_SERVER['REQUEST_METHOD'];
+		switch($method) {
+		case 'GET':
+			return self::METHOD_GET;
+		case 'HEAD':
+			return self::METHOD_HEAD;
+		case 'POST':
+			return self::METHOD_POST;
+		case 'PUT':
+			return self::METHOD_PUT;
+		case 'DELETE':
+			return self::METHOD_DELETE;
+		case 'CONNECT':
+			return self::METHOD_CONNECT;
+		case 'OPTIONS':
+			return self::METHOD_OPTIONS;
+		case 'TRACE':
+			return self::METHOD_TRACE;
+		case 'PATCH':
+			return self::METHOD_PATCH;
+		default:
+			return self::METHOD_UNKNOWN;
 		}
 	}
 

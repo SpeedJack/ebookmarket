@@ -160,5 +160,13 @@ abstract class AbstractPage
 		$this->redirectHome($params, true);
 	}
 
+	public static function assertMethod(
+		int $allowed = Visitor::METHOD_GET | Visitor::METHOD_POST): void
+	{
+		if (Visitor::getMethod() ^ $allowed === 0)
+			throw new AppException(__('Invalid method.'), 405);
+	}
+
+
 	abstract public function actionIndex(): void;
 }
