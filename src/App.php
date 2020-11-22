@@ -42,7 +42,7 @@ class App extends AbstractSingleton
 
 	protected static function mergeConfigDefaults(array $config = []): array
 	{
-		if (isset($config['app_subdir']) && $config['app_subdir'] !== '')
+		if (!empty($config['app_subdir']))
 			$config['app_subdir'] = '/' . trim($config['app_subdir'], '/');
 		return array_replace_recursive([
 				'server_name' => 'localhost',
@@ -143,11 +143,10 @@ class App extends AbstractSingleton
 		exit();
 	}
 
-	public function reroute(?string $page, ?string $action = null,
-		?array $getParams = null, ?array $postParams = null,
-		bool $resetParams = false): void
+	public function reroute(?string $route, ?array $getParams = null,
+		?array $postParams = null, bool $resetParams = false): void
 	{
-		$this->visitor->setRoute($page, $action);
+		$this->visitor->setRoute($route);
 		$this->route($getParams, $postParams, $resetParams);
 	}
 
@@ -185,36 +184,51 @@ class App extends AbstractSingleton
 		return rtrim($getstr, '&');
 	}
 
-	public function buildLink(?string $page = null, ?string $action = null,
-		?array $params = null): string
+	public function buildLink(?string $route, ?array $params = null): string
 	{
 		$subdir = $this->config['app_subdir'];
-		if (empty($page) && empty($action))
-			return $subdir . '/' . self::buildGetParams($params);
-		$page = $page ?? lcfirst(substr(self::DEFAULT_PAGE, 0, -4));
-		$page = $page === '__current' ?
-			$this->visitor->getPageParam() : $page;
-		$action = $action ?? '';
-		$action = $action === '__current' ?
-			$this->visitor->getActionParam() : $action;
-
+		$route = $route ?? '';
+		$route = rtrim($route, '/');
+		if (empty($route))
+			return "$subdir" . self::buildGetParams($params);
+		$parts = explode('/', $route);
+		if (count($parts) === 2)
+			list($page, $action) = $parts;
+		else if (count($parts) === 1)
+			$page = $parts[0];
+		else
+			throw new \InvalidArgumentException(
+				__('Invalid route specified.'));
+		$defpage = lcfirst(substr(self::DEFAULT_PAGE, 0, -4));
+		$defaction = lcfirst(substr(self::DEFAULT_ACTION, 6));
+		if (empty($page) && !empty($action))
+			$page = $this->visitor->getPageParam();
+		$page = strtolower($page ?: $defpage);
+		$action = strtolower($action ?: $defaction);
 		if (!$this->modrewrite) {
-			$params['page'] = $page;
-			$params['action'] = $action;
-			return $subdir . '/' . self::buildGetParams($params);
+			if (strcmp($page, $defpage) !== 0)
+				$param['page'] = $page;
+			if (strcmp($action, $defaction) !== 0)
+				$params['action'] = $action;
+			return "$subdir" . self::buildGetParams($params);
+		}
+		if (strcmp($action, $defaction) === 0) {
+			$action = '';
+			if (strcmp($page, $defpage) === 0)
+				$page = '';
 		}
 		return rtrim("$subdir/$page/$action", '/')
 			. self::buildGetParams($params);
 	}
 
-	public function buildAbsoluteLink(?string $page = null,
-		?string $action = null, ?array $params = null): string
+	public function buildAbsoluteLink(?string $route,
+		?array $params = null): string
 	{
 		$port = $this->config['server_port'];
 		$portstr = (($this->isHttps() && $port == 443)
 			|| (!$this->isHttps() && $port == 80)) ? '' : ':' . $port;
 		return 'http' . ($this->isHttps() ? 's' : '') . '://'
 			. $this->config['server_name'] . $portstr
-			. $this->buildLink($page, $action, $params);
+			. $this->buildLink($route, $params);
 	}
 }

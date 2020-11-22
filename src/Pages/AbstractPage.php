@@ -89,11 +89,11 @@ abstract class AbstractPage
 		echo json_encode($data);
 	}
 
-	protected function redirectAjax(?string $page = null,
-		?string $action = null, ?array $params = []): void
+	protected function redirectAjax(?string $route,
+		?array $params = []): void
 	{
 		$this->replyJson([
-			'redirect' => $this->app->buildLink($page, $action, $params),
+			'redirect' => $this->app->buildLink($route, $params),
 		]);
 	}
 
@@ -136,23 +136,28 @@ abstract class AbstractPage
 		exit();
 	}
 
-	protected function redirect(?string $page, ?string $action,
-		?array $params = null, bool $permanent = false): void
+	protected function redirect(?string $route, ?array $params = null,
+		bool $permanent = false): void
 	{
-		$link = $this->app->buildAbsoluteLink($page, $action, $params);
+		$link = $this->app->buildAbsoluteLink($route, $params);
 		self::externalRedirect($link, $permanent);
 	}
 
-	protected function redirectPermanently(?string $page, ?string $action,
+	protected function redirectPermanently(?string $route,
 		?array $params = null): void
 	{
-		$this->redirect($page, $action, $params, true);
+		$this->redirect($route, $params, true);
 	}
 
 	protected function redirectHome(?array $params = null,
 		bool $permanent = false): void
 	{
-		$this->redirect(null, null, $params, $permanent);
+		$this->redirect(null, $params, $permanent);
+	}
+
+	protected function redirectHomePermanently(?array $params = null): void
+	{
+		$this->redirectHome($params, true);
 	}
 
 	abstract public function actionIndex(): void;

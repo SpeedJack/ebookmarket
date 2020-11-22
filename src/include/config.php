@@ -1,6 +1,6 @@
 <?php
 //$config['server_name'] = 'localhost';
-//$config['server_port'] = 443;
+$config['server_port'] = 8443;
 //$config['app_subdir'] = '';
 //$config['db']['host'] = 'localhost';
 //$config['db']['port'] = 3306;

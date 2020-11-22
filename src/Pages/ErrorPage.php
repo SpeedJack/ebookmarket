@@ -57,6 +57,6 @@ class ErrorPage extends AbstractPage
 
 	public function actionIndex(): void
 	{
-		$this->app->rerouteHome();
+		$this->redirectHomePermanently();
 	}
 }

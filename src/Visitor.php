@@ -67,10 +67,20 @@ class Visitor extends AbstractSingleton
 		$this->action = "action$action";
 	}
 
-	public function setRoute(?string $page, ?string $action = 'Index'): void
+	public function setRoute(?string $route): void
 	{
-		$this->setPage($page);
-		$this->setAction($action);
+		$route = $route ?? '';
+		$route = rtrim($route, '/');
+		$parts = explode('/', $route);
+		if (count($parts) === 2)
+			list($page, $action) = $parts;
+		else if (count($parts) === 1)
+			$page = $parts[0];
+		else
+			throw new \InvalidArgumentException(
+				__('Invalid route specified.'));
+		$this->setPage($page ?? null);
+		$this->setAction($action ?? null);
 	}
 
 	public function getPage(): string
