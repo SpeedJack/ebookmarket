@@ -212,70 +212,6 @@ class App extends AbstractSingleton
 			. $this->buildLink($route, $params);
 	}
 
-	public static function getLogLevelName(int $level): string
-	{
-		switch ($level) {
-		case self::LOG_EMERGENCY:
-			return 'EMERGENCY';
-		case self::LOG_ALERT:
-			return 'ALERT';
-		case self::LOG_CRITICAL:
-			return 'CRITICAL';
-		case self::LOG_ERROR:
-			return 'ERROR';
-		case self::LOG_WARNING:
-			return 'WARNING';
-		case self::LOG_NOTICE:
-			return 'NOTICE';
-		case self::LOG_INFO:
-			return 'INFO';
-		case self::LOG_DEBUG:
-			return 'DEBUG';
-		default:
-			return '???';
-		}
-	}
-
-	public function log(string $message,
-		int $level = self::LOG_INFO): void
-	{
-		if (isset($this->config['log_level'])
-			&& $level > $this->config['log_level'])
-			return;
-		// TODO: log to db
-		if ($level < self::LOG_INFO)
-			error_log('[' . self::getLogLevelName($level)
-				. "] $message". PHP_EOL);
-	}
-
-	public function logDebug(string $message): void
-	{
-		$this->log($message, self::LOG_DEBUG);
-	}
-
-	public function logWarning(string $message): void
-	{
-		$this->log($message, self::LOG_WARNING);
-	}
-
-	public function logError(string $message): void
-	{
-		$this->log($message, self::LOG_ERROR);
-	}
-
-	public function logException(?\Throwable $ex = null): void
-	{
-		$method = '';
-		if (Visitor::getMethod() !== Visitor::METHOD_UNKNOWN)
-			$method = $_SERVER['REQUEST_METHOD'];
-		$uri = $_SERVER['REQUEST_URI'];
-		$errormsg .= "Request: $method $uri" . PHP_EOL;
-		$errormsg .= 'HTTP Code: ' . http_response_code() . PHP_EOL;
-		if (isset($ex))
-			$errormsg .= strval($ex);
-		$this->logError($errormsg);
-	}
-
 	public function error_handler(int $errno, string $errstr,
 		?string $errfile = null, ?int $errline = null): bool
 	{
@@ -303,7 +239,7 @@ class App extends AbstractSingleton
 			echo __('Server error. Please try again later.');
 		} finally {
 			try {
-				@$this->logException($ex);
+				@Logger::exception($ex);
 			} catch (\Throwable $ex) {
 				error_log('Can not log exception.');
 			}
