@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace EbookMarket\Db;
 
-class Exception extends \Exception
+use \EbookMarket\AppException;
+
+class Exception extends \Exception implements AppException
 {
 	protected $sqlStateCode;
 	protected $statement;

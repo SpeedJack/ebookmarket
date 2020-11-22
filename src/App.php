@@ -75,8 +75,7 @@ class App extends AbstractSingleton
 			@ob_end_clean();
 
 		$httpcode = 500;
-		if ($ex instanceof InvalidRouteException
-			|| $ex instanceof Db\Exception)
+		if ($ex instanceof AppException)
 			$httpcode = $ex->getCode();
 		else if ($ex instanceof \BadFunctionCallException)
 			$httpcode = 501;

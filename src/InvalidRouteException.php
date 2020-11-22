@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EbookMarket;
 
-class InvalidRouteException extends \RuntimeException
+class InvalidRouteException extends \RuntimeException implements AppException
 {
 	protected $pageName;
 	protected $actionName;
