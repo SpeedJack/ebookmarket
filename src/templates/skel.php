@@ -8,7 +8,7 @@
 		<meta name="author" content="<?= self::AUTHOR ?>">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title><?= $this->title ?></title>
-		<link rel="icon" type="image/x-icon" href="/favicon.ico">
+		<link rel="icon" type="image/vnd.microsoft.icon" href="/favicon.ico">
 		<?php
 		foreach ($this->cssfiles as $css)
 			echo '<link rel="stylesheet" type="text/css" href="' . $css . '">';
