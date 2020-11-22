@@ -61,8 +61,6 @@ class Visitor extends AbstractSingleton
 			return;
 		}
 		$page = ucfirst(strtolower(trim($page)));
-		if (preg_match('/^[A-Za-z_][a-z0-9_]{0,20}$/', $page) !== 1)
-			throw new InvalidRouteException($page);
 		$this->page = "{$page}Page";
 	}
 
@@ -73,8 +71,6 @@ class Visitor extends AbstractSingleton
 			return;
 		}
 		$action = ucfirst(strtolower(trim($action)));
-		if (preg_match('/^[A-Za-z_][a-z0-9_]{0,20}$/', $action) !== 1)
-			throw new InvalidRouteException(null, $action);
 		$this->action = "action$action";
 	}
 

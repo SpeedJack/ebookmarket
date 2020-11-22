@@ -105,17 +105,20 @@ class App extends AbstractSingleton
 
 		$page = $this->visitor->getPage();
 		$action = $this->visitor->getAction();
-		$class = __NAMESPACE__ . "\\Pages\\$page";
+		if (preg_match('/^[A-Za-z_][a-z0-9_]{0,20}Page$/', $page) !== 1
+			|| preg_match('/^action[A-Za-z_][a-z0-9_]{0,20}$/', $action) !== 1)
+			throw new InvalidRouteException($page, $action);
 
+		$class = __NAMESPACE__ . "\\Pages\\$page";
 		try {
-			$page = new $class();
-			if (!method_exists($page, $action))
-				throw new InvalidRouteException($class, $action);
+			$pageinstance = new $class();
+			if (!method_exists($pageinstance, $action))
+				throw new InvalidRouteException($page, $action);
 		} catch (\LogicException $ex) {
-			throw new InvalidRouteException($class, $action, $ex);
+			throw new InvalidRouteException($page, $action, $ex);
 		}
 
-		$page->$action();
+		$pageinstance->$action();
 
 		exit();
 	}
@@ -293,8 +296,7 @@ class App extends AbstractSingleton
 		else if ($ex instanceof \BadFunctionCallException)
 			$httpcode = 501;
 		try {
-			$errorPage = new Pages\ErrorPage($httpcode,
-				$ex->getMessage());
+			$errorPage = new Pages\ErrorPage($httpcode);
 			$errorPage->showError();
 		} catch (\Throwable $e) {
 			http_response_code($httpcode);
