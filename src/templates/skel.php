@@ -19,6 +19,10 @@
 		?>
 	</head>
 	<body>
-		<?php $this->loadTemplate($template, $params); ?>
+		<?php 
+			$this->loadTemplate("navbar", $params); 
+			$this->loadTemplate($template, $params);
+			$this->loadTemplate("footer", $params);
+		?>
 	</body>
 </html>
