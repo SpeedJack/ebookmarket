@@ -1,7 +1,6 @@
 <header>
     <nav>
-        
-        <img src=path/to/logo alt="Logo"/>
+        <img src="path/to/logo" alt="Logo"/>
         <h1><?= $this->title ?></h1>
         <ul>
             <li><a href="<?php $app->buildLink('books/browse', array('category' => 'all')) ?>"><?= __('Categories') ?></a></li>
