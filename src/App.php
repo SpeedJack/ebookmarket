@@ -100,11 +100,11 @@ class App extends AbstractSingleton
 		?array $postParams = null, bool $resetParams = false): void
 	{
 		if ($resetParams)
-			$this->visitor->clearParams();
-		$this->visitor->addParams($getParams, $postParams);
+			$this->visitor()->clearParams();
+		$this->visitor()->addParams($getParams, $postParams);
 
-		$page = $this->visitor->getPage();
-		$action = $this->visitor->getAction();
+		$page = $this->visitor()->getPage();
+		$action = $this->visitor()->getAction();
 		if (preg_match('/^[A-Za-z_][a-z0-9_]{0,20}Page$/', $page) !== 1
 			|| preg_match('/^action[A-Za-z_][a-z0-9_]{0,20}$/', $action) !== 1)
 			throw new InvalidRouteException($page, $action);
@@ -126,7 +126,7 @@ class App extends AbstractSingleton
 	public function reroute(?string $route, ?array $getParams = null,
 		?array $postParams = null, bool $resetParams = false): void
 	{
-		$this->visitor->setRoute($route);
+		$this->visitor()->setRoute($route);
 		$this->route($getParams, $postParams, $resetParams);
 	}
 
@@ -182,7 +182,7 @@ class App extends AbstractSingleton
 		$defpage = lcfirst(substr(static::DEFAULT_PAGE, 0, -4));
 		$defaction = lcfirst(substr(static::DEFAULT_ACTION, 6));
 		if (empty($page) && !empty($action))
-			$page = $this->visitor->getPageParam();
+			$page = $this->visitor()->getPageParam();
 		$page = strtolower($page ?: $defpage);
 		$action = strtolower($action ?: $defaction);
 		if (!$this->modrewrite) {

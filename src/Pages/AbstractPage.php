@@ -37,7 +37,7 @@ abstract class AbstractPage
 	protected static function htmlEscapeQuotes(string $str,
 		int $flags = ENT_COMPAT): string
 	{
-		return htmlEscape($str, $flags);
+		return self::htmlEscape($str, $flags);
 	}
 
 	protected function setTitle(string $title): void

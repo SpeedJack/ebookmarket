@@ -25,12 +25,12 @@ class User extends AbstractEntity
 
 	public function getEmail()
 	{
-		return $this->_email;
+		return $this->email;
 	}
 
 	public function getPasswordHash()
 	{
-		return $this->_passwordHash;
+		return $this->passwordHash;
 	}
 
 	public function setUsername($username)
