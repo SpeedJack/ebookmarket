@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EbookMarket\Pages;
 
-class HomePage extends AbstractPage
+class BookPage extends AbstractPage
 {
 	public function actionIndex(): void
 	{
