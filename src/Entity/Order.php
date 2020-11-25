@@ -14,9 +14,9 @@ class Order extends AbstractEntity
     public function __construct(int $id, Book $book, User $user, string $date, bool $payment)
     {
         parent::__construct($id);
-        $this->$book = $book;
-        $this->$user = $user;
-        $this->$date = $date;
-        $this->$payment = $payment;
+        $this->book = $book;
+        $this->user = $user;
+        $this->date = $date;
+        $this->payment = $payment;
     }
 }

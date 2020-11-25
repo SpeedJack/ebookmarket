@@ -13,6 +13,6 @@ class Category extends AbstractEntity {
     public function __construct(int $id, string $name)
     {
         parent::__construct($id);
-        $this->$name = $name;
+        $this->name = $name;
     }
 }

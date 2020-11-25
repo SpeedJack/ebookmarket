@@ -13,10 +13,10 @@ class Book extends AbstractEntity
 
     function __construct(int $id, string $title, string $author, Category $category, float $price, string $date){
         parent::__construct($id);
-        $this->$title = $title;
-        $this->$author = $author;
-        $this->$category = $category;
-        $this->$date = $date;
-        $this->$price = $price;
+        $this->title = $title;
+        $this->author = $author;
+        $this->category = $category;
+        $this->date = $date;
+        $this->price = $price;
     }
 }
