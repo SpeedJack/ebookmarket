@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EbookMarket\Pages;
 
 use \EbookMarket\App;
+use \EbookMarket\Visitor;
 
 abstract class AbstractPage
 {
