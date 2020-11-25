@@ -1,9 +1,7 @@
 <?php
 namespace EbookMarket\Entity;
 
-use EbookMarket\Entity\Category;
-
-class Book extends AbstractEntity
+class AuthToken extends AbstractEntity
 {
     private $userId;
     private $expiration;
