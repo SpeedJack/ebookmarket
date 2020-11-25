@@ -29,7 +29,7 @@ class AuthToken extends AbstractEntity
     
     public function verifyToken($token)
 	{
-		return password_verify($token, $this->_authToken);
+		return password_verify($token, $this->authToken);
 	}
 
     public function authenticate($token)
@@ -37,6 +37,6 @@ class AuthToken extends AbstractEntity
 		if ($this->isExpired() || !$this->verifyToken($token))
 			return false;
 		$this->resetExpireTime();
-		return $this->_user;
+		return $this->user;
 	}
 }
