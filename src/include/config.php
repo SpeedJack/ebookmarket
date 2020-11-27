@@ -2,7 +2,7 @@
 //$config['server_name'] = 'localhost';
 $config['server_port'] = 8443;
 //$config['app_subdir'] = '';
-//$config['db']['host'] = 'localhost';
+$config['db']['host'] = 'db';
 //$config['db']['port'] = 3306;
 $config['db']['username'] = 'dbuser';
 $config['db']['password'] = 'dbpass';

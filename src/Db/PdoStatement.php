@@ -35,7 +35,7 @@ class PdoStatement extends AbstractStatement
 		$index = 1;
 		foreach ($this->params as &$param) {
 			switch (gettype($param)) {
-			case 'bool':
+			case 'boolean':
 				$type = \PDO::PARAM_BOOL;
 				break;
 			case 'integer':

@@ -32,7 +32,7 @@ class MysqliAdapter extends AbstractAdapter
 				$this->connection->connect_error,
 				$this->connection->connect_errno);
 
-		if (!$this->connection->set_charset('utf8'))
+		if (!$this->connection->set_charset('utf8mb4'))
 			return;
 	}
 }

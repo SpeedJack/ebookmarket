@@ -24,7 +24,7 @@ class PdoAdapter extends AbstractAdapter
 		$this->connection = new \PDO(
 			'mysql:host=' . $this->config['host'] .
 			';port=' . $this->config['port'] . ';dbname=' .
-			$this->config['dbname'] . ';charset=utf8',
+			$this->config['dbname'] . ';charset=utf8mb4',
 			$this->config['username'], $this->config['password'],
 			[\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 	}

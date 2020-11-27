@@ -1,442 +1,344 @@
 <?php
+
+declare(strict_types=1);
+
 namespace EbookMarket\Entity;
 
-require_once 'string-functions.php';
+use \EbookMarket\App;
 
 abstract class AbstractEntity
 {
+	protected const INT = 0;
+	protected const UINT = 1;
+	protected const BOOL = 2;
+	protected const STR = 3;
 
+	protected $values = [];
+	protected $newvalues = [];
+	protected $gettercache = [];
+	protected $deleted = false;
+	private $structure;
+	protected $app;
+	protected $db;
 
-	protected $_id;
-	/**
-	 * @internal
-	 * @var array $_changedValues
-	 * Associative array of changed columns of the entity.
-	 */
-	protected $_changedValues = [];
-	/**
-	 * @internal
-	 * @var bool $_toDelete
-	 * Indicates if the entity is marked from deletion from the database.
-	 */
-	protected $_toDelete = false;
-	/**
-	 * @internal
-	 * @var bool $_toInsert
-	 * Indicates if the entity must be inserted on the database.
-	 */
-	protected $_toInsert = false;
-	/**
-	 * @internal
-	 * @var bool $_deleted
-	 * Indicates if the entity has been deleted from the database.
-	 */
-	protected $_deleted = false;
-	/**
-	 * @var EbookMarket::App $_app
-	 * The application instance.
-	 */
-	protected $_app;
-	/**
-	 * @var EntityManager $_em
-	 * The Entity Manager instance.
-	 */
-	protected $_em;
-	/**
-	 * @var EbookMarket::Db::AbstractAdapter $_db
-	 * The database adapter.
-	 */
-	protected $_db;
-	/**
-	 * @internal
-	 * @var array $_getters
-	 * An array of getter functions for each property/column.
-	 */
-	protected $_getters = [];
-// }}}
-
-	/**
-	 * @var string|null TABLE_NAME
-	 * The name of the database's table associated with the entity.
-	 */
-	const TABLE_NAME = null;
-
-	/**
-	 * @brief Creates the entity.
-	 *
-	 * @param[in] int $id		The id of this entity.
-	 * @return			The entity instance.
-	 */
-	public function __construct($id)
+	public function __construct(?array $data = null)
 	{
-		$this->_id = $id;
-		$this->_app = \EbookMarket\App::getInstance();
-		$this->_db = $this->_app->getDb();
-		$this->_em = EntityManager::getInstance();
+		$this->structure = static::getStructure();
+		if (!$this->hasValidStructure())
+			throw new \LogicException(__('Invalid structure.'));
+		$this->app = App::getInstance();
+		$this->db = $this->app->db();
+		if (isset($data) && !empty($data))
+			foreach ($this->structure['columns'] as $name => $col)
+				if (array_key_exists($name, $data))
+					$this->values[$name] = $data[$name];
 	}
 
-// Getters {{{
-	/**
-	 * @brief Returns the fully qualified name of the entity.
-	 *
-	 * @retval string	The fully qualified name of the entity.
-	 */
-	public function getClassName()
+	private function hasValidStructure(): bool
 	{
-		return get_class($this);
+		if (!isset($this->structure['table'])
+			|| !is_scalar($this->structure['table'])
+			|| !isset($this->structure['columns'])
+			|| !is_array($this->structure['columns'])
+			|| empty($this->structure['columns']))
+			return false;
+		$hasid = false;
+		foreach ($this->structure['columns'] as $name => $col) {
+			if (!is_array($col) || !isset($col['type']))
+				return false;
+			if (strcmp($name, 'id') === 0)
+				$hasid = true;
+		}
+		return $hasid;
 	}
 
-	/**
-	 * @brief Returns the id of this entity on the database.
-	 *
-	 * @retval int		The id of this entity on the database.
-	 */
-	public function getId()
+	public function __set(string $name, $value): void
 	{
-		return $this->_id;
-	}
-
-	/**
-	 * @brief Generates the entity's unique hash.
-	 *
-	 * @param[in] int $id	The id of the entity.
-	 * @retval string	The entity's unique hash.
-	 */
-	public static function generateHash($id)
-	{
-		return static::class . '-' . $id;
-	}
-
-	/**
-	 * @brief Returns the entity's unique hash.
-	 *
-	 * @retval int		The hash of this entity.
-	 */
-	public function getHash()
-	{
-		return static::generateHash($this->getId());
-	}
-// }}}
-
-// Setters {{{
-	/**
-	 * @brief Sets a property which corresponds to a column in the database.
-	 *
-	 * @throws LogicException	If the property specified does not
-	 * 				exists of if the entity has been
-	 * 				deleted.
-	 *
-	 * @param[in] string $propertyName	The property/column name.
-	 * @param[in] mixed $value		The property/column value.
-	 */
-	protected function _set($propertyName, $value)
-	{
-		$realName = "_$propertyName";
-		if ($this->_deleted || $this->_toDelete)
+		if ($this->deleted)
 			throw new \LogicException(
-				__('Trying to set property %s in deleted entity %s.',
-					$realName, $this->getClassName())
-				);
-		if (!property_exists($this, $realName))
+				__('Can not set the \'%s\' attribute on the deleted entity \'%s\'.',
+				$name, get_class($this)));
+
+		$setter = 'set' . ucfirst($name);
+		if (method_exists($this, $setter)) {
+			$this->$setter($value);
+			return;
+		}
+
+		$this->setValue($name, $value);
+	}
+
+	protected function setValue(string $name, $value): void
+	{
+		if (!isset($this->structure['columns'][$name]))
 			throw new \LogicException(
-				__('Trying to set an non-existent property %s for entity %s.',
-					$realName, $this->getClassName())
-			);
+				__('Attribute \'%s\' does not exists in entity \'%s\'.',
+				$name, get_class($this)));
 
-		if (!isset($this->_changedValues[$propertyName]))
-			$this->_changedValues[$propertyName] = $this->$realName;
-		if ($this->_changedValues[$propertyName] === $value)
-			unset($this->_changedValues[$propertyName]);
+		$column = $this->structure['columns'][$name];
 
-		$this->$realName = $value;
-	}
-// }}}
-
-// Entity Methods {{{
-	/**
-	 * @brief Retrives an instance of this entity from the database with the
-	 * specified id.
-	 *
-	 * @param[in] int $id	The id of the entity to search.
-	 * @retval self|false	The entity retrived, or FALSE if the entity was
-	 * 			not found.
-	 */
-	public static function getByid($id)
-	{
-		$db = \EbookMarket\App::getInstance()->getDb();
-		$data = $db->fetchRow('SELECT * FROM `' . static::TABLE_NAME . '` WHERE id=?;', $id);
-		return static::createFromData($data);
+		if (!array_key_exists($name, $this->values)
+			|| $this->values[$name] !== $value)
+			$this->newvalues[$name] = $value;
+		else if (array_key_exists($name, $this->newvalues))
+			unset($this->newvalues[$name]);
 	}
 
-	/**
-	 * @brief Retrives all entities of the type of this instance from the
-	 * database.
-	 *
-	 * @param[in] string $appendQuery	SQL query part to append.
-	 * @retval array			The array of entities retrived.
-	 */
-	public static function getAll($appendQuery = "")
+	public function __get(string $name)
 	{
-		$db = \EbookMarket\App::getInstance()->getDb();
-		$data = $db->fetchAll('SELECT * FROM `' . static::TABLE_NAME . '`' . $appendQuery . ';');
-		return static::createFromDataArray($data);
+		$getter = 'get' . ucfirst($name);
+		if (method_exists($this, $getter)) {
+			if (!array_key_exists($key, $this->gettercache))
+				$this->gettercache[$key] = $this->$getter();
+			return $this->gettercache[$key];
+		}
+
+		if (!isset($this->structure['columns'][$name]))
+			throw new \LogicException(
+				__('Attribute \'%s\' does not exists in entity \'%s\'.',
+				$name, get_class($this)));
+		return $this->getValue($name);
 	}
 
-	/**
-	 * @brief Retrives from the database an ordered page of entities of the
-	 * type of this instance.
-	 *
-	 * @param[in] array $orderBy	Array that for each element has a
-	 * 				'column' with the column name and
-	 * 				'ascending'.
-	 * @param[in] int $page		Page number.
-	 * @param[in] int|null $perPage	The number of entries per page. If NULL,
-	 * 				it defaults to the value set in the
-	 * 				application's config.
-	 * @retval array		The array of entities retrived.
-	 */
-	public static function getAllPaged($orderBy, $page, $perPage = null)
+	protected function getValue(string $name)
 	{
-		$query = 'ORDER BY ';
-		foreach ($orderBy as $ob)
-			$query .= $ob['column'] . ' ' . ($ob['ascending'] ? 'ASC' : 'DESC') . ',';
-		$query = trim_suffix($query, ',');
-		$perPage = isset($perPage) ? $perPage : $this->_app->config['default_per_page'];
-		return self::getAll($query . " LIMIT $perPage OFFSET " . ($page - 1)*$perPage);
+		return array_key_exists($key, $this->newvalues)
+			? $this->newvalues[$key] : $this->getExistingValue($name);
 	}
 
-	/**
-	 * @brief Returns the number of entities of the type of this instance
-	 * saved in the database.
-	 *
-	 * @retval int	The number of entities in the database.
-	 */
-	public static function count()
+	protected function getExistingValue(string $name)
 	{
-		$db = \EbookMarket\App::getInstance()->getDb();
-		return $db->fetchColumn('SELECT COUNT(*) FROM `' . static::TABLE_NAME . '`;');
+		return $this->values[$key] ?? null;
 	}
 
-	/**
-	 * @brief Merges this entity with another entity of the same type.
-	 *
-	 * @param[in] self $entity	The entity to merge with this entity.
-	 */
-	public function merge(self $entity)
+	public function __isset(string $name): bool
 	{
-		foreach ($this->_getters as $colName => $getter) {
-			$propertyName = "_$colName";
-			$this->$propertyName = isset($this->_changedValues[$colName])
-				? $this->$propertyName : $entity->$getter();
+		return isset($this->newvalues[$key]) || isset($this->values[$key]);
+	}
+
+	public function __unset(string $name): void
+	{
+		if ($this->deleted)
+			return;
+
+		$setter = 'set' . ucfirst($name);
+		if (method_exists($this, $setter))
+			$this->$setter(null);
+
+		if (array_key_exists($key, $this->newvalues)) {
+			if (isset($this->values[$key]))
+				$this->newvalues[$key] = null;
+			else
+				unset($this->newvalues[$key]);
 		}
 	}
 
-	/**
-	 * @brief Creates a new entity from the data passed as array.
-	 *
-	 * @param[in] array $data	Associative array of key-value pairs
-	 * 				where the key is the property/column's
-	 * 				name.
-	 * @retval self|false		The entity created or FALSE if no data
-	 * 				is provided.
-	 */
-	public static function createFromData(array $data)
+	protected function preDelete(): void {}
+
+	public function delete(): void
 	{
-		if (empty($data))
-			return false;
-		$instance = new static(0);
-		$instance->_fillData($data);
-		return $instance;
+		if ($this->deleted)
+			return;
+		if (!isset($this->values['id']))
+			throw new \LogicException(
+				__('Entity \'%s\' does not define an id.', get_class($this)));
+
+		$this->preDelete();
+		$this->db->query('DELETE FROM `' . $this->structure['table'] . '`'
+		       . ' WHERE id=?', $this->values['id']);
+		$this->deleted = true;
+		$this->newvalues = [];
+		$this->gettercache = [];
+		$this->postDelete();
 	}
 
-	/**
-	 * @brief Creates multiple entities from the data passed as array.
-	 *
-	 * @param[in] array $data	Array of associative arrays of key-value
-	 * 				pairs where the key is the
-	 * 				property/column's name.
-	 * @retval array		The entities created or FALSE if no data
-	 * 				is provided.
-	 */
-	public static function createFromDataArray(array $data)
+	protected function postDelete(): void {}
+
+	protected function preSave(): void {}
+
+	public function save(): void
 	{
-		if (!is_array($data))
-			return false;
-		$entities = [];
-		foreach ($data as $row)
-			$entities[] = static::createFromData($row);
-		return count($entities) === 1 ? array_pop($entities) : $entities;
+		if ($this->deleted)
+			throw new \LogicException(
+				__('Trying to save the deleted entity \'%s\'.',
+				get_class($this)));
+
+		if (!$this->isInsert() && !$this->isUpdate())
+			return;
+
+		$this->preSave();
+		if ($this->isUpdate())
+			$this->update();
+		else if ($this->isInsert())
+			$this->insert();
+		$this->postSave();
 	}
 
-	/**
-	 * @brief Marks this entity for deletion from the database.
-	 */
-	public function delete()
-	{
-		$this->_toDelete = true;
-	}
+	protected function postSave(): void {}
 
-	/**
-	 * @brief Marks this entity for insertion on the database.
-	 */
-	public function insert()
+	protected function insert(): void
 	{
-		$this->_toInsert = true;
-	}
-// }}}
+		if ($this->deleted)
+			throw new \LogicException(
+				__('Can not insert deleted entity \'%s\'.', get_class($this)));
 
-// Entity Life-cycle {{{
-	/**
-	 * @brief This function is executed before the entity is inserted on the
-	 * database.
-	 */
-	protected function _preInsert() {}
-
-	/** @brief Inserts the entity on the database. */
-	protected function _insert()
-	{
-		$query = 'INSERT INTO `' . static::TABLE_NAME . '`(';
+		$query = 'INSERT INTO `' . $this->structure['table'] . '`(';
 		$placeholders = '';
 		$values = [];
-		foreach ($this->_getters as $colName => $getter) {
-			$query .= "$colName, ";
-			$placeholders .= '?, ';
-			$values[] = $this->$getter();
-		}
-		$placeholders = trim_suffix($placeholders, ', ');
-		$query = trim_suffix($query, ', ') . ") VALUES($placeholders);";
-		try {
-			$this->_db->query($query, ...$values);
-		} catch (\EbookMarket\Db\DuplicateKeyException $e) {
-			if (!empty($this->_changedValues)) {
-				$this->_preUpdate();
-				$this->_update();
-				$this->_postUpdate();
-				$this->_changedValues = [];
+		$i = 0;
+		foreach ($this->structure['columns'] as $name => $col) {
+			if (isset($col['auto_increment'])
+				&& !array_key_exists($name, $this->newvalues))
+				continue;
+			if (!array_key_exists($name, $this->newvalues)) {
+				if (!array_key_exists('default', $col)) {
+					if (isset($col['required']))
+						throw new \LogicException(
+							__('Required field \'%s\' not set for entity \'%s\'.',
+							$name, get_class($this)));
+					continue;
+				}
+				$values[] = $col['default'];
+			} else {
+				$values[] = $this->newvalues[$name];
 			}
+
+			if ($i > 0) {
+				$query .= ', ';
+				$placeholders .= ', ';
+			}
+			$query .= "`$name`";
+			$placeholders .= '?';
+			$i++;
 		}
+		if ($i == 0)
+			return;
+		$query .= ") VALUES($placeholders)";
+
+		$this->db->query($query, ...$values);
+
+		$this->values = $this->newvalues;
+		$this->newvalues = [];
+		$this->gettercache = [];
 	}
 
-	/**
-	 * @brief This function is executed after the entity is inserted on the
-	 * database.
-	 */
-	protected function _postInsert() {}
-
-	/**
-	 * @brief This function is executed before the entity is deleted from
-	 * the database.
-	 */
-	protected function _preDelete() {}
-
-	/** @brief Deletes the entity from the database. */
-	protected function _delete()
+	protected function update(): void
 	{
-		$this->_db->query('DELETE FROM `' . static::TABLE_NAME . '` WHERE id=?;',
-			$this->_id);
-		$this->_deleted = true;
-	}
+		if ($this->deleted)
+			throw new \LogicException(
+				__('Can not update deleted entity \'%s\'.', get_class($this)));
 
-	/**
-	 * @brief This function is executed after the entity is deleted from the
-	 * database.
-	 */
-	protected function _postDelete() {}
-
-	/**
-	 * @brief This function is executed before the entity is updated on the
-	 * database.
-	 */
-	protected function _preUpdate() {}
-
-	/** @brief Updates the entity on the database. */
-	protected function _update()
-	{
-		$query = 'UPDATE `' . static::TABLE_NAME . '` SET ';
-		$realNames = [];
-		foreach (array_keys($this->_changedValues) as $name) {
-			$realName = "_$name";
-			$values[] = $this->$realName;
-			$query .= "$name = ?, ";
+		$query = 'UPDATE `' . $this->structure['table'] . '` SET ';
+		$values = [];
+		$i = 0;
+		foreach ($this->structure['columns'] as $name => $col) {
+			if (!array_key_exists($name, $this->newvalues))
+				continue;
+			$values[] = $this->newvalues[$name];
+			if (i > 0)
+				$query .= ', ';
+			$query .= "`$name` = ?";
+			$i++;
 		}
-		$query = trim_suffix($query, ', ') . ' WHERE id=?;';
-		$values[] = $this->_id;
-		$rowsAffected = $this->_db->query($query, ...$values);
+		if ($i == 0)
+			return;
+		if (!isset($this->values['id']))
+			throw new \LogicException(
+				__('Entity \'%s\' does not define an id.', get_class($this)));
+		$query .= ' WHERE id = ?';
+		$values[] = $this->values['id'];
 
+		$this->db->query($query, ...$values);
+
+		$this->values = array_replace($this->values, $this->newvalues);
+		$this->newvalues = [];
+		$this->gettercache = [];
 	}
 
-	/**
-	 * @brief This function is executed after the entity is updated on the
-	 * database.
-	 */
-	protected function _postUpdate() {}
-
-	/**
-	 * @brief This function is executed before the entity is saved (i.e.
-	 * inserted, updated or deleted) on the database.
-	 */
-	protected function _preSave() {}
-
-	/**
-	 * @brief Saves (i.e. inserts, deletes or updates) the entity on the
-	 * database.
-	 */
-	public function save()
+	protected function isInsert(): bool
 	{
-		if ($this->_deleted || ($this->_toInsert && $this->_toDelete))
-			goto ClearChangesAndExit;
-
-		$this->_preSave();
-		if ($this->_toInsert) {
-			$this->_preInsert();
-			$this->_insert();
-			$oldHash = $this->getHash();
-			$this->_id = $this->_db->fetchColumn('SELECT LAST_INSERT_ID();');
-			$this->_em->moveToSaved($this, $oldHash);
-			$this->_postInsert();
-			$this->_toInsert = false;
-		} else if ($this->_toDelete) {
-			$this->_preDelete();
-			$this->_delete();
-			$this->_postDelete();
-			$this->_toDelete = false;
-		} else if (!empty($this->_changedValues)) {
-			$this->_preUpdate();
-			$this->_update();
-			$this->_postUpdate();
-		}
-		$this->_postSave();
-
-	ClearChangesAndExit:
-		$this->_changedValues = [];
+		return !$this->deleted
+			&& !empty($this->newvalues) && empty($this->values);
 	}
 
-	/**
-	 * @brief This function is executed after the entity is saved (i.e.
-	 * inserted, updated or deleted) on the database.
-	 */
-	protected function _postSave() {}
-// }}}
-
-// Protected Entity Methods {{{
-	/**
-	 * @internal
-	 * @brief Fills the properties/columns of this entity with the values
-	 * passed as array.
-	 *
-	 * @param[in] array $data	Associative array of key-value pairs
-	 * 				where the key is the property/column's
-	 * 				name.
-	 */
-	protected function _fillData(array $data)
+	protected function isUpdate(): bool
 	{
-		foreach ($data as $name => $value) {
-			$realName = "_$name";
-			if (property_exists($this, $realName))
-				$this->$realName = $value;
-		}
-		$this->_entityId = $this->_id;
+		return !$this->deleted
+			&& !empty($this->newvalues) && !empty($this->values);
 	}
-// }}}
 
+	public function isDeleted(): bool
+	{
+		return $this->deleted;
+	}
+
+	public function equals(self $entity): bool
+	{
+		if (!isset($this->id) || !isset($entity->id))
+			return false;
+		return $this->id === $entity->id;
+	}
+
+	protected function cacheValue(string $name, $value): void
+	{
+		$this->gettercache[$name] = $value;
+	}
+
+	abstract public static function getStructure(): array;
+
+	public static function get($name = null, $value = null,
+		bool $or = false, bool $multirow = false)
+	{
+		$query = 'SELECT * FROM `' . static::getStructure['table'] . '`';
+		if (is_scalar($name) && !isset($value)) {
+			$query .= ' WHERE id = ?';
+			$params = [ $name ];
+		} else if (is_string($name)) {
+			$query .= " WHERE $name = ?";
+			$params = [ $value ];
+		} else if (is_array($name) && !empty($name)) {
+			$i = 0;
+			$query .= ' WHERE ';
+			$params = [];
+			foreach ($name as $key => $val) {
+				if ($i > 0)
+					$query .= $or ? ' OR ' : ' AND ';
+				$query .= "`$key` = ?";
+				$params[] = $val;
+			}
+		} else if (is_null($name)) {
+			$params = [];
+		} else {
+			throw new \InvalidArgumentException(
+				__('Parameter 1 of AbstractEntity::get is invalid.'));
+		}
+
+		if (!$multirow) {
+			$data = $db->fetchRow($query, ...$params);
+			return new static($data);
+		}
+
+		$data = $db->fetchAll($query, ...$params);
+		$entities = [];
+		foreach ($data as $row)
+			$entities[] = new static($row);
+		return $entities;
+	}
+
+	public static function getOr($name, $value = null,
+		bool $multirow = false)
+	{
+		return static::get($name, $value, true, $multirow);
+	}
+
+	public static function getAll($name = null, $value = null,
+		bool $or = false): array
+	{
+		return static::get($name, $value, $or, true);
+	}
+
+	public static function getAllOr($name = null, $value = null): array
+	{
+		return static::getAll($name, $value, true);
+	}
 }

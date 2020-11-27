@@ -38,7 +38,7 @@ class MysqliStatement extends AbstractStatement
 		$bind = [];
 		foreach ($this->params as &$param) {
 			switch (gettype($param)) {
-			case 'bool':
+			case 'boolean':
 			case 'integer':
 				$types .= 'i';
 				break;

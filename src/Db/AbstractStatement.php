@@ -11,7 +11,7 @@ abstract class AbstractStatement
 	protected $params;
 
 	public function __construct(AbstractAdapter $adapter,
-		string $query, ...$params)
+		string $query, ?array $params)
 	{
 		$this->adapter = $adapter;
 		$this->query = $query;
