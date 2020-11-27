@@ -19,7 +19,8 @@ DROP TABLE IF EXISTS `category`;
 CREATE TABLE `category` (
 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(30) NOT NULL,
-	PRIMARY KEY (id)
+	PRIMARY KEY (id),
+    UNIQUE KEY (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 DROP TABLE IF EXISTS `book`;
@@ -60,8 +61,8 @@ CREATE TABLE `order` (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS `auth_token`;
-CREATE TABLE `auth_token` (
+DROP TABLE IF EXISTS `authtoken`;
+CREATE TABLE `authtoken` (
 	`id` VARCHAR(32) NOT NULL,
 	`expire_time` INTEGER NOT NULL,
 	`type` ENUM ('PASSWORD_RECOVERY', 'AUTHENTICATION', 'VERIFY_MAIL') NOT NULL,
@@ -74,3 +75,17 @@ CREATE TABLE `auth_token` (
     ON DELETE NO ACTION
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+
+SELECT b.*
+FROM `user` u INNER JOIN `order` o ON u.id = o.`user` INNER JOIN book b ON b.id = o.book
+WHERE u.id = 'utente';
+
+SELECT b.*
+FROM book b INNER JOIN category c ON b.category = c.id
+WHERE c.`name` = 'categoria';
+
+SELECT * 
+FROM `user` u INNER JOIN authtoken a ON u.id = a.`user`
+WHERE a.id = 'authtoken';
