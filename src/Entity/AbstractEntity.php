@@ -59,6 +59,11 @@ abstract class AbstractEntity
 				__('Can not set the \'%s\' attribute on the deleted entity \'%s\'.',
 				$name, get_class($this)));
 
+		if (!$this->validateValue($name, $value))
+			throw new \RuntimeException(
+				__('Invalid value for \'%s\' in entity \'%s\'.',
+				$name, get_class($this)));
+
 		$setter = 'set' . ucfirst($name);
 		if (method_exists($this, $setter)) {
 			$this->$setter($value);
@@ -66,6 +71,14 @@ abstract class AbstractEntity
 		}
 
 		$this->setValue($name, $value);
+	}
+
+	protected function validateValue(string $name, $value): bool
+	{
+		$validator = 'validate' . ucfirst($name);
+		if (!method_exists($this, $validator))
+			return true;
+		return $this->$validator($value);
 	}
 
 	protected function setValue(string $name, $value): void
