@@ -32,19 +32,8 @@ class Category extends AbstractEntity
 			$entities[] = new static($row);
 		return $entities;
     }
+    
     public function getBooks() : array {
-        $query = 'SELECT b.* FROM '
-        . Book::getStructure()['table'] 
-        . ' b INNER JOIN '
-        . static::getStructure()['table'] 
-        . ' c ON b.category = c.id
-        WHERE c.`name` = ? ;';
-
-        $db =  ((App::class)(App::getInstance()))->db();
-		$data = $db->fetchAll($query, $this->name);
-		$entities = [];
-		foreach ($data as $row)
-			$entities[] = new static($row);
-		return $entities;
+       return static::getBooksByCategory($this->name);
     } 
 }

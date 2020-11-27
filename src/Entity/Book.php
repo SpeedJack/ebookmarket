@@ -21,7 +21,7 @@ class Book extends AbstractEntity
    }
 
    public static function getByCategory(string $category) : array {
-       return [];
+       return Category::getBooksByCategory($category);
    }
 
    public static function getByTitleLike(string $title) : array {
