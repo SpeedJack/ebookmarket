@@ -26,6 +26,19 @@ abstract class AbstractPage
 			$this->setTitle($title);
 		$this->addCss('main');
 		$this->addJs('main');
+		self::enforceCSP();
+	}
+
+	private static function enforceCSP(): void
+	{
+		header('Content-Security-Policy: '
+			. "default-src 'none'; "
+			. "script-src 'self'; "
+			. "style-src 'self'; "
+			. "img-src 'self'; "
+			. "connect-src 'self'; "
+			. "form-action 'self'; "
+			. "base-uri 'self';");
 	}
 
 	protected static function htmlEscape(string $str,
