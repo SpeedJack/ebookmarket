@@ -25,14 +25,14 @@ class Category extends AbstractEntity
         . ' c ON b.category = c.id
         WHERE c.`name` = ? ;';
 
-        $db =  ((App::class)(App::getInstance()))->db();
+        $db = App::getInstance()->db();
 		$data = $db->fetchAll($query, $name);
 		$entities = [];
 		foreach ($data as $row)
 			$entities[] = new static($row);
 		return $entities;
     }
-    
+
     public function getBooks() : array {
        return static::getBooksByCategory($this->name);
     } 
