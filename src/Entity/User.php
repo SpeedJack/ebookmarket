@@ -25,4 +25,20 @@ class User extends AbstractEntity
 		$this->setValue('passwordhash',
 			password_hash($password, PASSWORD_DEFAULT));
 	}
+
+	protected function validateUsername(string $username): bool
+	{
+		return preg_match('/^[A-Za-z0-9_\-.]{3,32}$/', $username);
+	}
+
+	protected function validateEmail(string $email): bool
+	{
+		return filter_var($email, FILTER_VALIDATE_EMAIL);
+	}
+
+	protected function validatePassword(string $password): bool
+	{
+		/* Just check for a decent passwd len here */
+		return strlen($password) > 7;
+	}
 }
