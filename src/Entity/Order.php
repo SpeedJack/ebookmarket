@@ -27,7 +27,7 @@ class Order extends AbstractEntity
         $bookToBuy = Book::get($this->book);
         if($bookToBuy == null) return false; 
         if($amount != $bookToBuy->price) return false;
-        $this->setValue("payment_ok", true);
+        $this->payment_ok = true;
         $this->save();
         //if(!validate($cc_number) || !validate($cc_cv2)) return false;
         //if(!payment($cc_number, $cc_cv2, $amount)->success) return false;
