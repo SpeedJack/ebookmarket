@@ -88,9 +88,9 @@ abstract class AbstractEntity
 	{
 		$getter = 'get' . ucfirst($name);
 		if (method_exists($this, $getter)) {
-			if (!array_key_exists($key, $this->gettercache))
-				$this->gettercache[$key] = $this->$getter();
-			return $this->gettercache[$key];
+			if (!array_key_exists($name, $this->gettercache))
+				$this->gettercache[$name] = $this->$getter();
+			return $this->gettercache[$name];
 		}
 
 		if (!isset($this->structure['columns'][$name]))
@@ -102,18 +102,18 @@ abstract class AbstractEntity
 
 	protected function getValue(string $name)
 	{
-		return array_key_exists($key, $this->newvalues)
-			? $this->newvalues[$key] : $this->getExistingValue($name);
+		return array_key_exists($name, $this->newvalues)
+			? $this->newvalues[$name] : $this->getExistingValue($name);
 	}
 
 	protected function getExistingValue(string $name)
 	{
-		return $this->values[$key] ?? null;
+		return $this->values[$name] ?? null;
 	}
 
 	public function __isset(string $name): bool
 	{
-		return isset($this->newvalues[$key]) || isset($this->values[$key]);
+		return isset($this->newvalues[$name]) || isset($this->values[$name]);
 	}
 
 	public function __unset(string $name): void
@@ -125,11 +125,11 @@ abstract class AbstractEntity
 		if (method_exists($this, $setter))
 			$this->$setter(null);
 
-		if (array_key_exists($key, $this->newvalues)) {
-			if (isset($this->values[$key]))
-				$this->newvalues[$key] = null;
+		if (array_key_exists($name, $this->newvalues)) {
+			if (isset($this->values[$name]))
+				$this->newvalues[$name] = null;
 			else
-				unset($this->newvalues[$key]);
+				unset($this->newvalues[$name]);
 		}
 	}
 
@@ -289,7 +289,7 @@ abstract class AbstractEntity
 	public static function get($name = null, $value = null,
 		bool $or = false, bool $multirow = false)
 	{
-		$query = 'SELECT * FROM `' . static::getStructure['table'] . '`';
+		$query = 'SELECT * FROM `' . static::getStructure()['table'] . '`';
 		if (is_scalar($name) && !isset($value)) {
 			$query .= ' WHERE id = ?';
 			$params = [ $name ];
@@ -313,6 +313,7 @@ abstract class AbstractEntity
 				__('Parameter 1 of AbstractEntity::get is invalid.'));
 		}
 
+		$db = App::getInstance()->db();
 		if (!$multirow) {
 			$data = $db->fetchRow($query, ...$params);
 			return new static($data);

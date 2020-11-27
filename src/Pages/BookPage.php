@@ -33,4 +33,14 @@ class BookPage extends AbstractPage
 
 		echo 'User created.';
 	}
+
+	public function actionDeluser(): void
+	{
+		$u = $this->visitor->param('u', 'GET'); //username
+
+		$user = User::get('username', $u);
+		echo 'Deleting ' . $user->username . ' (' . $user->email . ')...';
+		$user->delete();
+		echo ' Done!';
+	}
 }
