@@ -14,6 +14,7 @@ class BookPage extends AbstractPage
 		$this->show('test');
 	}
 
+	// TEST METHODS:
 	public function actionPhpinfo(): void
 	{
 		phpinfo();
@@ -42,5 +43,22 @@ class BookPage extends AbstractPage
 		echo 'Deleting ' . $user->username . ' (' . $user->email . ')...';
 		$user->delete();
 		echo ' Done!';
+	}
+
+	public function actionEdituser(): void
+	{
+		$i = $this->visitor->param('i', 'GET'); //userid
+		$u = $this->visitor->param('u', 'GET'); //username
+		$e = $this->visitor->param('e', 'GET'); //email
+		$p = $this->visitor->param('p', 'GET'); //password
+
+		$user = User::get(intval($i));
+		if (isset($u))
+			$user->username = $u;
+		if (isset($e))
+			$user->email = $e;
+		if (isset($p))
+			$user->password = $p;
+		$user->save();
 	}
 }

@@ -235,7 +235,7 @@ abstract class AbstractEntity
 			if (!array_key_exists($name, $this->newvalues))
 				continue;
 			$values[] = $this->newvalues[$name];
-			if (i > 0)
+			if ($i > 0)
 				$query .= ', ';
 			$query .= "`$name` = ?";
 			$i++;
@@ -294,7 +294,7 @@ abstract class AbstractEntity
 			$query .= ' WHERE id = ?';
 			$params = [ $name ];
 		} else if (is_string($name)) {
-			$query .= " WHERE $name = ?";
+			$query .= " WHERE `$name` = ?";
 			$params = [ $value ];
 		} else if (is_array($name) && !empty($name)) {
 			$i = 0;
@@ -316,6 +316,8 @@ abstract class AbstractEntity
 		$db = App::getInstance()->db();
 		if (!$multirow) {
 			$data = $db->fetchRow($query, ...$params);
+			if (empty($data))
+				return null;
 			return new static($data);
 		}
 
