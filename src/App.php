@@ -6,7 +6,7 @@ namespace EbookMarket;
 
 class App extends AbstractSingleton
 {
-	public const DEFAULT_PAGE = 'HomePage';
+	public const DEFAULT_PAGE = 'BookPage';
 	public const DEFAULT_ACTION = 'actionIndex';
 	public const SRC_ROOT = __DIR__;
 
