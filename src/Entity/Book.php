@@ -28,34 +28,23 @@ class Book extends AbstractEntity
     }
 
 
-    public static function getLike(string $field, string $value): array
+    public static function getBooksLike(string $value): array
     {
-        if(!in_array($field, Book::getStructure()['columns'], TRUE))
-            throw new \InvalidArgumentException($field. "is not a valid column name");
         $pattern = '%'.$value.'%';
 
         $query = 'SELECT * FROM '
             . self::getStructure()['table']
-            . ' WHERE `. $field .` LIKE ? ;';
+            . ' WHERE author LIKE ? OR title LIKE ? ;';
 
         $db = App::getInstance()->db();
-        $data = $db->fetchAll($query, $pattern);
+        $data = $db->fetchAll($query, [$pattern, $pattern]);
         $entities = [];
         foreach ($data as $row)
             $entities[] = new static($row);
         return $entities;
     }
 
-    public static function getByAuthorLike(string $author): array
-    {
-        return static::getLike("author", $author);
-    }
-
-    public static function getByTitleLike(string $author): array
-    {
-        return static::getLike("title", $author);
-    }
-
+    
     public function getCategory(): Category
     {
         return Category::get($this->categoryid);
