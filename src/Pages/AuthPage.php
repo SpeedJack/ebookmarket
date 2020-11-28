@@ -48,6 +48,8 @@ class AuthPage extends AbstractPage
                     
                     if(!$authToken)
                         $authToken = new AuthToken(["type" => "AUTHENTICATION", "user" => $user->id]);
+                    
+                    $authToken->save();
                     setcookie("authtoken", $authToken->id,
                         [
                             "expires" => $authToken->expire_time,
@@ -56,6 +58,7 @@ class AuthPage extends AbstractPage
                             "httponly" => true    
                         ]
                     );
+                    
                     $app->reroute("/book");
                 }
 
@@ -73,6 +76,52 @@ class AuthPage extends AbstractPage
                 $this->show("authentication/register");
                 break;
             case Visitor::METHOD_POST :
+                $username = $this->visitor->param("username", "POST");
+                $email = $this->visitor->param("email", "POST");
+                $password = $this->visitor->param("password", "POST");
+                $passwordConfirm = $this->visitor->param("password_confirm", "POST");
+                $accept = $this->visitor->param("accept_terms", "POST");
+                $validation = [
+                    "username" => User::validateUsername($username),
+                    "email" => User::validateEmail($email),
+                    "password" => User::validatePassword($password),
+                    "password_confirm" => $accept,
+                    "accept_terms" => ($password == $passwordConfirm)
+                ];
+
+                if(in_array(false, $validation) || User::getOr(["username" => $username, "email" => $email]) ){
+                    $this->setTitle(__("EbookMarket - Register"));
+                    $this->show("authentication/register");  
+                } else {
+                    $user = new User();
+                    $user->username = $username;
+                    $user->email = $email;
+                    $user->password = password_hash($password);
+                    $user->valid = false;
+                    
+                    $user->save();
+                    
+                    //Create AuthToken for email verification
+
+                    $verifyToken = new AuthToken();
+                    $verifyToken->type = "VERIFY_EMAIL";
+                    $verifyToken->user = $user->id;
+                    $authToken->save();
+                    
+                    /**Send verification email
+                    
+                    mail($user->email, __("Account verification"), 
+                    __("Welcome to EbookMarket! \n 
+                    please navigate to the following link for verify your account: \n 
+                    https://ebookmarket.com/auth/verify?token=". $authToken->$id 
+                    ));
+                    **/
+
+
+                    
+                }
+                  
+
                 break;
             default : throw new \Exception("method" . $method . "not allowed");
             
