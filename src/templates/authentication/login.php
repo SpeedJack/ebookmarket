@@ -1,6 +1,6 @@
 <main>
     <h1><?= __('Login') ?></h1>
-    <form>
+    <form action="<?php $app->buildLink("/login") ?>" method = "post">
         <label for="email"><?= __('Email') ?></label>
         <input type="text" name="email" />
         <label for="password"><?= __('Password') ?></label>
