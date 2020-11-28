@@ -168,4 +168,28 @@ class Visitor extends AbstractSingleton
 			if (preg_match('/^[A-Za-z_][A-Za-z0-9_]{0,20}$/', $key) === 1)
 				$this->addPostParams([$key => $value]);
 	}
+
+	//Cookies
+	public function getCookie(string $name = null){
+		if(!$name)
+			return $_COOKIE;
+		else return $_COOKIE[$name];
+	}
+
+	public function unsetCookie(string $key){
+		if(isset($key))
+				unset($_COOKIE[$key]);
+	}
+
+	public function setCookie(string $name, string $value){
+		if(!$name || !$value)
+			return;
+		$_COOKIE[$name] = $value;		
+	}
+
+	public function clearCookies(){
+		foreach ($_COOKIE as $key => $value){
+			unsetCookie($key);
+		}
+	}
 }
