@@ -6,37 +6,39 @@ use \EbookMarket\Entity\User;
 
 class AuthToken extends AbstractEntity
 {
-    private $userId;
-    private $expiration;
-    private $user;
-
-    public function __construct(string $authToken, int $userId, DateTime $expiration, User $user){
-        parent::__construct($authToken);
-        $this->userId = $userId;
-        $this->expiration = $expiration;
-        $this->user = $user;
-    }
-
-    public function isExpired()
+	public static function getStructure(): array
 	{
-		return $this->expiration <= time();
+		return [
+			'table' => 'authtoken',
+			'columns' => [
+				'id' => [ 'type' => self::STR, 'auto_increment' => true ],
+				'expire_time' => [ 'type' => self::UINT, 'required' => true ],
+				'type' => [ 'type' => self::STR, 'required' => true ],
+				'user' => [ 'type' => self::UINT, 'required' => true ]
+			]
+		];
 	}
 
-	public function resetExpireTime()
+    public function isExpired() : bool
 	{
-		$this->_set('expireTime', time() + $this->app->config['auth_token_duration']);
-    }
-
-    public function verifyToken($token)
-	{
-		return password_verify($token, $this->authToken);
+		return $this->expire_time <= time();
 	}
 
-    public function authenticate($token)
+	public function resetExpireTime() : void
+	{
+		$this->expire_time = time() + $this->app->config['auth_token_duration'];
+    }
+
+    public function verifyToken($token) : bool
+	{
+		return password_verify($token, $this->id);
+	}
+
+    public function authenticate($token) : User
 	{
 		if ($this->isExpired() || !$this->verifyToken($token))
-			return false;
+			return null;
 		$this->resetExpireTime();
-		return $this->user;
+		return User::get($this->user);
 	}
 }
