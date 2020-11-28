@@ -11,8 +11,11 @@ class AuthToken extends AbstractEntity
 		return [
 			'table' => 'authtoken',
 			'columns' => [
-				'id' => [ 'type' => self::STR, 'auto_increment' => true ],
-				'expire_time' => [ 'type' => self::UINT, 'required' => true ],
+				'id' => [ 'type' => self::STR, "default" => AuthToken::generate()],
+				'expire_time' => [ 
+					'type' => self::UINT, 
+					"default" =>  time() + App::getInstance()->config['auth_token_duration']
+				],
 				'type' => [ 'type' => self::STR, 'required' => true ],
 				'user' => [ 'type' => self::UINT, 'required' => true ]
 			]
@@ -34,11 +37,20 @@ class AuthToken extends AbstractEntity
 		return password_verify($token, $this->id);
 	}
 
+	public static function generate() : string {
+		return bin2hex(random_bytes(16));
+	}
+
     public function authenticate($token) : User
 	{
 		if ($this->isExpired() || !$this->verifyToken($token))
 			return null;
 		$this->resetExpireTime();
 		return User::get($this->user);
+	}
+
+	public function logout() : void {
+		delete();
+		$this->visitor->unsetCookie("authtoken");
 	}
 }

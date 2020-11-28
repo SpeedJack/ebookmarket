@@ -9,7 +9,7 @@ class User extends AbstractEntity
 	public static function getStructure(): array
 	{
 		return [
-			'table' => 'users',
+			'table' => 'user',
 			'columns' => [
 				'id' => [ 'type' => self::UINT, 'auto_increment' => true ],
 				'username' => [ 'type' => self::STR, 'required' => true ],

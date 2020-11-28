@@ -10,7 +10,7 @@ class BookPage extends AbstractPage
 {
 	public function actionIndex(): void
 	{
-		$this->setTitle(__('EbookMarket - HomePage'));
+		$this->setTitle(__('EbookMarket - Books'));
 		$this->show('test');
 	}
 

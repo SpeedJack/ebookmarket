@@ -30,16 +30,33 @@ class AuthPage extends AbstractPage
                 $this->show("authentication/login");
                 break;
             case Visitor::METHOD_POST :
-                $email = $this->visitor->param("email");
-                $password = $this->visitor->param("password");
+                $email = $this->visitor->param("email", "POST");
+                $password = $this->visitor->param("password", "POST");
+                echo $email . " " . $password;
                 $user = User::get("email", $email);
                 if(!$user || !password_verify($password, $user->passwordhash))
                 {
                     $this->setTitle(__("EbookMarket - Login"));
-                    $this->show("authentication/login", [$logged = false]);
+                    $this->show("authentication/login");
                 } else 
                 {
-                    $app->reroute("/books", [$logged = true]);
+                    $authToken = AuthToken::get(["user" => $user->id, "type" => "AUTHENTICATION"]);
+                    if($authToken && $authToken->isExpired()){
+                        $authToken->delete();
+                        $authToken = null;
+                    }
+                    
+                    if(!$authToken)
+                        $authToken = new AuthToken(["type" => "AUTHENTICATION", "user" => $user->id]);
+                    setcookie("authtoken", $authToken->id,
+                        [
+                            "expires" => $authToken->expire_time,
+                            "domain" => $this->app->config["domain"],
+                            "secure" => true,
+                            "httponly" => true    
+                        ]
+                    );
+                    $app->reroute("/book");
                 }
 
                 break;
@@ -56,7 +73,6 @@ class AuthPage extends AbstractPage
                 $this->show("authentication/register");
                 break;
             case Visitor::METHOD_POST :
-
                 break;
             default : throw new \Exception("method" . $method . "not allowed");
             

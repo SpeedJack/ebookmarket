@@ -184,7 +184,7 @@ class Visitor extends AbstractSingleton
 	public function setCookie(string $name, string $value){
 		if(!$name || !$value)
 			return;
-		$_COOKIE[$name] = $value;		
+		setcookie($name, $value);	
 	}
 
 	public function clearCookies(){
