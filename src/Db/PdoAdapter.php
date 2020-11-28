@@ -17,7 +17,7 @@ class PdoAdapter extends AbstractAdapter
 	}
 
 	protected function createStatement(string $query,
-		?array $params): PdoStatement
+		?array $params): AbstractStatement
 	{
 		return new PdoStatement($this, $query, $params);
 	}
