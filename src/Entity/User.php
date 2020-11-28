@@ -26,17 +26,17 @@ class User extends AbstractEntity
 			password_hash($password, PASSWORD_DEFAULT));
 	}
 
-	protected function validateUsername(string $username): bool
+	public static function validateUsername(string $username): bool
 	{
-		return preg_match('/^[A-Za-z0-9_\-.]{3,32}$/', $username);
+		return preg_match('/^[A-Za-z0-9_\-.]{3,32}$/', $username) == 1;
 	}
 
-	protected function validateEmail(string $email): bool
+	public static function validateEmail(string $email): bool
 	{
-		return filter_var($email, FILTER_VALIDATE_EMAIL);
+		return filter_var($email, FILTER_VALIDATE_EMAIL) != false;
 	}
 
-	protected function validatePassword(string $password): bool
+	public static function validatePassword(string $password): bool
 	{
 		/* Just check for a decent passwd len here */
 		return strlen($password) > 7;
