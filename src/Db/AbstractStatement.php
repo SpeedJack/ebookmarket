@@ -52,23 +52,27 @@ abstract class AbstractStatement
 	{
 		if (!$sqlStateCode || $sqlStateCode === '00000')
 			switch ($code) {
-			case 1062: $sqlStateCode = '23000'; break; // duplicate key
+			case 1062:
+				$sqlStateCode = '23000';
+				break;
+			default:
 			}
 
 		switch($sqlStateCode) {
-		case '23000': $exClass = 'DuplicateKeyException'; break; // duplicate key
-		default: $exClass = 'Exception'; break;
+		case '23000':
+			$exclass = 'DuplicateKeyException';
+			break;
+		default:
+			$exclass = 'Exception';
 		}
 
-		return new Exception($message, $code, $sqlStateCode, $this);
+		$exclass = __NAMESPACE__ . "\\$exclass";
+		return $exClass($message, $code, $sqlStateCode, $this);
 
 	}
 
 	abstract public function prepare(): void;
-
 	abstract public function fetch(): array;
-
 	abstract public function execute(): ?bool;
-
 	abstract public function rowsAffected(): ?int;
 }

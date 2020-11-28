@@ -7,13 +7,10 @@ namespace EbookMarket\Db;
 abstract class AbstractAdapter extends \EbookMarket\AbstractSingleton
 {
 	protected $connection;
-	protected $statementClass;
 	protected $config;
 
 	protected function __construct(array $config)
 	{
-		$this->statementClass = $this->getStatementClass();
-
 		$this->config = $config;
 		$this->connect();
 	}
@@ -73,17 +70,14 @@ abstract class AbstractAdapter extends \EbookMarket\AbstractSingleton
 	{
 		$this->connect();
 
-		$class = $this->statementClass;
-
-		$statement = new $class($this, $query, $params);
+		$statement = $this->createStatement($query, $params);
 		$statement->execute();
 
 		return $statement;
 	}
 
 	abstract protected function disconnect(): void;
-
 	abstract protected function connect(): void;
-
-	abstract protected function getStatementClass(): string;
+	abstract protected function createStatement(string $query,
+		?array $params): AbstractStatement;
 }

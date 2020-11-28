@@ -26,7 +26,7 @@ class AuthToken extends AbstractEntity
 	{
 		$this->_set('expireTime', time() + $this->app->config['auth_token_duration']);
     }
-    
+
     public function verifyToken($token)
 	{
 		return password_verify($token, $this->authToken);

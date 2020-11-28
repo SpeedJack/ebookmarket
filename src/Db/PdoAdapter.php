@@ -11,9 +11,15 @@ class PdoAdapter extends AbstractAdapter
 		$this->connection = null;
 	}
 
-	protected function getStatementClass(): string
+	protected static function getStatementClass(): string
 	{
-		return __NAMESPACE__ . '\PdoStatement';
+		return __NAMESPACE__ . '\\PdoStatement';
+	}
+
+	protected function createStatement(string $query,
+		?array $params): PdoStatement
+	{
+		return new PdoStatement($this, $query, $params);
 	}
 
 	protected function connect(): void

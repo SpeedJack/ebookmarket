@@ -4,4 +4,6 @@ declare(strict_types=1);
 
 namespace EbookMarket\Db;
 
-class DuplicateKeyException extends Exception {}
+class DuplicateKeyException extends Exception
+{
+}

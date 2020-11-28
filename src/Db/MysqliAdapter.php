@@ -13,9 +13,10 @@ class MysqliAdapter extends AbstractAdapter
 		$this->connection->close();
 	}
 
-	protected function getStatementClass(): string
+	protected function createStatement(string $query,
+		?array $params): MysqliStatement
 	{
-		return __NAMESPACE__ . '\MysqliStatement';
+		return new MysqliStatement($this, $query, $params);
 	}
 
 	protected function connect(): void
