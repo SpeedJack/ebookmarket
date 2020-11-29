@@ -187,7 +187,7 @@ class Visitor extends AbstractSingleton
 	public function setSessionToken(Token $token): void
 	{
 		$this->setCookie('authtoken', $token->getUserToken(),
-			$token->getExpiretime());
+			$token->expiretime);
 	}
 
 	public function setCookie(string $key, string $value, int $expire = 0,

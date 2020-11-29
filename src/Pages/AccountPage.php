@@ -8,7 +8,7 @@ use \EbookMarket\Entity\User;
 use \EbookMarket\Visitor;
 use \EbookMarket\AppException;
 
-class AuthPage extends AbstractPage
+class AccountPage extends AbstractPage
 {
 	public const LOGIN = 1;
 	public const REGISTER = 2;
@@ -39,7 +39,7 @@ class AuthPage extends AbstractPage
 		case Visitor::METHOD_POST:
 			$username = $this->visitor->param('username', 'POST');
 			$password = $this->visitor->param('password', 'POST');
-			if (empty($username) || $empty($password)) {
+			if (empty($username) || empty($password)) {
 				$this->error('Error.', 'Invalid username or password.');
 				return;
 			}
