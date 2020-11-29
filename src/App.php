@@ -35,8 +35,6 @@ class App extends AbstractSingleton
 		$this->config = static::mergeConfigDefaults($config);
 
 		error_reporting($this->config['error_reporting']);
-
-		$this->visitor = Visitor::getInstance();
 	}
 
 	public static function start(): void
@@ -44,7 +42,9 @@ class App extends AbstractSingleton
 		include 'config.php';
 		if (!isset($config))
 			$config = [];
-		static::getInstance($config)->route();
+		$app = static::getInstance($config);
+		$app->visitor = Visitor::getInstance();
+		$app->route();
 	}
 
 	protected static function mergeConfigDefaults(array $config = []): array
