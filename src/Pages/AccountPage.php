@@ -18,16 +18,13 @@ class AccountPage extends AbstractPage
 	public function actionIndex(): void
 	{
 		// TODO: this should show the user profile instead
-		switch ($this->visitor->getMethod()) {
-		case Visitor::METHOD_POST:
-			throw new \LogicException('TODO: account/index');
-		case Visitor::METHOD_GET:
-		case Visitor::METHOD_HEAD:
-			$this->app->reroute('auth/login');
-			break;
-		default:
-			throw new AppException('Method not allowed.', 405);
-		}
+		if($this->visitor->isLoggedIn()){
+            echo "Logged In";
+            return;
+        }
+
+        $this->redirect("/login");
+
 	}
 
 	public function actionLogin(): void

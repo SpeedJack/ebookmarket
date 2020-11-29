@@ -102,7 +102,29 @@ class Token extends AbstractEntity
 	}*/
 
 	private static function generateToken(): string
-	{
-		return 'TOKENTOKEN'; //TODO
+	{	
+		$token = false;
+		if(function_exists("random_bytes")){
+			try{
+				$token = random_bytes(32);
+			}catch(\Exception $e){
+				$token = false;
+			}
+		}
+		
+		if($token === false && function_exists("openssl_random_pseudo_bytes")){
+			$token = openssl_random_pseudo_bytes(32);
+		}
+
+		if($token === false && function_exists("mcrypt_create_iv")){
+			$token = mcrypt_create_iv(32, MCRYPT_DEV_URANDOM);
+		}
+
+		if($token === false){
+			throw new \LogicException("Cannot create token");
+		}
+
+		$token = bin2hex($token);
+		return $token;
 	}
 }

@@ -29,6 +29,7 @@ class Visitor extends AbstractSingleton
 	protected function __construct()
 	{
 		$this->readParams();
+		$this->login();
 	}
 
 	public function clearParams(): void
@@ -203,5 +204,24 @@ class Visitor extends AbstractSingleton
 			return;
 		$this->setCookie($key, $_COOKIE[$key], time() - 60*60*24);
 		unset($_COOKIE[$key]);
+	}
+
+	protected function cookie(string $name) : ?string {
+		return $_COOKIE[$name] ?? null;
+	}
+
+	protected function setUser(User $user) : void {
+		$this->user = $user;
+	}
+
+	protected function login() : void {
+		$authtoken = $this->cookie("authtoken");
+		if($authtoken){
+			$token = Token::get($authtoken);
+			if($token){
+				$this->setUser($token->user);
+				$this->setSessionToken($token);
+			}
+		}
 	}
 }
