@@ -29,7 +29,7 @@ class Visitor extends AbstractSingleton
 	protected function __construct()
 	{
 		$this->readParams();
-		$this->login();
+		$this->authenticate();
 	}
 
 	public function clearParams(): void
@@ -179,16 +179,26 @@ class Visitor extends AbstractSingleton
 		return $this->user != null;
 	}
 
-	public function authenticate(User $user): void
+	public function login(User $user): void
 	{
-		$this->user = $user;
-		$this->setSessionToken($user->login());
+		if (!$user->hasAuthtoken())
+			$user->login();
+		$token = $user->authtoken;
+		if ($token === null)
+			return;
+		$this->setSessionToken($token);
+		$this->setUser($user);
 	}
 
-	public function setSessionToken(Token $token): void
+	protected function setSessionToken(Token $token): void
 	{
-		$this->setCookie('authtoken', $token->getUserToken(),
+		$this->setCookie('authtoken', $token->usertoken,
 			$token->expiretime);
+	}
+
+	protected function unsetSessionToken(): void
+	{
+		$this->unsetCookie('authtoken');
 	}
 
 	public function setCookie(string $key, string $value, int $expire = 0,
@@ -196,6 +206,7 @@ class Visitor extends AbstractSingleton
 	{
 		//TODO get host and secure from App
 		setcookie($key, $value, $expire, $path, 'localhost', true, $httponly);
+		$_COOKIE[$key] = $value;
 	}
 
 	public function unsetCookie(string $key): void
@@ -206,22 +217,32 @@ class Visitor extends AbstractSingleton
 		unset($_COOKIE[$key]);
 	}
 
-	protected function cookie(string $name) : ?string {
+	protected function cookie(string $name): ?string
+	{
 		return $_COOKIE[$name] ?? null;
 	}
 
-	protected function setUser(User $user) : void {
+	protected function setUser(User $user): void
+	{
 		$this->user = $user;
 	}
 
-	protected function login() : void {
-		$authtoken = $this->cookie("authtoken");
-		if($authtoken){
-			$token = Token::get($authtoken);
-			if($token){
-				$this->setUser($token->user);
-				$this->setSessionToken($token);
-			}
+	protected function authenticate(): void
+	{
+		$authtoken = $this->cookie('authtoken');
+		if ($authtoken === null)
+			return;
+		$token = Token::get($authtoken);
+		if ($token === null) {
+			$this->unsetSessionToken();
+			return;
 		}
+		$user = $token->authenticate($authtoken);
+		if ($user === null) {
+			$this->unsetSessionToken();
+			return;
+		}
+		$user->setAuthtoken($token);
+		$this->login($user);
 	}
 }

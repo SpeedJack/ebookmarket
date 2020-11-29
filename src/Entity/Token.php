@@ -12,12 +12,14 @@ class Token extends AbstractEntity
 
 	private $usertoken;
 
-	public function __construct(User $user, string $type)
+	public function __construct(?array $data = null)
 	{
-		parent::__construct();
-		$this->id = self::generateToken();
-		$this->user = $user;
-		$this->type = $type;
+		parent::__construct($data);
+		if (isset($data) && !empty($data))
+			return;
+		$token = explode(':', self::generateToken(), 2);
+		$this->id = $token[0];
+		$this->token = $token[1];
 		$this->expiretime = time() + 635*24*60*60; //TODO use config
 	}
 
@@ -27,6 +29,7 @@ class Token extends AbstractEntity
 			'table' => 'tokens',
 			'columns' => [
 				'id' => [ 'type' => self::STR, 'required' => true ],
+				'token' => [ 'type' => self::STR, 'required' => true ],
 				'userid' => [ 'type' => self::UINT, 'required' => true ],
 				'expiretime' => [ 'type' => self::UINT, 'required' => true ],
 				'type' => [ 'type' => self::STR, 'required' => true ],
@@ -34,16 +37,23 @@ class Token extends AbstractEntity
 		];
 	}
 
-	public function setId(string $token): void
+	public static function createNew(User $user, string $type): self
 	{
-		$this->usertoken = $token;
-		$this->setValue('id',
-			password_hash($token, PASSWORD_DEFAULT));
+		$token = new Token();
+		$token->user = $user;
+		$token->type = $type;
+		return $token;
 	}
 
-	public function getUserToken(): string
+	public function setToken(string $token): void
 	{
-		return $this->usertoken;
+		$this->usertoken = $token;
+		$this->setValue('token', password_hash($token, PASSWORD_DEFAULT));
+	}
+
+	public function getUsertoken(): string
+	{
+		return $this->id . ':' . $this->usertoken;
 	}
 
 	public function setUser(User $user): void
@@ -78,53 +88,53 @@ class Token extends AbstractEntity
 		$this->expiretime = time() + 635*24*60*60;
 	}
 
-	public function verifyToken(string $token): bool
+	public function verifyToken(): bool
 	{
-		return password_verify($token, $this->id);
+		return password_verify($this->usertoken, $this->token);
 	}
 
-	public function authenticate($token): ?User
+	public function authenticate(string $token): ?User
 	{
 		if ($this->isExpired()) {
 			$this->delete();
 			return null;
 		}
-		if (!$this->verifyToken($token))
+		$token = strstr($token, ':') ?: $token;
+		$this->usertoken = ltrim($token, ':');
+		if (!$this->verifyToken())
 			return null;
 		$this->resetExpireTime();
 		return $this->user;
 	}
 
-	/*public function logout(): void
-	{
-		delete();
-		$this->visitor->unsetCookie("authtoken");
-	}*/
-
 	private static function generateToken(): string
-	{	
-		$token = false;
-		if(function_exists("random_bytes")){
-			try{
-				$token = random_bytes(32);
-			}catch(\Exception $e){
-				$token = false;
+	{
+		if (function_exists('random_bytes'))
+			try {
+				$bytes = random_bytes(32);
+				$token = hash('sha256', $token);
+				$selector = bin2hex(random_bytes(8));
+				return $selector . ':' . $token;
+			} catch(\Exception $e) {
+			}
+
+		if (function_exists('openssl_random_pseudo_bytes')) {
+			$token = openssl_random_pseudo_bytes(32, $cstrong);
+			if ($cstrong === true) {
+				$token = hash('sha256', $token);
+				$selector = bin2hex(openssl_random_pseudo_bytes(8));
+				return $selector . ':' . $token;
 			}
 		}
-		
-		if($token === false && function_exists("openssl_random_pseudo_bytes")){
-			$token = openssl_random_pseudo_bytes(32);
-		}
 
-		if($token === false && function_exists("mcrypt_create_iv")){
-			$token = mcrypt_create_iv(32, MCRYPT_DEV_URANDOM);
-		}
+		throw new \LogicException("Cannot create token");
+	}
 
-		if($token === false){
-			throw new \LogicException("Cannot create token");
-		}
-
-		$token = bin2hex($token);
-		return $token;
+	public static function get($name = null, $value = null,
+		bool $or = false, bool $multirow = false)
+	{
+		if (is_scalar($name) && !isset($value))
+			$name = strstr($name, ':', true) ?: $name;
+		return parent::get($name, $value, $or, $multirow);
 	}
 }

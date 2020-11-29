@@ -17,20 +17,17 @@ class AccountPage extends AbstractPage
 
 	public function actionIndex(): void
 	{
-		// TODO: this should show the user profile instead
-		if($this->visitor->isLoggedIn()){
-            echo "Logged In";
-            return;
-        }
-
-        $this->redirect("/login");
-
+		if (!$this->visitor->isLoggedIn()) {
+			$this->redirect('/login');
+			return;
+		}
+		echo "Logged In";
 	}
 
 	public function actionLogin(): void
 	{
 		if ($this->visitor->isLoggedIn())
-			$this->app->redirectHome();
+			$this->redirectHome();
 
 		switch ($this->visitor->getMethod()) {
 		case Visitor::METHOD_POST:
@@ -47,7 +44,7 @@ class AccountPage extends AbstractPage
 				return;
 			}
 
-			$this->visitor->authenticate($user);
+			$this->visitor->login($user);
 			$this->redirectHome();
 			break;
 		case Visitor::METHOD_GET:
@@ -60,105 +57,107 @@ class AccountPage extends AbstractPage
 		}
 	}
 
-    public function actionRegister(){ //TODO
-        $method = $this->visitor->getMethod();
-        switch($method) {
-            case Visitor::METHOD_GET :
-                $this->setTitle(__("EbookMarket - Register"));
-                $this->show("authentication/register");
-                break;
-            case Visitor::METHOD_POST :
-                $username = $this->visitor->param("username", "POST");
-                $email = $this->visitor->param("email", "POST");
-                $password = $this->visitor->param("password", "POST");
-                $passwordConfirm = $this->visitor->param("password_confirm", "POST");
-                $accept = $this->visitor->param("accept_terms", "POST");
-                $validation = [
-                    "username" => User::validateUsername($username),
-                    "email" => User::validateEmail($email),
-                    "password" => User::validatePassword($password),
-                    "password_confirm" => $accept,
-                    "accept_terms" => ($password == $passwordConfirm)
-                ];
+	//TODO
+	public function actionRegister(): void
+	{
+		$method = $this->visitor->getMethod();
+		switch($method) {
+		case Visitor::METHOD_GET :
+			$this->setTitle(__("EbookMarket - Register"));
+			$this->show("authentication/register");
+			break;
+		case Visitor::METHOD_POST :
+			$username = $this->visitor->param("username", "POST");
+			$email = $this->visitor->param("email", "POST");
+			$password = $this->visitor->param("password", "POST");
+			$passwordConfirm = $this->visitor->param("password_confirm", "POST");
+			$accept = $this->visitor->param("accept_terms", "POST");
+			$validation = [
+				"username" => User::validateUsername($username),
+				"email" => User::validateEmail($email),
+				"password" => User::validatePassword($password),
+				"password_confirm" => $accept,
+				"accept_terms" => ($password == $passwordConfirm)
+			];
 
-                if(in_array(false, $validation) || User::getOr(["username" => $username, "email" => $email]) ){
-                    $this->setTitle(__("EbookMarket - Register"));
-                    $this->show("authentication/register");  
-                } else {
-                    $user = new User();
-                    $user->username = $username;
-                    $user->email = $email;
-                    $user->password = password_hash($password);
-                    $user->valid = false;
-                    
-                    $user->save();
-                    
-                    //Create AuthToken for email verification
+			if(in_array(false, $validation) || User::getOr(["username" => $username, "email" => $email])) {
+				$this->setTitle(__("EbookMarket - Register"));
+				$this->show("authentication/register");
+			} else {
+				$user = new User();
+				$user->username = $username;
+				$user->email = $email;
+				$user->password = password_hash($password);
+				$user->valid = false;
 
-                    $verifyToken = new AuthToken();
-                    $verifyToken->type = "VERIFY_EMAIL";
-                    $verifyToken->user = $user->id;
-                    $authToken->save();
-                    
-                    /**Send verification email
-                    
-                    mail($user->email, __("Account verification"), 
-                    __("Welcome to EbookMarket! \n 
-                    please navigate to the following link for verify your account: \n 
-                    https://ebookmarket.com/auth/verify?token=". $authToken->$id 
-                    ));
-                    **/
+				$user->save();
 
+				//Create AuthToken for email verification
 
-                    
-                }
-                  
+				$verifyToken = new AuthToken();
+				$verifyToken->type = "VERIFY_EMAIL";
+				$verifyToken->user = $user->id;
+				$authToken->save();
 
-                break;
-            default : throw new \Exception("method" . $method . "not allowed");
-            
-      }
-    }
+				/**Send verification email
+				mail($user->email, __("Account verification"),
+				__("Welcome to EbookMarket! \n
+				please navigate to the following link for verify your account: \n
+				https://ebookmarket.com/auth/verify?token=". $authToken->$id
+				));
+				**/
+			}
+			break;
+		default:
+			throw new \Exception("method" . $method . "not allowed");
+		}
+	}
 
-    public function actionLogout(){ //TODO
-        $method = $this->visitor->getMethod();
-        switch($method) {
-            case Visitor::METHOD_GET :
-                $this->setTitle(__("EbookMarket - Logout"));
-                $this->show("authentication/logout");
-            break;
-            case Visitor::METHOD_POST : 
-            break;
-            default : throw new \Exception("method" . $method . "not allowed");
-            
-      }
-    }
+	//TODO
+	public function actionLogout(): void
+	{
+		$method = $this->visitor->getMethod();
+		switch($method) {
+		case Visitor::METHOD_GET:
+			$this->setTitle(__("EbookMarket - Logout"));
+			$this->show("authentication/logout");
+			break;
+		case Visitor::METHOD_POST:
+			break;
+		default:
+			throw new \Exception("method" . $method . "not allowed");
+		}
+	}
 
-    public function actionRecovery(){ //TODO
-        $method = $this->visitor->getMethod();
-        switch($method) {
-            case Visitor::METHOD_GET :
-                $this->setTitle(__("EbookMarket - Password Recovery"));
-                $this->show("authentication/account_recovery");
-            break;
-            case Visitor::METHOD_POST : 
-            break;
-                default : throw new \Exception("method" . $method . "not allowed");
-            
-      }
-    }
+	//TODO
+	public function actionRecovery(): void
+	{
+		$method = $this->visitor->getMethod();
+		switch($method) {
+		case Visitor::METHOD_GET:
+			$this->setTitle(__("EbookMarket - Password Recovery"));
+			$this->show("authentication/account_recovery");
+			break;
+		case Visitor::METHOD_POST:
+			break;
+		default:
+			throw new \Exception("method" . $method . "not allowed");
+		}
+	}
 
-    public function actionVerify(){ //TODO
-        $method = $this->visitor->getMethod();
-        switch($method) {
-            case Visitor::METHOD_GET :
-                $this->setTitle(__("EbookMarket - Account Verification"));
-                $this->show("authentication/account_verify");
-            break;
-            case Visitor::METHOD_POST : 
-            break;
-            default : throw new \Exception("method" . $method . "not allowed");
-            
-      }
-    }
+	//TODO
+	public function actionVerify(): void
+	{
+		$method = $this->visitor->getMethod();
+		switch($method) {
+		case Visitor::METHOD_GET:
+			$this->setTitle(__("EbookMarket - Account Verification"));
+			$this->show("authentication/account_verify");
+			break;
+		case Visitor::METHOD_POST:
+			break;
+		default:
+			throw new \Exception("method" . $method . "not allowed");
+		}
+	}
 }

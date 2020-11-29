@@ -91,6 +91,9 @@ abstract class AbstractEntity
 
 		$column = $this->structure['columns'][$name];
 
+		if (array_key_exists($name, $this->gettercache))
+			unset($this->gettercache[$name]);
+
 		if (!array_key_exists($name, $this->values)
 			|| $this->values[$name] !== $value)
 			$this->newvalues[$name] = $value;

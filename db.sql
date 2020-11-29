@@ -62,7 +62,8 @@ CREATE TABLE `orders` (
 
 DROP TABLE IF EXISTS `tokens`;
 CREATE TABLE `tokens` (
-	`id` VARCHAR(255) NOT NULL,
+	`id` CHAR(16) NOT NULL,
+	`token` VARCHAR(255) NOT NULL,
 	`userid` INT UNSIGNED NOT NULL,
 	`type` ENUM ('SESSION', 'VERIFY', 'RECOVERY') NOT NULL,
 	`expiretime` INT UNSIGNED NOT NULL,

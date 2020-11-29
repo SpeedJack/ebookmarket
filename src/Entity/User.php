@@ -6,6 +6,8 @@ namespace EbookMarket\Entity;
 
 class User extends AbstractEntity
 {
+	private $token;
+
 	public static function getStructure(): array
 	{
 		return [
@@ -47,10 +49,24 @@ class User extends AbstractEntity
 		return password_verify($password, $this->passwordhash);
 	}
 
-	public function login(): Token
+	public function hasAuthtoken(): bool
 	{
-		$token = new Token($this, Token::SESSION);
-		$token->save();
-		return $token;
+		return $this->token !== null;
+	}
+
+	public function getAuthtoken(): ?Token
+	{
+		return $this->token;
+	}
+
+	public function setAuthtoken(?Token $token): void
+	{
+		$this->token = $token;
+	}
+
+	public function login(): void
+	{
+		$this->token = Token::createNew($this, Token::SESSION);
+		$this->token->save();
 	}
 }
