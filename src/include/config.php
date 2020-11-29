@@ -3,7 +3,7 @@
 $config['server_port'] = 8443;
 $config["domain"] = "ebookmarket.com";
 //$config['app_subdir'] = '';
-$config['db']['host'] = 'db';
+$config['db']['host'] = '127.0.0.1';
 //$config['db']['port'] = 3306;
 $config['db']['username'] = 'dbuser';
 $config['db']['password'] = 'dbpass';
