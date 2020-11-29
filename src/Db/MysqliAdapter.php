@@ -14,7 +14,7 @@ class MysqliAdapter extends AbstractAdapter
 	}
 
 	protected function createStatement(string $query,
-		?array $params): MysqliStatement
+		?array $params): AbstractStatement
 	{
 		return new MysqliStatement($this, $query, $params);
 	}

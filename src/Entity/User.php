@@ -9,7 +9,7 @@ class User extends AbstractEntity
 	public static function getStructure(): array
 	{
 		return [
-			'table' => 'user',
+			'table' => 'users',
 			'columns' => [
 				'id' => [ 'type' => self::UINT, 'auto_increment' => true ],
 				'username' => [ 'type' => self::STR, 'required' => true ],
@@ -40,5 +40,17 @@ class User extends AbstractEntity
 	{
 		/* Just check for a decent passwd len here */
 		return strlen($password) > 7;
+	}
+
+	public function verifyPassword(string $password): bool
+	{
+		return password_verify($password, $this->passwordhash);
+	}
+
+	public function login(): Token
+	{
+		$token = new Token($this, Token::SESSION);
+		$token->save();
+		return $token;
 	}
 }

@@ -6,69 +6,64 @@ namespace EbookMarket\Pages;
 
 use \EbookMarket\Entity\User;
 use \EbookMarket\Visitor;
+use \EbookMarket\AppException;
 
 class AuthPage extends AbstractPage
 {
-    public const LOGIN = 1;
-    public const REGISTER = 2;
-    public const RECOVERY = 3;
-    public const VERIFY = 4;
+	public const LOGIN = 1;
+	public const REGISTER = 2;
+	public const RECOVERY = 3;
+	public const VERIFY = 4;
 
-    public function actionIndex() : void {
-        $method = $this->visitor->getMethod();
-        if($method == Visitor::METHOD_GET) {
-             $this->app->reroute("auth/login");
-        }
-        else 
-            throw new \Exception("method" . $method . "not allowed");     
-      }
-    public function actionLogin(){
-        $method = $this->visitor->getMethod();
-        switch($method) {
-            case Visitor::METHOD_GET :
-                $this->setTitle(__("EbookMarket - Login"));
-                $this->show("authentication/login");
-                break;
-            case Visitor::METHOD_POST :
-                $email = $this->visitor->param("email", "POST");
-                $password = $this->visitor->param("password", "POST");
-                echo $email . " " . $password;
-                $user = User::get("email", $email);
-                if(!$user || !password_verify($password, $user->passwordhash))
-                {
-                    $this->setTitle(__("EbookMarket - Login"));
-                    $this->show("authentication/login");
-                } else 
-                {
-                    $authToken = AuthToken::get(["user" => $user->id, "type" => "AUTHENTICATION"]);
-                    if($authToken && $authToken->isExpired()){
-                        $authToken->delete();
-                        $authToken = null;
-                    }
-                    
-                    if(!$authToken)
-                        $authToken = new AuthToken(["type" => "AUTHENTICATION", "user" => $user->id]);
-                    
-                    $authToken->save();
-                    setcookie("authtoken", $authToken->id,
-                        [
-                            "expires" => $authToken->expire_time,
-                            "domain" => $this->app->config["domain"],
-                            "secure" => true,
-                            "httponly" => true    
-                        ]
-                    );
-                    
-                    $app->reroute("/book");
-                }
+	public function actionIndex(): void
+	{
+		// TODO: this should show the user profile instead
+		switch ($this->visitor->getMethod()) {
+		case Visitor::METHOD_POST:
+			throw new \LogicException('TODO: account/index');
+		case Visitor::METHOD_GET:
+		case Visitor::METHOD_HEAD:
+			$this->app->reroute('auth/login');
+			break;
+		default:
+			throw new AppException('Method not allowed.', 405);
+		}
+	}
 
-                break;
-            default : throw new \Exception("method " . $method . " not allowed");
-            
-      }
-    }
+	public function actionLogin(): void
+	{
+		if ($this->visitor->isLoggedIn())
+			$this->app->redirectHome();
 
-    public function actionRegister(){
+		switch ($this->visitor->getMethod()) {
+		case Visitor::METHOD_POST:
+			$username = $this->visitor->param('username', 'POST');
+			$password = $this->visitor->param('password', 'POST');
+			if (empty($username) || $empty($password)) {
+				$this->error('Error.', 'Invalid username or password.');
+				return;
+			}
+
+			$user = User::get('username', $username);
+			if (!$user || !$user->verifyPassword($password)) {
+				$this->error('Error.', 'Invalid username or password.');
+				return;
+			}
+
+			$this->visitor->authenticate($user);
+			$this->redirectHome();
+			break;
+		case Visitor::METHOD_GET:
+		case Visitor::METHOD_HEAD:
+			$this->setTitle('EbookMarket - Login');
+			$this->show('account/login');
+			break;
+		default:
+			throw new AppException('Method not allowed.', 405);
+		}
+	}
+
+    public function actionRegister(){ //TODO
         $method = $this->visitor->getMethod();
         switch($method) {
             case Visitor::METHOD_GET :
@@ -128,7 +123,7 @@ class AuthPage extends AbstractPage
       }
     }
 
-    public function actionLogout(){
+    public function actionLogout(){ //TODO
         $method = $this->visitor->getMethod();
         switch($method) {
             case Visitor::METHOD_GET :
@@ -142,7 +137,7 @@ class AuthPage extends AbstractPage
       }
     }
 
-    public function actionRecovery(){
+    public function actionRecovery(){ //TODO
         $method = $this->visitor->getMethod();
         switch($method) {
             case Visitor::METHOD_GET :
@@ -156,7 +151,7 @@ class AuthPage extends AbstractPage
       }
     }
 
-    public function actionVerify(){
+    public function actionVerify(){ //TODO
         $method = $this->visitor->getMethod();
         switch($method) {
             case Visitor::METHOD_GET :

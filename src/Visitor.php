@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace EbookMarket;
 
+use \EbookMarket\Entity\User;
+use \EbookMarket\Entity\Token;
+
 class Visitor extends AbstractSingleton
 {
 	public const METHOD_UNKNOWN = 0;
@@ -21,6 +24,7 @@ class Visitor extends AbstractSingleton
 	protected $action = App::DEFAULT_ACTION;
 	protected $getParams = [];
 	protected $postParams = [];
+	protected $user;
 
 	protected function __construct()
 	{
@@ -169,27 +173,35 @@ class Visitor extends AbstractSingleton
 				$this->addPostParams([$key => $value]);
 	}
 
-	//Cookies
-	public function getCookie(string $name = null){
-		if(!$name)
-			return $_COOKIE;
-		else return $_COOKIE[$name];
+	public function isLoggedIn(): bool
+	{
+		return $this->user != null;
 	}
 
-	public function unsetCookie(string $key){
-		if(isset($key))
-				unset($_COOKIE[$key]);
+	public function authenticate(User $user): void
+	{
+		$this->user = $user;
+		$this->setSessionToken($user->login());
 	}
 
-	public function setCookie(string $name, string $value){
-		if(!$name || !$value)
+	public function setSessionToken(Token $token): void
+	{
+		$this->setCookie('authtoken', $token->getUserToken(),
+			$token->getExpiretime());
+	}
+
+	public function setCookie(string $key, string $value, int $expire = 0,
+		bool $httponly = true, string $path = '/'): void
+	{
+		//TODO get host and secure from App
+		setcookie($key, $value, $expire, $path, 'localhost', true, $httponly);
+	}
+
+	public function unsetCookie(string $key): void
+	{
+		if (!isset($_COOKIE[$key]))
 			return;
-		setcookie($name, $value);	
-	}
-
-	public function clearCookies(){
-		foreach ($_COOKIE as $key => $value){
-			unsetCookie($key);
-		}
+		$this->setCookie($key, $_COOKIE[$key], time() - 60*60*24);
+		unset($_COOKIE[$key]);
 	}
 }

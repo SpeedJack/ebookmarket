@@ -9,13 +9,12 @@ class Order extends AbstractEntity
 	public static function getStructure(): array
 	{
 		return [
-			'table' => 'order',
+			'table' => 'orders',
 			'columns' => [
-				'id' => ['type' => self::UINT, 'auto_increment' => true],
-				'user' => ['type' => self::STR, 'required' => true],
-				'book' => ['type' => self::STR, 'required' => true],
-				'payment_ok' => ['type' => self::BOOL, 'required' => true, 'default' => 'false'],
-				'date' => ['type' => self::UINT, 'default' => time()]
+				'id' => [ 'type' => self::UINT, 'auto_increment' => true ],
+				'userid' => [ 'type' => self::STR, 'required' => true ],
+				'bookid' => [ 'type' => self::STR, 'required' => true ],
+				'completed' => [ 'type' => self::BOOL, 'default' => false ],
 			]
 		];
 	}

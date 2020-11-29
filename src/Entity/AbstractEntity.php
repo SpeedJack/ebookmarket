@@ -13,7 +13,7 @@ abstract class AbstractEntity
 	protected const BOOL = 2;
 	protected const STR = 3;
 	protected const FLOAT = 4;
-	
+
 	protected $values = [];
 	protected $newvalues = [];
 	protected $gettercache = [];

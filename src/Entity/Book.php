@@ -11,14 +11,15 @@ class Book extends AbstractEntity
 	public static function getStructure(): array
 	{
 		return [
-			'table' => 'book',
+			'table' => 'books',
 			'columns' => [
 				'id' => [ 'type' => self::UINT, 'auto_increment' => true ],
 				'title' => [ 'type' => self::STR, 'required' => true ],
 				'author' => [ 'type' => self::STR, 'required' => true ],
-				'category' => [ 'type' => self::UINT, 'required' => true ],
+				'pubdate' => [ 'type' => self::DATE ],
 				'price' => [ 'type' => self::FLOAT, 'required' => true ],
-				'year' => [ 'type' => self::UINT ],
+				'filehandle' => [ 'type' => self::STR, 'required' => true ],
+				'categoryid' => [ 'type' => self::UINT, 'required' => true ],
 			]
 		];
 	}
@@ -29,7 +30,7 @@ class Book extends AbstractEntity
 			. static::getStructure()['table']
 			. '` b INNER JOIN `'
 			. Category::getStructure()['table']
-			. '` c ON b.category = c.id WHERE c.name = ? ;';
+			. '` c ON b.categoryid = c.id WHERE c.name = ? ;';
 
 		$db = App::getInstance()->db();
 		$data = $db->fetchAll($query, $name);

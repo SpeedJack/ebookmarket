@@ -68,6 +68,13 @@ class App extends AbstractSingleton
 			], $config);
 	}
 
+	public function config(?string $key = null)
+	{
+		if ($key === null)
+			return $this->config;
+		return $this->config[$key] ?? null;
+	}
+
 	public function isHttps(): bool
 	{
 		return $this->https;
