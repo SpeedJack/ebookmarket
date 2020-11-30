@@ -29,6 +29,8 @@ class Visitor extends AbstractSingleton
 	protected $getParams = [];
 	protected $postParams = [];
 	protected $user;
+	protected $csrfToken;
+	protected $verifiedCsrf;
 
 	protected function __construct()
 	{
@@ -220,11 +222,16 @@ class Visitor extends AbstractSingleton
 	}
 
 	public function setCookie(string $key, string $value,
-		int $expire = 0): void
+		int $expire = 0, bool $samesiteStrict = false): void
 	{
-		setcookie($key, $value, $expire, '/',
-			$this->app->getServerName(), $this->app->isHttps(),
-			true, [ 'samesite' => 'Strict' ]);
+		setcookie($key, $value, [
+				'expires' => $expire,
+				'path' => '/',
+				'domain' => $this->app->getServerName(),
+				'secure' => $this->app->isHttps(),
+				'httponly' => true,
+				'samesite' => $samesiteStrict ? 'Strict' : 'Lax',
+			]);
 		$_COOKIE[$key] = $value;
 	}
 
@@ -263,5 +270,42 @@ class Visitor extends AbstractSingleton
 		}
 		$user->setAuthtoken($token);
 		$this->login($user);
+	}
+
+	public function generateCsrfToken(): Token
+	{
+		if (!isset($this->csrfToken)) {
+			$this->csrfToken = Token::createNewCsrf($this->user);
+			$this->csrfToken->save();
+		}
+		return $this->csrfToken;
+	}
+
+	public function verifyCsrfToken(string $method = 'POST'): bool
+	{
+		if ($this->verifiedCsrf)
+			return true;
+		$token = $this->param('csrftoken', $method);
+		if ($token === null)
+			return false;
+		$token = strstr($token, ':');
+		if ($token === false)
+			return false;
+		$realtoken = Token::get($token);
+		if ($realtoken === null)
+			return false;
+		if ($realtoken->isExpired()) {
+			$realtoken->delete();
+			return false;
+		}
+		if ($realtoken->type !== Token::CSRF
+			&& !$realtoken->verifyToken($token))
+			return false;
+		if ((isset($this->user) && $realtoken->userid !== $this->user->id)
+			|| (!isset($this->user) && $realtoken->userid !== null))
+			return false;
+		$realtoken->delete();
+		$this->verifiedCsrf = true;
+		return true;
 	}
 }

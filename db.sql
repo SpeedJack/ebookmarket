@@ -64,8 +64,8 @@ DROP TABLE IF EXISTS `tokens`;
 CREATE TABLE `tokens` (
 	`id` CHAR(16) NOT NULL,
 	`token` VARCHAR(255) NOT NULL,
-	`userid` INT UNSIGNED NOT NULL,
-	`type` ENUM ('SESSION', 'VERIFY', 'RECOVERY') NOT NULL,
+	`userid` INT UNSIGNED,
+	`type` ENUM ('SESSION', 'VERIFY', 'RECOVERY', 'CSRF') NOT NULL,
 	`expiretime` INT UNSIGNED NOT NULL,
 	PRIMARY KEY (`id`),
 	FOREIGN KEY (`userid`)

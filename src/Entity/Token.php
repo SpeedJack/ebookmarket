@@ -9,6 +9,7 @@ class Token extends AbstractEntity
 	public const SESSION = 'SESSION';
 	public const VERIFY = 'VERIFY';
 	public const RECOVERY = 'RECOVERY';
+	public const CSRF = 'CSRF';
 
 	private $usertoken;
 
@@ -29,7 +30,7 @@ class Token extends AbstractEntity
 			'columns' => [
 				'id' => [ 'type' => self::STR, 'required' => true ],
 				'token' => [ 'type' => self::STR, 'required' => true ],
-				'userid' => [ 'type' => self::UINT, 'required' => true ],
+				'userid' => [ 'type' => self::UINT, 'required' => false ],
 				'expiretime' => [ 'type' => self::UINT, 'required' => true ],
 				'type' => [ 'type' => self::STR, 'required' => true ],
 			]
@@ -41,6 +42,17 @@ class Token extends AbstractEntity
 		$token = new Token();
 		$token->user = $user;
 		$token->type = $type;
+		$token->resetExpireTime();
+		return $token;
+	}
+
+	public static function createNewCsrf(?User $user = null): self
+	{
+		if (isset($user))
+			return static::createNew($user, self::CSRF);
+		$token = new Token();
+		$token->setValue('userid', null);
+		$token->type = self::CSRF;
 		$token->resetExpireTime();
 		return $token;
 	}
@@ -72,6 +84,7 @@ class Token extends AbstractEntity
 		case self::SESSION:
 		case self::VERIFY:
 		case self::RECOVERY:
+		case self::CSRF:
 			return true;
 		default:
 			return false;
@@ -95,26 +108,32 @@ class Token extends AbstractEntity
 		case self::RECOVERY:
 			$time = $this->app->config('recovery_token_expire_time');
 			break;
+		case self::CSRF:
+			$time = $this->app->config('csrf_token_expire_time');
+			break;
 		default:
 			return;
 		}
 		$this->expiretime = time() + $time;
 	}
 
-	public function verifyToken(): bool
+	public function verifyToken(string $token): bool
 	{
-		return password_verify($this->usertoken, $this->token);
+		return password_verify($token, $this->token);
 	}
 
-	public function authenticate(string $token): ?User
+	public function authenticate(string $token,
+		string $type = self::SESSION): ?User
 	{
 		if ($this->isExpired()) {
 			$this->delete();
 			return null;
 		}
+		if ($this->type !== $type)
+			return null;
 		$token = strstr($token, ':') ?: $token;
 		$this->usertoken = ltrim($token, ':');
-		if (!$this->verifyToken())
+		if (!$this->verifyToken($this->usertoken))
 			return null;
 		$this->resetExpireTime();
 		return $this->user;

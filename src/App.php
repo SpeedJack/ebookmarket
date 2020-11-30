@@ -46,7 +46,12 @@ class App extends AbstractSingleton
 			$config = [];
 		$app = static::getInstance($config);
 		Visitor::assertMethod();
-		$app->visitor = Visitor::getInstance();
+		$visitor = Visitor::getInstance();
+		if (Visitor::getMethod() === Visitor::METHOD_POST
+			&& !$visitor->verifyCsrfToken())
+			throw new InvalidValueException(
+				'Received an invalid CSRF token.');
+		$app->visitor = $visitor;
 		$app->route();
 	}
 
