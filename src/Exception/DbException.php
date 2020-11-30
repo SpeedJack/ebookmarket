@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EbookMarket\Exception;
 
+use EbookMarket\Db\AbstractStatement;
+
 class DbException extends ServerException
 {
 	protected $sqlStateCode;

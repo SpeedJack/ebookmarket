@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EbookMarket\Exception;
 
+use EbookMarket\Db\AbstractStatement;
+
 class DuplicateKeyException extends ServerException
 {
 	public function __construct(string $message, ?string $route = null,
