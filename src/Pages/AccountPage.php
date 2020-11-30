@@ -74,7 +74,7 @@ class AccountPage extends AbstractPage
 				$user = new User();
 				$user->username = $username;
 				$user->email = $email;
-				$user->setPassword($password);
+				$user->password = $password;
 				$user->valid = false;
 
 				$user->save();
@@ -101,8 +101,6 @@ class AccountPage extends AbstractPage
 
 			}
 			break;
-		default:
-			throw new \Exception("method" . $method . "not allowed");
 		}
 	}
 
@@ -117,8 +115,6 @@ class AccountPage extends AbstractPage
 			break;
 		case Visitor::METHOD_POST:
 			break;
-		default:
-			throw new \Exception("method" . $method . "not allowed");
 		}
 	}
 
@@ -127,17 +123,65 @@ class AccountPage extends AbstractPage
 	{
 		$method = $this->visitor->getMethod();
 		switch($method) {
-		case Visitor::METHOD_GET:
-			$this->setTitle("EbookMarket - Password Recovery");
-			$this->show("authentication/account_recovery");
-			break;
-		case Visitor::METHOD_POST:
-			break;
-		default:
-			throw new \Exception("method" . $method . "not allowed");
-		}
+            case Visitor::METHOD_GET:
+                $this->setTitle("EbookMarket - Password Recovery");
+                $this->show("account/recovery");
+                break;
+            case Visitor::METHOD_POST:
+                $email = $this->visitor->param("email", "POST");
+                $captcha = $this->visitor->param("captcha", "POST")
+                //if(VerifyCaptcha($captcha));
+                if(!empty($email)){
+                    $user = User::get("email", $email);
+                    if($user){
+                        $token = Token::createNew($user, Token::RECOVERY);
+                        $token->save();
+                        echo "Recovery Token : " . $token->usertoken;
+                    }
+                }
+                break;
+        }
 	}
 
+    public function actionChangepassword(): void
+    {
+        $method = $this->visitor->getMethod();
+        switch($method) {
+            case Visitor::METHOD_GET:
+                $usertoken = $this->visitor->param("token", "GET");
+                $token = Token::get($usertoken);
+                if($token->authenticate($usertoken, Token::RECOVERY)){
+                    $this->setTitle("EbookMarket - Change Password");
+                    //verifica token e se valido show template
+                    $this->show("account/change_password", ["usertoken" => $usertoken]);
+                }
+                break;
+            case Visitor::METHOD_POST:
+                //Verifica token e cambio password
+                $this->setTitle("EbookMarket - Password Change Result");
+                $password = $this->visitor->param("password", "POST");
+                $passwordConfirm = $this->visitor->param("password_confirm", "POST");
+                $usertoken = $this->visitor->param("usertoken", "POST");
+                $token = Token::get($usertoken);
+
+                if(!empty($password)
+                    && !(empty($passwordConfirm))
+                    && ($password == $passwordConfirm)
+                    && $token->authenticate($usertoken, Token::RECOVERY)
+                ){
+                    $user = $token->getUser();
+                    if($user){
+                        $user->password = $password;
+                        $user->save();
+                        $this->show("account/password_change_result", ["success" => true]);
+                    } else {
+                        $this->show("account/password_change_result", ["success" => false]);
+                    }
+                    $token->delete();
+                }
+                break;
+        }
+    }
 	//TODO
 	public function actionVerify(): void
 	{
@@ -157,9 +201,6 @@ class AccountPage extends AbstractPage
                 $this->show("account/verify_result",  ["success" => false]);
             }
 		        break;
-
-		default:
-			throw new \Exception("method" . $method . "not allowed");
 		}
 	}
 }

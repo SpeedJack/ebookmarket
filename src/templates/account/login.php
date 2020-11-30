@@ -7,7 +7,7 @@
         <input type="password" name="password" />
         <label for="remember_me">Remember Me</label>
         <input type="checkbox" name="remember_me">
-	<input type="hidden" name="csrftoken" value="<?= $this->getCsrfToken() ?>">
+	    <input type="hidden" name="csrftoken" value="<?= $this->getCsrfToken() ?>">
         <button type="submit">Login</button>
     </form>
 </main>
