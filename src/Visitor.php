@@ -288,9 +288,6 @@ class Visitor extends AbstractSingleton
 		$token = $this->param('csrftoken', $method);
 		if ($token === null)
 			return false;
-		$token = strstr($token, ':');
-		if ($token === false)
-			return false;
 		$realtoken = Token::get($token);
 		if ($realtoken === null)
 			return false;
@@ -298,6 +295,9 @@ class Visitor extends AbstractSingleton
 			$realtoken->delete();
 			return false;
 		}
+		$token = strstr($token, ':');
+		if ($token === false)
+			return false;
 		if ($realtoken->type !== Token::CSRF
 			&& !$realtoken->verifyToken($token))
 			return false;
