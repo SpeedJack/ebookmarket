@@ -177,5 +177,11 @@ abstract class AbstractPage
 		$this->redirectHome($params, true);
 	}
 
+	protected function getCsrfToken(): string
+	{
+		return static::htmlEscapeQuotes(
+			$this->visitor->generateCsrfToken()->usertoken);
+	}
+
 	abstract public function actionIndex(): void;
 }
