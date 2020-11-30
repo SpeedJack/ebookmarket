@@ -129,7 +129,7 @@ class AccountPage extends AbstractPage
                 break;
             case Visitor::METHOD_POST:
                 $email = $this->visitor->param("email", "POST");
-                $captcha = $this->visitor->param("captcha", "POST")
+                //$captcha = $this->visitor->param("captcha", "POST");
                 //if(VerifyCaptcha($captcha));
                 if(!empty($email)){
                     $user = User::get("email", $email);
