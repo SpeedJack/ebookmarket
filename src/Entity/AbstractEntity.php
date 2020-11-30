@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace EbookMarket\Entity;
 
-use \EbookMarket\App;
+use EbookMarket\App;
+use EbookMarket\Exception\InvalidValueException;
 
 abstract class AbstractEntity
 {
@@ -26,7 +27,8 @@ abstract class AbstractEntity
 	{
 		$this->structure = static::getStructure();
 		if (!$this->hasValidStructure())
-			throw new \LogicException('Invalid structure.');
+			throw new \LogicException("Entity '" . get_class($this)
+				. "' has an invalid structure.");
 		$this->app = App::getInstance();
 		$this->db = $this->app->db();
 		if (isset($data) && !empty($data))
@@ -61,7 +63,7 @@ abstract class AbstractEntity
 				. get_class($this) . "'.");
 
 		if (!$this->validateValue($name, $value))
-			throw new \RuntimeException(
+			throw new InvalidValueException(
 				"Invalid value for '$name' in entity '"
 				. get_class($this) . "'.");
 
@@ -85,7 +87,7 @@ abstract class AbstractEntity
 	protected function setValue(string $name, $value): void
 	{
 		if (!isset($this->structure['columns'][$name]))
-			throw new \LogicException(
+			throw new \InvalidArgumentException(
 				"Attribute '$name' does not exists in entity '"
 				. get_class($this) . "'.");
 

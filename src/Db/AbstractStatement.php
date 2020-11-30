@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace EbookMarket\Db;
 
+use EbookMarket\Exception\{
+	DbException,
+	DuplicateKeyException,
+};
+
 abstract class AbstractStatement
 {
 	protected $query;
@@ -48,7 +53,7 @@ abstract class AbstractStatement
 	}
 
 	protected function getException(string $message, int $code = 0,
-		?string $sqlStateCode = null): Exception
+		?string $sqlStateCode = null): DbException
 	{
 		if (!$sqlStateCode || $sqlStateCode === '00000')
 			switch ($code) {
@@ -60,15 +65,10 @@ abstract class AbstractStatement
 
 		switch($sqlStateCode) {
 		case '23000':
-			$exclass = 'DuplicateKeyException';
-			break;
+			return new DuplicateKeyException($message, null, $this);
 		default:
-			$exclass = 'Exception';
+			return new DbException($message, null, $sqlStateCode, $this);
 		}
-
-		$exclass = __NAMESPACE__ . "\\$exclass";
-		return $exClass($message, $code, $sqlStateCode, $this);
-
 	}
 
 	abstract public function prepare(): void;

@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace EbookMarket;
 
-use \EbookMarket\Entity\User;
-use \EbookMarket\Entity\Token;
+use EbookMarket\Entity\{
+	User,
+	Token,
+};
+use EbookMarket\Exception\InvalidMethodException;
 
 class Visitor extends AbstractSingleton
 {
@@ -90,9 +93,14 @@ class Visitor extends AbstractSingleton
 			$page = $parts[0];
 		else
 			throw new \InvalidArgumentException(
-				'Invalid route specified.');
+				"Invalid route specified: $route.");
 		$this->setPage($page ?? null);
 		$this->setAction($action ?? null);
+	}
+
+	public function getRoute(): string
+	{
+		return $this->getPageParam() . '/' . $this->getActionParam();
 	}
 
 	public function getPage(): string
@@ -134,7 +142,8 @@ class Visitor extends AbstractSingleton
 		int $allowed = self::METHOD_GET | self::METHOD_POST): void
 	{
 		if (!(static::getMethod() & $allowed))
-			throw new AppException('Invalid method.', 405);
+			throw new InvalidMethodException('Invalid method: '
+			. $_SERVER['REQUEST_METHOD'] . '.');
 	}
 
 	public static function getMethod(): int

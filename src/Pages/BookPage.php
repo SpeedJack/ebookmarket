@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EbookMarket\Pages;
 
-use \EbookMarket\Entity\User;
+use EbookMarket\Entity\User;
 
 class BookPage extends AbstractPage
 {

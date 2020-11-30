@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace EbookMarket\Pages;
 
-use \EbookMarket\Entity\User;
-use \EbookMarket\Visitor;
-use \EbookMarket\AppException;
+use EbookMarket\{
+	Entity\User,
+	Visitor,
+	AppException,
+};
 
 class AccountPage extends AbstractPage
 {

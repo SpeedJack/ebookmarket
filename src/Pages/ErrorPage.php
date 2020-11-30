@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace EbookMarket\Pages;
 
+use EbookMarket\Exception\Exception;
+
 class ErrorPage extends AbstractPage
 {
-	protected $code;
+	protected $exception;
 
-	public function __construct(int $code = 200)
+	public function __construct(\Throwable $exception)
 	{
 		parent::__construct();
-		$this->code = $code;
+		$this->exception = $exception;
 	}
 
-	public function getTitle(): string
+	protected static function getTitle(int $code): string
 	{
-		switch ($this->code) {
+		switch ($code) {
 		case 401:
 			return 'Unauthorized';
 		case 402:
@@ -32,19 +34,19 @@ class ErrorPage extends AbstractPage
 		case 400:
 		case 500:
 		default:
-			if ($this->code > 399) {
-				if ($this->code < 500)
+			if ($code > 399) {
+				if ($code < 500)
 					return 'Bad Request';
-				else if ($this->code < 600)
+				else if ($code < 600)
 					return 'Internal Server Error';
 			}
 			return 'Unknown Error';
 		}
 	}
 
-	public function getMessage(): string
+	protected static function getMessage(int $code): string
 	{
-		switch ($this->code) {
+		switch ($code) {
 		case 401:
 		case 402:
 		case 403:
@@ -58,10 +60,10 @@ class ErrorPage extends AbstractPage
 		case 400:
 		case 500:
 		default:
-			if ($this->code > 399) {
-				if ($this->code < 500)
+			if ($code > 399) {
+				if ($code < 500)
 					return 'Invalid request. Please, try again.';
-				else if ($this->code < 600)
+				else if ($code < 600)
 					return 'Unexpected server error. Please, try again later.';
 			}
 			return 'Something wrong happened. Please, try again later.';
@@ -70,12 +72,17 @@ class ErrorPage extends AbstractPage
 
 	public function showError(): void
 	{
+		$code = 500;
+		if ($this->exception instanceof Exception)
+			$code = $this->exception->getCode();
+		$title = static::getTitle($code);
+		$message = $this->exception->getMessage() ?? static::getMessage($code);
 		$params = [
-			'title' => parent::htmlEscape($this->getTitle()),
-			'message' => parent::htmlEscape($this->getMessage()),
+			'title' => parent::htmlEscape($title),
+			'message' => parent::htmlEscape($message),
 		];
-		http_response_code($this->code);
-		$this->setTitle($this->code . ' - ' . $this->getTitle());
+		http_response_code($code);
+		$this->setTitle($code . ' - ' . $title);
 		$this->show('error', $params);
 	}
 

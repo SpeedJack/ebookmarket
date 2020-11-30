@@ -127,7 +127,7 @@ class Token extends AbstractEntity
 			}
 		}
 
-		throw new \LogicException("Cannot create token");
+		throw new \RuntimeException('Unable to create a secure token.');
 	}
 
 	public static function get($name = null, $value = null,

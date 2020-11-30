@@ -79,7 +79,7 @@ class Logger
 	{
 		if ($level > self::$loglevel)
 			return;
-		error_log('[' . static::getLogLevelName($level) . ']'
+		error_log('[' . static::getLogLevelName($level) . '] '
 			. $message . PHP_EOL);
 	}
 

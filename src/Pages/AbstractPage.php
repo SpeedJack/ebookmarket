@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace EbookMarket\Pages;
 
-use \EbookMarket\App;
-use \EbookMarket\Visitor;
+use EbookMarket\{
+	App,
+	Visitor,
+};
 
 abstract class AbstractPage
 {
@@ -79,7 +81,7 @@ abstract class AbstractPage
 		if (file_exists("$tmplfile.html"))
 			return "$tmplfile.html";
 		throw new \InvalidArgumentException(
-			'The required template does not exists.');
+			"The required template '$template' does not exists.");
 	}
 
 	protected function loadTemplate(string $template, array $params = []): void

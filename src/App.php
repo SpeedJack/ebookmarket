@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EbookMarket;
 
+use EbookMarket\Exception\InvalidRouteException;
+
 class App extends AbstractSingleton
 {
 	public const DEFAULT_PAGE = 'BookPage';
@@ -98,7 +100,7 @@ class App extends AbstractSingleton
 		else if (extension_loaded('mysqli'))
 			$this->db = Db\MysqliAdapter::getInstance($this->config['db']);
 		else
-			throw new \RuntimeException(
+			throw new \LogicException(
 				'No database extension loaded: PDO or MySQLi is required.');
 
 		return $this->db;
@@ -115,15 +117,19 @@ class App extends AbstractSingleton
 		$action = $this->visitor->getAction();
 		if (preg_match('/^[A-Za-z_][a-z0-9_]{0,20}Page$/', $page) !== 1
 			|| preg_match('/^action[A-Za-z_][a-z0-9_]{0,20}$/', $action) !== 1)
-			throw new InvalidRouteException($page, $action);
+			throw new InvalidRouteException(
+				$this->visitor->getRoute());
 
 		$class = __NAMESPACE__ . "\\Pages\\$page";
 		try {
 			$pageinstance = new $class();
 			if (!method_exists($pageinstance, $action))
-				throw new InvalidRouteException($page, $action);
+				throw new InvalidRouteException(
+					$this->visitor->getRoute());
 		} catch (\LogicException $ex) {
-			throw new InvalidRouteException($page, $action, $ex);
+			throw new InvalidRouteException(
+				$this->visitor->getRoute(),
+				null, null, 404, $ex);
 		}
 
 		$pageinstance->$action();
@@ -148,7 +154,7 @@ class App extends AbstractSingleton
 		$file = "/css/$cssname.css";
 		if (!file_exists($GLOBALS['APP_ROOT'] . $file))
 			throw new \InvalidArgumentException(
-				'The required CSS file does not exists.');
+				"The required CSS file '$file' does not exists.");
 		return $this->config['app_subdir'] . $file;
 	}
 
@@ -157,7 +163,7 @@ class App extends AbstractSingleton
 		$file = "/js/$jsname.js";
 		if (!file_exists($GLOBALS['APP_ROOT'] . $file))
 			throw new \InvalidArgumentException(
-				'The required JavaScript file does not exists.');
+				"The required JavaScript file '$file' does not exists.");
 		return $this->config['app_subdir'] . $file;
 	}
 
@@ -186,7 +192,7 @@ class App extends AbstractSingleton
 			$page = $parts[0];
 		else
 			throw new \InvalidArgumentException(
-				'Invalid route specified.');
+				"Invalid route specified: $route.");
 		$defpage = lcfirst(substr(static::DEFAULT_PAGE, 0, -4));
 		$defaction = lcfirst(substr(static::DEFAULT_ACTION, 6));
 		if (empty($page) && !empty($action))
@@ -234,22 +240,17 @@ class App extends AbstractSingleton
 		while (ob_get_level())
 			@ob_end_clean();
 
-		$httpcode = 500;
-		if ($ex instanceof AppException)
-			$httpcode = $ex->getCode();
-		else if ($ex instanceof \BadFunctionCallException)
-			$httpcode = 501;
 		try {
-			$errorPage = new Pages\ErrorPage($httpcode);
+			$errorPage = new Pages\ErrorPage($ex);
 			$errorPage->showError();
 		} catch (\Throwable $e) {
-			http_response_code($httpcode);
 			echo 'Server error. Please try again later.';
+			@Logger::alert('Can not show error page.');
 		} finally {
 			try {
 				@Logger::exception($ex);
 			} catch (\Throwable $ex) {
-				error_log('Can not log exception.');
+				@Logger::emergency('Can not log exception.');
 			}
 			exit(1);
 		}
