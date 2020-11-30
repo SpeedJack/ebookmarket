@@ -23,6 +23,7 @@ class Visitor extends AbstractSingleton
 	public const METHOD_TRACE = 1 << 7;
 	public const METHOD_PATCH = 1 << 8;
 
+	protected $app;
 	protected $page = App::DEFAULT_PAGE;
 	protected $action = App::DEFAULT_ACTION;
 	protected $getParams = [];
@@ -31,6 +32,7 @@ class Visitor extends AbstractSingleton
 
 	protected function __construct()
 	{
+		$this->app = App::getInstance();
 		$this->readParams();
 		$this->authenticate();
 	}
@@ -217,11 +219,12 @@ class Visitor extends AbstractSingleton
 		$this->unsetCookie('authtoken');
 	}
 
-	public function setCookie(string $key, string $value, int $expire = 0,
-		bool $httponly = true, string $path = '/'): void
+	public function setCookie(string $key, string $value,
+		int $expire = 0): void
 	{
-		//TODO get host and secure from App
-		setcookie($key, $value, $expire, $path, 'localhost', true, $httponly);
+		setcookie($key, $value, $expire, '/',
+			$this->app->getServerName(), $this->app->isHttps(),
+			true, [ 'samesite' => 'Strict' ]);
 		$_COOKIE[$key] = $value;
 	}
 

@@ -20,7 +20,6 @@ class Token extends AbstractEntity
 		$token = explode(':', self::generateToken(), 2);
 		$this->id = $token[0];
 		$this->token = $token[1];
-		$this->expiretime = time() + 635*24*60*60; //TODO use config
 	}
 
 	public static function getStructure(): array
@@ -42,6 +41,7 @@ class Token extends AbstractEntity
 		$token = new Token();
 		$token->user = $user;
 		$token->type = $type;
+		$token->resetExpireTime();
 		return $token;
 	}
 
@@ -85,7 +85,20 @@ class Token extends AbstractEntity
 
 	public function resetExpireTime(): void
 	{
-		$this->expiretime = time() + 635*24*60*60;
+		switch ($this->type) {
+		case self::SESSION:
+			$time = $this->app->config('session_token_expire_time');
+			break;
+		case self::VERIFY:
+			$time = $this->app->config('verify_token_expire_time');
+			break;
+		case self::RECOVERY:
+			$time = $this->app->config('recovery_token_expire_time');
+			break;
+		default:
+			return;
+		}
+		$this->expiretime = time() + $time;
 	}
 
 	public function verifyToken(): bool

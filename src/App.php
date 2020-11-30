@@ -54,8 +54,10 @@ class App extends AbstractSingleton
 	{
 		if (!empty($config['app_subdir']))
 			$config['app_subdir'] = '/' . trim($config['app_subdir'], '/');
+		if (empty($config['server_name']))
+			Logger::warning('Using SERVER_NAME constant as server name. Note that this may imply a security issue if ServerName is not set in Apache 2 config or UseCanonicalName is off, allowing the user to spoof the name. To avoid issues, set the $config[\'server_name\'] configuration option in config.php (highly recommended) or, at least, check your web server configuration.');
 		return array_replace_recursive([
-				'server_name' => 'localhost',
+				'server_name' => $_SERVER['SERVER_NAME'],
 				'server_port' => !empty($_SERVER['HTTPS']) ? 443 : 80,
 				'app_subdir' => '',
 				'db' => [
@@ -66,6 +68,9 @@ class App extends AbstractSingleton
 					'dbname' => 'ebookmarket',
 					'use_mysqli' => false
 				],
+				'session_token_expire_time' => 30*24*60*60,
+				'verify_token_expire_time' => 24*60*60,
+				'recovery_token_expire_time' => 2*60*60,
 				'log_level' => 6,
 				'error_reporting' => E_ALL,
 			], $config);
@@ -76,6 +81,11 @@ class App extends AbstractSingleton
 		if ($key === null)
 			return $this->config;
 		return $this->config[$key] ?? null;
+	}
+
+	public function getServerName(): string
+	{
+		return $this->config['server_name'];
 	}
 
 	public function isHttps(): bool
