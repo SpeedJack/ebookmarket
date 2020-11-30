@@ -152,9 +152,9 @@ class AccountPage extends AbstractPage
                 $user->valid = true;
                 $user->save();
                 $token->delete();
-                $this->show("account/account_verify_result",  ["success" => true]);
+                $this->show("account/verify_result",  ["success" => true]);
             } else {
-                $this->show("account/account_verify_result",  ["success" => false]);
+                $this->show("account/verify_result",  ["success" => false]);
             }
 		        break;
 
