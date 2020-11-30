@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace EbookMarket\Db;
 
+use EbookMarket\Exception\DbException;
+use EbookMarket\Logger;
+
 class MysqliAdapter extends AbstractAdapter
 {
 	protected function disconnect(): void
@@ -28,12 +31,13 @@ class MysqliAdapter extends AbstractAdapter
 			$this->config['username'], $this->config['password'],
 			$this->config['dbname'], $this->config['port']);
 
-		if ($this->connection->connect_errno)
-			throw new \RuntimeException(
-				$this->connection->connect_error,
-				$this->connection->connect_errno);
+		if ($this->connection === false
+			|| $this->connection->connect_error)
+			throw new DbException('Unable to connect to the database ('
+			. $this->connection->connect_errno . '): '
+			. $this->connection->connect_error);
 
 		if (!$this->connection->set_charset('utf8mb4'))
-			return;
+			Logger::notice('Unable to set MySQL server charset to utf8mb4.');
 	}
 }

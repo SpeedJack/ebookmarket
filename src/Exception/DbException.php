@@ -12,9 +12,11 @@ class DbException extends ServerException
 	public function __construct(string $message, ?string $route = null,
 		?string $sqlStateCode = null,
 		?AbstractStatement $statement = null,
-		?string $userMessage = 'There was an error with the database. Please, try again later.',
-		int $code = 502, ?\Throwable $previous = null)
+		?string $userMessage = null, int $code = 502,
+		?\Throwable $previous = null)
 	{
+		if ($userMessage === null)
+			$userMessage = 'There was an error with the database. Please, try again later.';
 		parent::__construct($message, $route, $userMessage, $code,
 			$previous);
 		$this->sqlStateCode = $sqlStateCode;
