@@ -4,11 +4,7 @@ declare(strict_types=1);
 
 namespace EbookMarket\Pages;
 
-use EbookMarket\{
-	Entity\User,
-	Visitor,
-	AppException,
-};
+use EbookMarket\{Entity\Token, Entity\User, Visitor, AppException};
 
 class AccountPage extends AbstractPage
 {
@@ -55,7 +51,7 @@ class AccountPage extends AbstractPage
 		switch($method) {
 		case Visitor::METHOD_GET :
 			$this->setTitle("EbookMarket - Register");
-			$this->show("authentication/register");
+			$this->show("account/register");
 			break;
 		case Visitor::METHOD_POST :
 			$username = $this->visitor->param("username", "POST");
@@ -64,31 +60,31 @@ class AccountPage extends AbstractPage
 			$passwordConfirm = $this->visitor->param("password_confirm", "POST");
 			$accept = $this->visitor->param("accept_terms", "POST");
 			$validation = [
-				"username" => User::validateUsername($username),
-				"email" => User::validateEmail($email),
-				"password" => User::validatePassword($password),
-				"password_confirm" => $accept,
-				"accept_terms" => ($password == $passwordConfirm)
+				"username" => !empty($username),
+				"email" => !empty($email),
+				"password" => !empty($password),
+				"password_confirm" => ($password == $passwordConfirm),
+				"accept_terms" => $accept === "on"
 			];
 
 			if(in_array(false, $validation) || User::getOr(["username" => $username, "email" => $email])) {
 				$this->setTitle("EbookMarket - Register");
-				$this->show("authentication/register");
+				$this->show("account/register");
 			} else {
 				$user = new User();
 				$user->username = $username;
 				$user->email = $email;
-				$user->password = password_hash($password);
+				$user->setPassword($password);
 				$user->valid = false;
 
 				$user->save();
-
+                $user = User::get("username", $user->username);
 				//Create AuthToken for email verification
 
-				$verifyToken = new AuthToken();
-				$verifyToken->type = "VERIFY_EMAIL";
-				$verifyToken->user = $user->id;
-				$authToken->save();
+				$verifyToken = Token::createNew($user, Token::VERIFY);
+				$verifyToken->save();
+
+				echo $verifyToken->usertoken;
 
 				/**Send verification email
 				mail($user->email, __("Account verification"),

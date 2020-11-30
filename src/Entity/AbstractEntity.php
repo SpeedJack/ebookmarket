@@ -326,6 +326,7 @@ abstract class AbstractEntity
 					$query .= $or ? ' OR ' : ' AND ';
 				$query .= "`$key` = ?";
 				$params[] = $val;
+				$i++;
 			}
 		} else if (is_null($name)) {
 			$params = [];
