@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace EbookMarket;
 
-use EbookMarket\Exception\InvalidRouteException;
+use EbookMarket\Exception\{
+	InvalidRouteException,
+	InvalidValueException,
+};
 
 class App extends AbstractSingleton
 {
