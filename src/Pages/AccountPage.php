@@ -17,10 +17,8 @@ class AccountPage extends AbstractPage
 
 	public function actionIndex(): void
 	{
-		if (!$this->visitor->isLoggedIn()) {
+		if (!$this->visitor->isLoggedIn())
 			$this->redirect('/login');
-			return;
-		}
 		echo "Logged In";
 	}
 
@@ -29,31 +27,22 @@ class AccountPage extends AbstractPage
 		if ($this->visitor->isLoggedIn())
 			$this->redirectHome();
 
-		switch ($this->visitor->getMethod()) {
+		switch (Visitor::getMethod()) {
 		case Visitor::METHOD_POST:
 			$username = $this->visitor->param('username', 'POST');
 			$password = $this->visitor->param('password', 'POST');
-			if (empty($username) || empty($password)) {
+			if (empty($username) || empty($password))
 				$this->error('Error.', 'Invalid username or password.');
-				return;
-			}
 
 			$user = User::get('username', $username);
-			if (!$user || !$user->verifyPassword($password)) {
+			if (!$user || !$user->verifyPassword($password))
 				$this->error('Error.', 'Invalid username or password.');
-				return;
-			}
 
 			$this->visitor->login($user);
 			$this->redirectHome();
-			break;
 		case Visitor::METHOD_GET:
-		case Visitor::METHOD_HEAD:
 			$this->setTitle('EbookMarket - Login');
 			$this->show('account/login');
-			break;
-		default:
-			throw new AppException('Method not allowed.', 405);
 		}
 	}
 
@@ -63,7 +52,7 @@ class AccountPage extends AbstractPage
 		$method = $this->visitor->getMethod();
 		switch($method) {
 		case Visitor::METHOD_GET :
-			$this->setTitle(__("EbookMarket - Register"));
+			$this->setTitle("EbookMarket - Register");
 			$this->show("authentication/register");
 			break;
 		case Visitor::METHOD_POST :
@@ -81,7 +70,7 @@ class AccountPage extends AbstractPage
 			];
 
 			if(in_array(false, $validation) || User::getOr(["username" => $username, "email" => $email])) {
-				$this->setTitle(__("EbookMarket - Register"));
+				$this->setTitle("EbookMarket - Register");
 				$this->show("authentication/register");
 			} else {
 				$user = new User();
@@ -119,7 +108,7 @@ class AccountPage extends AbstractPage
 		$method = $this->visitor->getMethod();
 		switch($method) {
 		case Visitor::METHOD_GET:
-			$this->setTitle(__("EbookMarket - Logout"));
+			$this->setTitle("EbookMarket - Logout");
 			$this->show("authentication/logout");
 			break;
 		case Visitor::METHOD_POST:
@@ -135,7 +124,7 @@ class AccountPage extends AbstractPage
 		$method = $this->visitor->getMethod();
 		switch($method) {
 		case Visitor::METHOD_GET:
-			$this->setTitle(__("EbookMarket - Password Recovery"));
+			$this->setTitle("EbookMarket - Password Recovery");
 			$this->show("authentication/account_recovery");
 			break;
 		case Visitor::METHOD_POST:
@@ -151,7 +140,7 @@ class AccountPage extends AbstractPage
 		$method = $this->visitor->getMethod();
 		switch($method) {
 		case Visitor::METHOD_GET:
-			$this->setTitle(__("EbookMarket - Account Verification"));
+			$this->setTitle("EbookMarket - Account Verification");
 			$this->show("authentication/account_verify");
 			break;
 		case Visitor::METHOD_POST:

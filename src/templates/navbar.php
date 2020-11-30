@@ -3,7 +3,7 @@
         <img src="path/to/logo" alt="Logo"/>
         <h1><?= $this->title ?></h1>
         <ul>
-            <li><a href="<?php $app->buildLink('books/browse', array('category' => 'all')) ?>"><?= __('Categories') ?></a></li>
+            <li><a href="<?php $app->buildLink('books/browse', array('category' => 'all')) ?>">Categories</a></li>
             <ul>
                 <!--Just an example suppes $categories retrieved from DB-->
                 <?php
@@ -17,25 +17,25 @@
                     echo '
                     <li>
                         <a href="' . $app->buildLink('books/browse', array('category'=>$category->id)) . '">
-                            '.__($category->name).'
+                            ' . $category->name . '
                         </a>
                     </li>';
                 }
                 ?>
                 </ul>
-            <li><a href="<?php $app->buildLink('books/browse', array('sort'=>'date')) ?>"><?= __('New') ?></a></li>
-            <li><a href="<?php $app->buildLink('books/browse', array('sort'=>'likes')) ?>"><?= __('Ranking') ?></a></li>
+            <li><a href="<?php $app->buildLink('books/browse', array('sort'=>'date')) ?>">New</a></li>
+            <li><a href="<?php $app->buildLink('books/browse', array('sort'=>'likes')) ?>">Ranking</a></li>
         </ul>
         <form>
             <input 
                 type="input" 
                 name="name" 
-                placeholder="<?= __('Search yur favourite book') ?>"
+                placeholder="Search yur favourite book"
             />
             <button type="submit" >
-                <?= __('Search') ?>
+                Search
             </button>
         </form>
-        <p><a href =<?php $app->buildLink('users/view')?>><?=__("Profile")?></a></p>
+        <p><a href =<?php $app->buildLink('users/view')?>>Profile</a></p>
     </nav>
 </header>

@@ -14,8 +14,7 @@ spl_autoload_register(function (string $class)
 		substr($class, strlen($prefix))) . '.php';
 	if (!is_file($classFile))
 		throw new LogicException(
-			__("The file '%s' could not be found.", $classFile),
-			404);
+			"The file '$classFile' could not be found.");
 
 	require $classFile;
 
@@ -23,7 +22,5 @@ spl_autoload_register(function (string $class)
 		|| interface_exists($class, false)
 		|| trait_exists($class, false)))
 		throw new LogicException(
-			__("File '%s' does not implement class '%s'.",
-				$classFile, $class),
-			501);
+			"File '$classFile' does not implement class '$class'.");
 });

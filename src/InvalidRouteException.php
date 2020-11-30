@@ -15,8 +15,7 @@ class InvalidRouteException extends \RuntimeException implements AppException
 		$this->pageName = $pageName;
 		$this->actionName = $actionName;
 		parent::__construct(
-			__("Action '%s'::'%s' not found.", $pageName, $actionName),
-			404, $previous);
+			"Action '$pageName'::'$actionName' not found.");
 	}
 
 	public function getPageName(): string

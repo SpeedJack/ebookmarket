@@ -17,6 +17,6 @@ $params = book : {
     <h3>'.$book->author.'</h3>
     <img src="'.$book->cover.'" alt="'.$book->title.'_cover" />
     <p><strong>€'.$book->price.'</strong></p>
-    <button>'.__('Buy Ebook').'</button>
+    <button>Buy Ebook</button>
     ' ?>
 </article>

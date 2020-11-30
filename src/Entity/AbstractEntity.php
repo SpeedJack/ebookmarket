@@ -26,7 +26,7 @@ abstract class AbstractEntity
 	{
 		$this->structure = static::getStructure();
 		if (!$this->hasValidStructure())
-			throw new \LogicException(__('Invalid structure.'));
+			throw new \LogicException('Invalid structure.');
 		$this->app = App::getInstance();
 		$this->db = $this->app->db();
 		if (isset($data) && !empty($data))
@@ -57,13 +57,13 @@ abstract class AbstractEntity
 	{
 		if ($this->deleted)
 			throw new \LogicException(
-				__('Can not set the \'%s\' attribute on the deleted entity \'%s\'.',
-				$name, get_class($this)));
+				"Can not set the '$name' attribute on the deleted entity '"
+				. get_class($this) . "'.");
 
 		if (!$this->validateValue($name, $value))
 			throw new \RuntimeException(
-				__('Invalid value for \'%s\' in entity \'%s\'.',
-				$name, get_class($this)));
+				"Invalid value for '$name' in entity '"
+				. get_class($this) . "'.");
 
 		$setter = 'set' . ucfirst($name);
 		if (method_exists($this, $setter)) {
@@ -86,8 +86,8 @@ abstract class AbstractEntity
 	{
 		if (!isset($this->structure['columns'][$name]))
 			throw new \LogicException(
-				__('Attribute \'%s\' does not exists in entity \'%s\'.',
-				$name, get_class($this)));
+				"Attribute '$name' does not exists in entity '"
+				. get_class($this) . "'.");
 
 		$column = $this->structure['columns'][$name];
 
@@ -112,8 +112,8 @@ abstract class AbstractEntity
 
 		if (!isset($this->structure['columns'][$name]))
 			throw new \LogicException(
-				__('Attribute \'%s\' does not exists in entity \'%s\'.',
-				$name, get_class($this)));
+				"Attribute '$name' does not exists in entity '"
+				. get_class($this) . "'.");
 		return $this->getValue($name);
 	}
 
@@ -158,7 +158,8 @@ abstract class AbstractEntity
 			return;
 		if (!isset($this->values['id']))
 			throw new \LogicException(
-				__('Entity \'%s\' does not define an id.', get_class($this)));
+				"Entity '" . get_class($this)
+				. "' does not define an id.");
 
 		$this->preDelete();
 		$this->db->query('DELETE FROM `' . $this->structure['table'] . '`'
@@ -177,8 +178,8 @@ abstract class AbstractEntity
 	{
 		if ($this->deleted)
 			throw new \LogicException(
-				__('Trying to save the deleted entity \'%s\'.',
-				get_class($this)));
+				"Trying to save the deleted entity '"
+				. get_class($this) . "'.");
 
 		if (!$this->isInsert() && !$this->isUpdate())
 			return;
@@ -197,7 +198,8 @@ abstract class AbstractEntity
 	{
 		if ($this->deleted)
 			throw new \LogicException(
-				__('Can not insert deleted entity \'%s\'.', get_class($this)));
+				"Can not insert deleted entity '"
+				. get_class($this) . "'.");
 
 		$query = 'INSERT INTO `' . $this->structure['table'] . '`(';
 		$placeholders = '';
@@ -211,8 +213,8 @@ abstract class AbstractEntity
 				if (!array_key_exists('default', $col)) {
 					if (isset($col['required']))
 						throw new \LogicException(
-							__('Required field \'%s\' not set for entity \'%s\'.',
-							$name, get_class($this)));
+							"Required field '$name' not set for entity '"
+							. get_class($this) . "'.");
 					continue;
 				}
 				$values[] = $col['default'];
@@ -243,7 +245,7 @@ abstract class AbstractEntity
 	{
 		if ($this->deleted)
 			throw new \LogicException(
-				__('Can not update deleted entity \'%s\'.', get_class($this)));
+				"Can not update deleted entity '" .  get_class($this) . "'.");
 
 		$query = 'UPDATE `' . $this->structure['table'] . '` SET ';
 		$values = [];
@@ -261,7 +263,7 @@ abstract class AbstractEntity
 			return;
 		if (!isset($this->values['id']))
 			throw new \LogicException(
-				__('Entity \'%s\' does not define an id.', get_class($this)));
+				"Entity '" . get_class($this) . "' does not define an id.");
 		$query .= ' WHERE id = ?';
 		$values[] = $this->values['id'];
 
@@ -327,7 +329,7 @@ abstract class AbstractEntity
 			$params = [];
 		} else {
 			throw new \InvalidArgumentException(
-				__('Parameter 1 of AbstractEntity::get is invalid.'));
+				'Parameters of AbstractEntity::get are invalid.');
 		}
 
 		$db = App::getInstance()->db();

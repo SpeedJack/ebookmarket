@@ -79,7 +79,7 @@ abstract class AbstractPage
 		if (file_exists("$tmplfile.html"))
 			return "$tmplfile.html";
 		throw new \InvalidArgumentException(
-			__('The required template does not exists.'));
+			'The required template does not exists.');
 	}
 
 	protected function loadTemplate(string $template, array $params = []): void
@@ -101,6 +101,7 @@ abstract class AbstractPage
 	{
 		header('Content-Type: application/json');
 		echo json_encode($data);
+		exit();
 	}
 
 	protected function redirectAjax(?string $route,
@@ -173,14 +174,6 @@ abstract class AbstractPage
 	{
 		$this->redirectHome($params, true);
 	}
-
-	public static function assertMethod(
-		int $allowed = Visitor::METHOD_GET | Visitor::METHOD_POST): void
-	{
-		if (!(Visitor::getMethod() & $allowed))
-			throw new AppException(__('Invalid method.'), 405);
-	}
-
 
 	abstract public function actionIndex(): void;
 }

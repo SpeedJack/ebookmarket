@@ -79,10 +79,8 @@ class Logger
 	{
 		if ($level > self::$loglevel)
 			return;
-		// TODO: log to db
-		if ($level < self::LVL_INFO)
-			error_log('[' . static::getLogLevelName($level)
-				. "] $message" . PHP_EOL);
+		error_log('[' . static::getLogLevelName($level) . ']'
+			. $message . PHP_EOL);
 	}
 
 	public static function getLogLevelName(int $level): string

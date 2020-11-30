@@ -17,7 +17,7 @@ $params = {
 -->
 
 <section>
-    <h1><?= __($name)?></h1>
+    <h1><?= $name ?></h1>
     <ul>    
         <?php        
         foreach ($books as $book){
@@ -25,7 +25,7 @@ $params = {
            $this->loadTemplate("books/book", array('book' => $book));
            echo '<p>
                     <a href="'.$app->buildLink('books/view',array('id'=>$book->id)).'">
-                    '.__('View More').'
+                    View More
                     </a>
                 </p>
             </li>';

@@ -17,8 +17,8 @@ class Exception extends \Exception implements AppException
 	{
 		$this->sqlStateCode = $sqlStateCode;
 		$this->statement = $statement;
-		$message .= __("\nSQL State Code: %s\nQuery: %s",
-			$sqlStateCode, $statement->getQuery());
+		$message .= PHP_EOL . "SQL State Code: $sqlStateCode" . PHP_EOL
+			. 'Query: ' . $statement->getQuery();
 		parent::__construct($message, 500, $previous);
 	}
 

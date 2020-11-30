@@ -18,27 +18,27 @@ class ErrorPage extends AbstractPage
 	{
 		switch ($this->code) {
 		case 401:
-			return __('Unauthorized');
+			return 'Unauthorized';
 		case 402:
-			return __('Payment Required');
+			return 'Payment Required';
 		case 403:
-			return __('Forbidden');
+			return 'Forbidden';
 		case 404:
-			return __('Not Found');
+			return 'Not Found';
 		case 405:
-			return __('Method Not Allowed');
+			return 'Method Not Allowed';
 		case 501:
-			return __('Not Implemented');
+			return 'Not Implemented';
 		case 400:
 		case 500:
 		default:
 			if ($this->code > 399) {
 				if ($this->code < 500)
-					return __('Bad Request');
+					return 'Bad Request';
 				else if ($this->code < 600)
-					return __('Internal Server Error');
+					return 'Internal Server Error';
 			}
-			return __('Unknown Error');
+			return 'Unknown Error';
 		}
 	}
 
@@ -48,23 +48,23 @@ class ErrorPage extends AbstractPage
 		case 401:
 		case 402:
 		case 403:
-			return __('You don\'t have the rights to view this page.');
+			return 'You don\'t have the rights to view this page.';
 		case 404:
-			return __('The requested page could not be found.');
+			return 'The requested page could not be found.';
 		case 405:
-			return __('Bad request. Please, try again.');
+			return 'Bad request. Please, try again.';
 		case 501:
-			return __('Service unavailable.');
+			return 'Service unavailable.';
 		case 400:
 		case 500:
 		default:
 			if ($this->code > 399) {
 				if ($this->code < 500)
-					return __('Invalid request. Please, try again.');
+					return 'Invalid request. Please, try again.';
 				else if ($this->code < 600)
-					return __('Unexpected server error. Please, try again later.');
+					return 'Unexpected server error. Please, try again later.';
 			}
-			return __('Something wrong happened. Please, try again later.');
+			return 'Something wrong happened. Please, try again later.';
 		}
 	}
 

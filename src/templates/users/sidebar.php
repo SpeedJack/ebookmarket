@@ -1,8 +1,8 @@
 <aside>
     <ul>
-        <li><?= __('Modify Password') ?></li>
-        <li><?= __('Show my ebooks') ?></li>
-        <li><?= __('Active Sessions') ?></li>
-        <li><?= __('Logout') ?></li>
+        <li>Modify Password</li>
+        <li>Show my ebooks</li>
+        <li>Active Sessions</li>
+        <li>Logout</li>
     </ul>
 </aside>

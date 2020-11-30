@@ -114,7 +114,7 @@ class MysqliStatement extends AbstractStatement
 	{
 		if (!$this->statement)
 			throw new \LogicException(
-				__('Trying to fetch values from an unprepared statement.'));
+				'Trying to fetch values from an unprepared statement.');
 
 		$success = $this->statement->fetch();
 		if ($success === false)

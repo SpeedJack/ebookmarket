@@ -43,6 +43,7 @@ class App extends AbstractSingleton
 		if (!isset($config))
 			$config = [];
 		$app = static::getInstance($config);
+		Visitor::assertMethod();
 		$app->visitor = Visitor::getInstance();
 		$app->route();
 	}
@@ -98,7 +99,7 @@ class App extends AbstractSingleton
 			$this->db = Db\MysqliAdapter::getInstance($this->config['db']);
 		else
 			throw new \RuntimeException(
-				__('No database extension loaded: PDO or MySQLi is required.'));
+				'No database extension loaded: PDO or MySQLi is required.');
 
 		return $this->db;
 	}
@@ -147,7 +148,7 @@ class App extends AbstractSingleton
 		$file = "/css/$cssname.css";
 		if (!file_exists($GLOBALS['APP_ROOT'] . $file))
 			throw new \InvalidArgumentException(
-				__('The required CSS file does not exists.'));
+				'The required CSS file does not exists.');
 		return $this->config['app_subdir'] . $file;
 	}
 
@@ -156,7 +157,7 @@ class App extends AbstractSingleton
 		$file = "/js/$jsname.js";
 		if (!file_exists($GLOBALS['APP_ROOT'] . $file))
 			throw new \InvalidArgumentException(
-				__('The required JavaScript file does not exists.'));
+				'The required JavaScript file does not exists.');
 		return $this->config['app_subdir'] . $file;
 	}
 
@@ -185,7 +186,7 @@ class App extends AbstractSingleton
 			$page = $parts[0];
 		else
 			throw new \InvalidArgumentException(
-				__('Invalid route specified.'));
+				'Invalid route specified.');
 		$defpage = lcfirst(substr(static::DEFAULT_PAGE, 0, -4));
 		$defaction = lcfirst(substr(static::DEFAULT_ACTION, 6));
 		if (empty($page) && !empty($action))
@@ -243,7 +244,7 @@ class App extends AbstractSingleton
 			$errorPage->showError();
 		} catch (\Throwable $e) {
 			http_response_code($httpcode);
-			echo __('Server error. Please try again later.');
+			echo 'Server error. Please try again later.';
 		} finally {
 			try {
 				@Logger::exception($ex);

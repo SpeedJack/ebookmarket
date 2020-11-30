@@ -90,7 +90,7 @@ class Visitor extends AbstractSingleton
 			$page = $parts[0];
 		else
 			throw new \InvalidArgumentException(
-				__('Invalid route specified.'));
+				'Invalid route specified.');
 		$this->setPage($page ?? null);
 		$this->setAction($action ?? null);
 	}
@@ -128,6 +128,13 @@ class Visitor extends AbstractSingleton
 			return $this->postParams[$key] ??
 				$this->getParams[$key] ?? null;
 		}
+	}
+
+	public static function assertMethod(
+		int $allowed = self::METHOD_GET | self::METHOD_POST): void
+	{
+		if (!(static::getMethod() & $allowed))
+			throw new AppException('Invalid method.', 405);
 	}
 
 	public static function getMethod(): int
