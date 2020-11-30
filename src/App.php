@@ -79,6 +79,7 @@ class App extends AbstractSingleton
 				'session_token_expire_time' => 30*24*60*60,
 				'verify_token_expire_time' => 24*60*60,
 				'recovery_token_expire_time' => 2*60*60,
+				'csrf_token_expire_time' => 30*60,
 				'log_level' => 6,
 				'error_reporting' => E_ALL,
 			], $config);
