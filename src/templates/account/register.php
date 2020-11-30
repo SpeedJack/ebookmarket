@@ -11,6 +11,7 @@
         <input type="password" name = "password_confirm" />
         <label for="accept_terms">Accept terms and conditions</label>
         <input type="checkbox" name="accept_terms" />
+        <input type="hidden" name="csrftoken" value="<?= $this->getCsrfToken() ?>">
         <button type="submit">Register</button>
     </form>
 </main>

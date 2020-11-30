@@ -86,13 +86,19 @@ class AccountPage extends AbstractPage
 
 				echo $verifyToken->usertoken;
 
-				/**Send verification email
-				mail($user->email, __("Account verification"),
-				__("Welcome to EbookMarket! \n
+				/**Send verification email**/
+				// mail($user->email, __("Account verification"),
+				echo $user->email;
+                echo "Welcome to EbookMarket! \n
 				please navigate to the following link for verify your account: \n
-				https://ebookmarket.com/auth/verify?token=". $authToken->$id
-				));
-				**/
+				https://"
+                    . $this->app->config("server_name")
+                    .":"
+                    . $this->app->config("server_port") ?? "443"
+                    . "/account/verify?token="
+                    . url_encode($verifyToken->usertoken);
+				//));
+
 			}
 			break;
 		default:
@@ -139,10 +145,19 @@ class AccountPage extends AbstractPage
 		switch($method) {
 		case Visitor::METHOD_GET:
 			$this->setTitle("EbookMarket - Account Verification");
-			$this->show("authentication/account_verify");
-			break;
-		case Visitor::METHOD_POST:
-			break;
+		    $usertoken = $this->visitor->param("token", "GET");
+		    $token = Token::get($usertoken);
+		    $user = $token->authenticate($usertoken, Token::VERIFY);
+		    if($user){
+                $user->valid = true;
+                $user->save();
+                $token->delete();
+                $this->show("account/account_verify_result",  ["success" => true]);
+            } else {
+                $this->show("account/account_verify_result",  ["success" => false]);
+            }
+		        break;
+
 		default:
 			throw new \Exception("method" . $method . "not allowed");
 		}

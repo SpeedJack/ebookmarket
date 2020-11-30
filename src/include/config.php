@@ -1,7 +1,6 @@
 <?php
-//$config['server_name'] = 'localhost';
+$config['server_name'] = 'localhost';
 $config['server_port'] = 8443;
-//$config["domain"] = "ebookmarket.com";
 //$config['app_subdir'] = 'ebookmarket';
 $config['db']['host'] = 'db';
 //$config['db']['port'] = 3306;
