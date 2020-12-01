@@ -42,7 +42,6 @@ class Token extends AbstractEntity
 		$token = new Token();
 		$token->user = $user;
 		$token->type = $type;
-		$token->resetExpireTime();
 		return $token;
 	}
 
@@ -117,6 +116,11 @@ class Token extends AbstractEntity
 		$this->expiretime = time() + $time;
 	}
 
+	protected function preSave(): void
+	{
+		$this->resetExpireTime();
+	}
+
 	public function verifyToken(string $token): bool
 	{
 		return password_verify($token, $this->token);
@@ -135,7 +139,6 @@ class Token extends AbstractEntity
 		$this->usertoken = ltrim($token, ':');
 		if (!$this->verifyToken($this->usertoken))
 			return null;
-		$this->resetExpireTime();
 		return $this->user;
 	}
 

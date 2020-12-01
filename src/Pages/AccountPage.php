@@ -34,6 +34,7 @@ class AccountPage extends AbstractPage
 		case Visitor::METHOD_POST:
 			$username = $this->visitor->param('username', Visitor::METHOD_POST);
 			$password = $this->visitor->param('password', Visitor::METHOD_POST);
+			$rememberme = $this->visitor->param('rememberme', Visitor::METHOD_POST);
 			if (empty($username) || empty($password))
 				$this->error('Error.', 'Invalid username or password.');
 
@@ -41,7 +42,7 @@ class AccountPage extends AbstractPage
 			if (!$user || !$user->verifyPassword($password))
 				$this->error('Error.', 'Invalid username or password.');
 
-			$this->visitor->login($user);
+			$this->visitor->login($user, $rememberme === 'yes');
 			$this->redirectHome();
 		case Visitor::METHOD_GET:
 			$this->setTitle('EbookMarket - Login');

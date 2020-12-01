@@ -202,21 +202,22 @@ class Visitor extends AbstractSingleton
 		return $this->user != null;
 	}
 
-	public function login(User $user): void
+	public function login(User $user, bool $rememberme = false): void
 	{
 		if (!$user->hasAuthtoken())
 			$user->login();
 		$token = $user->authtoken;
 		if ($token === null)
 			return;
-		$this->setSessionToken($token);
+		$this->setSessionToken($token, $rememberme);
 		$this->setUser($user);
 	}
 
-	protected function setSessionToken(Token $token): void
+	protected function setSessionToken(Token $token,
+		bool $rememberme = false): void
 	{
 		$this->setCookie('authtoken', $token->usertoken,
-			$token->expiretime);
+			$rememberme ? $token->expiretime : 0);
 	}
 
 	protected function unsetSessionToken(): void
@@ -272,7 +273,7 @@ class Visitor extends AbstractSingleton
 			return;
 		}
 		$user->setAuthtoken($token);
-		$this->login($user);
+		$this->setUser($user);
 	}
 
 	public function generateCsrfToken(): Token
