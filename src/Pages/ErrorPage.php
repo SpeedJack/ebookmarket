@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EbookMarket\Pages;
 
-use EbookMarket\Exception\Exception;
+use EbookMarket\Exceptions\Exception;
 
 class ErrorPage extends AbstractPage
 {
@@ -76,7 +76,8 @@ class ErrorPage extends AbstractPage
 		if ($this->exception instanceof Exception)
 			$code = $this->exception->getCode();
 		$title = static::getTitle($code);
-		$message = $this->exception->getMessage() ?? static::getMessage($code);
+		$message = $this->exception->getUserMessage()
+			?? static::getMessage($code);
 		$params = [
 			'title' => parent::htmlEscape($title),
 			'message' => parent::htmlEscape($message),

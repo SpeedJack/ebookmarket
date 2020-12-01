@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EbookMarket\Entity;
+namespace EbookMarket\Entities;
 
 class Category extends AbstractEntity
 {

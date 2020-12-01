@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace EbookMarket\Exception;
+namespace EbookMarket\Exceptions;
 
-class ClientException extends Exception
+class InvalidMethodException extends ClientException
 {
 	public function __construct(string $message, ?string $route = null,
-		?string $userMessage = 'Invalid request. Please, try again.',
-		int $code = 400, ?\Throwable $previous = null)
+		?string $userMessage = 'Invalid method.',
+		int $code = 405, ?\Throwable $previous = null)
 	{
 		parent::__construct($message, $route, $userMessage, $code,
 			$previous);

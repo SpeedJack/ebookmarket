@@ -2,7 +2,7 @@
 FROM php:7.3-apache
 
 # Locale unicode support
-RUN apt-get update && apt-get install -y libicu-dev locales \
+RUN apt-get update && apt-get install -y libicu-dev locales sendmail \
 	&& sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
 	&& sed -i -e 's/# it_IT.UTF-8 UTF-8/it_IT.UTF-8 UTF-8/' /etc/locale.gen \
 	&& echo 'LANG="en_US.UTF-8"' > /etc/default/locale \

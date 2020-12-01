@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EbookMarket\Db;
 
-use EbookMarket\Exception\DbException;
+use EbookMarket\Exceptions\DbException;
 use EbookMarket\Logger;
 
 class MysqliAdapter extends AbstractAdapter

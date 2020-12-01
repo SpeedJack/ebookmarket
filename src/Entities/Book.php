@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EbookMarket\Entity;
-
-use EbookMarket\App;
+namespace EbookMarket\Entities;
 
 class Book extends AbstractEntity
 {
@@ -32,7 +30,7 @@ class Book extends AbstractEntity
 			. Category::getStructure()['table']
 			. '` c ON b.categoryid = c.id WHERE c.name = ? ;';
 
-		$db = App::getInstance()->db();
+		$db = $this->app->db();
 		$data = $db->fetchAll($query, $name);
 		$entities = [];
 		foreach ($data as $row)
@@ -47,7 +45,7 @@ class Book extends AbstractEntity
 		$query = 'SELECT * FROM `' . self::getStructure()['table']
 		. '` WHERE `author` LIKE ? OR `title` LIKE ?;';
 
-		$db = App::getInstance()->db();
+		$db = $this->app->db();
 		$data = $db->fetchAll($query, $pattern, $pattern);
 		$entities = [];
 		foreach ($data as $row)

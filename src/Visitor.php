@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EbookMarket;
 
-use EbookMarket\Entity\{
+use EbookMarket\Entities\{
 	User,
 	Token,
 };
@@ -22,6 +22,7 @@ class Visitor extends AbstractSingleton
 	public const METHOD_OPTIONS = 1 << 6;
 	public const METHOD_TRACE = 1 << 7;
 	public const METHOD_PATCH = 1 << 8;
+	public const METHOD_ANY = ~0;
 
 	protected $app;
 	protected $page = App::DEFAULT_PAGE;
@@ -127,18 +128,20 @@ class Visitor extends AbstractSingleton
 		return lcfirst(substr($this->action, 6));
 	}
 
-	public function param(string $key, string $method = 'ANY'): ?string
+	public function param(string $key,
+		int $method = self::METHOD_ANY): ?string
 	{
 		$method = strtoupper($method);
 		switch ($method) {
-		case 'POST':
+		case self::METHOD_POST:
 			return $this->postParams[$key] ?? null;
-		case 'GET':
+		case self::METHOD_GET:
 			return $this->getParams[$key] ?? null;
-		case 'ANY':
-		default:
+		case self::METHOD_ANY:
 			return $this->postParams[$key] ??
 				$this->getParams[$key] ?? null;
+		default:
+			return null;
 		}
 	}
 
@@ -281,7 +284,7 @@ class Visitor extends AbstractSingleton
 		return $this->csrfToken;
 	}
 
-	public function verifyCsrfToken(string $method = 'POST'): bool
+	public function verifyCsrfToken(int $method = self::METHOD_POST): bool
 	{
 		if ($this->verifiedCsrf)
 			return true;

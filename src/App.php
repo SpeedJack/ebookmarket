@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EbookMarket;
 
-use EbookMarket\Exception\{
+use EbookMarket\Exceptions\{
 	InvalidRouteException,
 	InvalidValueException,
 };
@@ -44,6 +44,8 @@ class App extends AbstractSingleton
 
 	public static function start(): void
 	{
+		if (Visitor::getMethod() === Visitor::METHOD_HEAD)
+			exit();
 		include 'config.php';
 		if (!isset($config))
 			$config = [];
@@ -152,7 +154,6 @@ class App extends AbstractSingleton
 		}
 
 		$pageinstance->$action();
-
 		exit();
 	}
 

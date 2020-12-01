@@ -97,6 +97,7 @@ abstract class AbstractPage
 	{
 		$skelfile = static::getTemplateFile('skel');
 		include $skelfile;
+		exit();
 	}
 
 	protected function replyJson(array $data): void

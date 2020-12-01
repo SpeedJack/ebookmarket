@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace EbookMarket\Exception;
+namespace EbookMarket\Exceptions;
 
 class InvalidRouteException extends ClientException
 {

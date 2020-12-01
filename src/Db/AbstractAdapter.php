@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace EbookMarket\Db;
 
-abstract class AbstractAdapter extends \EbookMarket\AbstractSingleton
+use EbookMarket\AbstractSingleton;
+
+abstract class AbstractAdapter extends AbstractSingleton
 {
 	protected $connection;
 	protected $config;

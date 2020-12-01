@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EbookMarket\Db;
 
-use EbookMarket\Exception\{
+use EbookMarket\Exceptions\{
 	DbException,
 	DuplicateKeyException,
 };

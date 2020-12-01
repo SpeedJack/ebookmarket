@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace EbookMarket\Pages;
 
-use EbookMarket\{Entity\Token, Entity\User, Visitor, AppException};
+use EbookMarket\{
+	Entities\Token,
+	Entities\User,
+	Visitor,
+	AppException
+};
 
 class AccountPage extends AbstractPage
 {
@@ -27,8 +32,8 @@ class AccountPage extends AbstractPage
 
 		switch (Visitor::getMethod()) {
 		case Visitor::METHOD_POST:
-			$username = $this->visitor->param('username', 'POST');
-			$password = $this->visitor->param('password', 'POST');
+			$username = $this->visitor->param('username', Visitor::METHOD_POST);
+			$password = $this->visitor->param('password', Visitor::METHOD_POST);
 			if (empty($username) || empty($password))
 				$this->error('Error.', 'Invalid username or password.');
 
@@ -44,7 +49,6 @@ class AccountPage extends AbstractPage
 		}
 	}
 
-	//TODO
 	public function actionRegister(): void
 	{
 		$method = $this->visitor->getMethod();
@@ -54,11 +58,11 @@ class AccountPage extends AbstractPage
 			$this->show("account/register");
 			break;
 		case Visitor::METHOD_POST :
-			$username = $this->visitor->param("username", "POST");
-			$email = $this->visitor->param("email", "POST");
-			$password = $this->visitor->param("password", "POST");
-			$passwordConfirm = $this->visitor->param("password_confirm", "POST");
-			$accept = $this->visitor->param("accept_terms", "POST");
+			$username = $this->visitor->param("username", Visitor::METHOD_POST);
+			$email = $this->visitor->param("email", Visitor::METHOD_POST);
+			$password = $this->visitor->param("password", Visitor::METHOD_POST);
+			$passwordConfirm = $this->visitor->param("password_confirm", Visitor::METHOD_POST);
+			$accept = $this->visitor->param("accept_terms", Visitor::METHOD_POST);
 			$validation = [
 				"username" => !empty($username),
 				"email" => !empty($email),
@@ -78,7 +82,7 @@ class AccountPage extends AbstractPage
 				$user->valid = false;
 
 				$user->save();
-                $user = User::get("username", $user->username);
+				$user = User::get("username", $user->username);
 				//Create AuthToken for email verification
 
 				$verifyToken = Token::createNew($user, Token::VERIFY);
@@ -89,22 +93,20 @@ class AccountPage extends AbstractPage
 				/**Send verification email**/
 				// mail($user->email, __("Account verification"),
 				echo $user->email;
-                echo "Welcome to EbookMarket! \n
+				echo "Welcome to EbookMarket! \n
 				please navigate to the following link for verify your account: \n
 				https://"
-                    . $this->app->config("server_name")
-                    .":"
-                    . $this->app->config("server_port") ?? "443"
-                    . "/account/verify?token="
-                    . url_encode($verifyToken->usertoken);
+				. $this->app->config("server_name")
+				.":"
+				. $this->app->config("server_port") ?? "443"
+				. "/account/verify?token="
+				. url_encode($verifyToken->usertoken);
 				//));
-
 			}
 			break;
 		}
 	}
 
-	//TODO
 	public function actionLogout(): void
 	{
 		$method = $this->visitor->getMethod();
@@ -118,89 +120,88 @@ class AccountPage extends AbstractPage
 		}
 	}
 
-	//TODO
 	public function actionRecovery(): void
 	{
 		$method = $this->visitor->getMethod();
 		switch($method) {
-            case Visitor::METHOD_GET:
-                $this->setTitle("EbookMarket - Password Recovery");
-                $this->show("account/recovery");
-                break;
-            case Visitor::METHOD_POST:
-                $email = $this->visitor->param("email", "POST");
-                //$captcha = $this->visitor->param("captcha", "POST");
-                //if(VerifyCaptcha($captcha));
-                if(!empty($email)){
-                    $user = User::get("email", $email);
-                    if($user){
-                        $token = Token::createNew($user, Token::RECOVERY);
-                        $token->save();
-                        echo "Recovery Token : " . $token->usertoken;
-                    }
-                }
-                break;
-        }
+		case Visitor::METHOD_GET:
+			$this->setTitle("EbookMarket - Password Recovery");
+			$this->show("account/recovery");
+			break;
+		case Visitor::METHOD_POST:
+			$email = $this->visitor->param("email", Visitor::METHOD_POST);
+			//$captcha = $this->visitor->param("captcha", Visitor::METHOD_POST);
+			//if(VerifyCaptcha($captcha));
+			if(!empty($email)){
+				$user = User::get("email", $email);
+				if($user){
+					$token = Token::createNew($user, Token::RECOVERY);
+					$token->save();
+					echo "Recovery Token : " . $token->usertoken;
+				}
+			}
+			break;
+		}
 	}
 
-    public function actionChangepassword(): void
-    {
-        $method = $this->visitor->getMethod();
-        switch($method) {
-            case Visitor::METHOD_GET:
-                $usertoken = $this->visitor->param("token", "GET");
-                $token = Token::get($usertoken);
-                if($token->authenticate($usertoken, Token::RECOVERY)){
-                    $this->setTitle("EbookMarket - Change Password");
-                    //verifica token e se valido show template
-                    $this->show("account/change_password", ["usertoken" => $usertoken]);
-                }
-                break;
-            case Visitor::METHOD_POST:
-                //Verifica token e cambio password
-                $this->setTitle("EbookMarket - Password Change Result");
-                $password = $this->visitor->param("password", "POST");
-                $passwordConfirm = $this->visitor->param("password_confirm", "POST");
-                $usertoken = $this->visitor->param("usertoken", "POST");
-                $token = Token::get($usertoken);
+	public function actionChangepassword(): void
+	{
+		$method = $this->visitor->getMethod();
+		switch($method) {
+		case Visitor::METHOD_GET:
+			$usertoken = $this->visitor->param("token", Visitor::METHOD_GET);
+			$token = Token::get($usertoken);
+			if($token->authenticate($usertoken, Token::RECOVERY)){
+				$this->setTitle("EbookMarket - Change Password");
+				//verifica token e se valido show template
+				$this->show("account/change_password", ["usertoken" => $usertoken]);
+			}
+			break;
+		case Visitor::METHOD_POST:
+			//Verifica token e cambio password
+			$this->setTitle("EbookMarket - Password Change Result");
+			$password = $this->visitor->param("password", Visitor::METHOD_POST);
+			$passwordConfirm = $this->visitor->param("password_confirm", Visitor::METHOD_POST);
+			$usertoken = $this->visitor->param("usertoken", Visitor::METHOD_POST);
+			$token = Token::get($usertoken);
 
-                if(!empty($password)
-                    && !(empty($passwordConfirm))
-                    && ($password == $passwordConfirm)
-                    && $token->authenticate($usertoken, Token::RECOVERY)
-                ){
-                    $user = $token->getUser();
-                    if($user){
-                        $user->password = $password;
-                        $user->save();
-                        $this->show("account/password_change_result", ["success" => true]);
-                    } else {
-                        $this->show("account/password_change_result", ["success" => false]);
-                    }
-                    $token->delete();
-                }
-                break;
-        }
-    }
-	//TODO
+			if(!empty($password)
+				&& !(empty($passwordConfirm))
+				&& ($password == $passwordConfirm)
+				&& $token->authenticate($usertoken, Token::RECOVERY)
+				){
+				$user = $token->getUser();
+				if($user){
+					$user->password = $password;
+					$user->save();
+					$this->show("account/password_change_result", ["success" => true]);
+				} else {
+					$this->show("account/password_change_result", ["success" => false]);
+				}
+				$token->delete();
+			}
+			break;
+		}
+	}
+
 	public function actionVerify(): void
 	{
 		$method = $this->visitor->getMethod();
 		switch($method) {
 		case Visitor::METHOD_GET:
 			$this->setTitle("EbookMarket - Account Verification");
-		    $usertoken = $this->visitor->param("token", "GET");
-		    $token = Token::get($usertoken);
-		    $user = $token->authenticate($usertoken, Token::VERIFY);
-		    if($user){
-                $user->valid = true;
-                $user->save();
-                $token->delete();
-                $this->show("account/verify_result",  ["success" => true]);
-            } else {
-                $this->show("account/verify_result",  ["success" => false]);
-            }
-		        break;
+			$usertoken = $this->visitor->param("token", Visitor::METHOD_GET);
+			$token = Token::get($usertoken);
+			$user = $token->authenticate($usertoken, Token::VERIFY);
+			if($user){
+				$user->valid = true;
+				$user->save();
+				$token->delete();
+				$this->show("account/verify_result",  ["success" => true]);
+			} else {
+				$this->show("account/verify_result",  ["success" => false]);
+			}
+			break;
 		}
 	}
 }
