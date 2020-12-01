@@ -30,7 +30,7 @@ class User extends AbstractEntity
 
 	public static function validateUsername(string $username): bool
 	{
-		return preg_match('/^[A-Za-z0-9_\-.]{3,32}$/', $username) == 1;
+		return preg_match('/^[A-Za-z0-9_\-.]{3,32}$/', $username) === 1;
 	}
 
 	public static function validateEmail(string $email): bool
