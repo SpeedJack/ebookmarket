@@ -34,6 +34,7 @@ CREATE TABLE `books` (
 	`filehandle` VARCHAR(255) NOT NULL,
 	`categoryid` INT UNSIGNED,
 	PRIMARY KEY (`id`),
+	UNIQUE KEY (`filehandle`),
 	KEY (`title`),
 	KEY (`author`),
 	FOREIGN KEY (`categoryid`)

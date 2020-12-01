@@ -66,12 +66,16 @@ class App extends AbstractSingleton
 	{
 		if (!empty($config['app_subdir']))
 			$config['app_subdir'] = '/' . trim($config['app_subdir'], '/');
+		if (empty($config['https_port']))
+			$config['https_port'] = 443;
 		if (empty($config['server_name']))
 			Logger::warning('Using SERVER_NAME constant as server name. Note that this may imply a security issue if ServerName is not set in Apache 2 config or UseCanonicalName is off, allowing the user to spoof the name. To avoid issues, set the $config[\'server_name\'] configuration option in config.php (highly recommended) or, at least, check your web server configuration.');
 		return array_replace_recursive([
 				'server_name' => $_SERVER['SERVER_NAME'],
-				'server_port' => !empty($_SERVER['HTTPS']) ? 443 : 80,
+				'server_port' => !empty($_SERVER['HTTPS'])
+					? $config['https_port'] : 80,
 				'app_subdir' => '',
+				'force_https' => true,
 				'db' => [
 					'host' => 'localhost',
 					'port' => 3306,

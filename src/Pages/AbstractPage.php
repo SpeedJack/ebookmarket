@@ -41,7 +41,12 @@ abstract class AbstractPage
 			. "img-src 'self'; "
 			. "connect-src 'self'; "
 			. "form-action 'self'; "
-			. "base-uri 'self';");
+			. "base-uri 'self'; "
+			. "frame-ancestors 'none'; "
+			. "block-all-mixed-content;");
+		header('Referrer-Policy: strict-origin-when-cross-origin');
+		header('X-XSS-Protection: 1; mode=block');
+		header('X-Frame-Options: DENY');
 	}
 
 	protected static function htmlEscape(string $str,
