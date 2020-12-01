@@ -7,12 +7,14 @@ namespace EbookMarket;
 use EbookMarket\Exceptions\{
 	InvalidRouteException,
 	InvalidValueException,
+	UserAuthenticationException,
 };
 
 class App extends AbstractSingleton
 {
 	public const DEFAULT_PAGE = 'BookPage';
 	public const DEFAULT_ACTION = 'actionIndex';
+	public const LOGIN_ROUTE = 'account/login';
 	public const SRC_ROOT = __DIR__;
 
 	public const LOG_EMERGENCY = 0;
@@ -82,6 +84,11 @@ class App extends AbstractSingleton
 				'verify_token_expire_time' => 24*60*60,
 				'recovery_token_expire_time' => 2*60*60,
 				'csrf_token_expire_time' => 30*60,
+				'enable_mail' => true,
+				'mail_headers' => [
+					'From' => 'noreply@ebookmarket.com',
+					'X-Mailer' => 'PHP/' . phpversion(),
+				],
 				'log_level' => 6,
 				'error_reporting' => E_ALL,
 			], $config);
@@ -153,7 +160,12 @@ class App extends AbstractSingleton
 				null, null, 404, $ex);
 		}
 
-		$pageinstance->$action();
+		try {
+			$pageinstance->$action();
+		} catch (UserAuthenticationException $ex) {
+			$loginlink = $this->buildAbsoluteLink(static::LOGIN_ROUTE);
+			header("Location: $loginlink", true, 302);
+		}
 		exit();
 	}
 

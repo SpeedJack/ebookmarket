@@ -8,7 +8,10 @@ use EbookMarket\Entities\{
 	User,
 	Token,
 };
-use EbookMarket\Exception\InvalidMethodException;
+use EbookMarket\Exception\{
+	InvalidMethodException,
+	UserAuthenticationException,
+};
 
 class Visitor extends AbstractSingleton
 {
@@ -197,9 +200,9 @@ class Visitor extends AbstractSingleton
 				$this->addPostParams([$key => $value]);
 	}
 
-	public function isLoggedIn(): bool
+	public function isLoggedIn(bool $valid = true): bool
 	{
-		return $this->user != null;
+		return isset($this->user) && (!$valid || $this->user->valid);
 	}
 
 	public function login(User $user, bool $rememberme = false): void
@@ -257,6 +260,21 @@ class Visitor extends AbstractSingleton
 		$this->user = $user;
 	}
 
+	public function user(bool $valid = true): ?User
+	{
+		if (!$this->isLoggedIn($valid))
+			return null;
+		return $this->user;
+	}
+
+	public function assertUser(bool $valid = true): User
+	{
+		$user = $this->user($valid);
+		if ($user === null)
+			throw new UserAuthenticationException('Not authenticated.');
+		return $user;
+	}
+
 	protected function authenticate(): void
 	{
 		$authtoken = $this->cookie('authtoken');
@@ -268,8 +286,9 @@ class Visitor extends AbstractSingleton
 			return;
 		}
 		$user = $token->authenticate($authtoken);
-		if ($user === null) {
+		if ($user === null || !$user->valid) {
 			$this->unsetSessionToken();
+			$token->delete();
 			return;
 		}
 		$user->setAuthtoken($token);

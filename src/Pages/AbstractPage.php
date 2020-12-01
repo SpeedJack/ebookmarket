@@ -256,6 +256,8 @@ abstract class AbstractPage
 	protected function sendmail(string $to, string $template,
 		?array $params = null): bool
 	{
+		if ($this->app->config('enable_mail') !== true)
+			return true;
 		$replace = [];
 		if (!empty($params))
 			foreach ($params as $key => $value)
@@ -263,10 +265,7 @@ abstract class AbstractPage
 		$subject='';
 		$txtmsg = $this->getTxtMail($template, $subject, $replace);
 		$htmlmsg = $this->getHtmlMail($template, $replace);
-		$headers = [
-			'From' => 'noreply@ebookmarket.com',
-			'X-Mailer' => 'PHP/' . phpversion(),
-		];
+		$headers = $this->app->config('mail_headers');
 		$message = $this->buildMailMessage($txtmsg, $htmlmsg, $headers);
 		return mail($to, $subject, $message, $headers);
 	}
