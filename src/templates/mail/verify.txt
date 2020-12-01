@@ -1,3 +1,9 @@
-Verify your email
+Verify your email address
 
-text
+Hello {{username}}, here is the link to verify your email address:
+
+{{verifylink}}
+
+-- 
+Best regards,
+EbookMarket

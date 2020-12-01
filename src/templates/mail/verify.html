@@ -1,3 +1,27 @@
 <!DOCTYPE html>
 <html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Verify your email address</title>
+		<style>
+			a.button {
+				-webkit-appearance: button;
+				-moz-appearance: button;
+				appearance: button;
+				text-decoration: none;
+				color: white;
+				background-color: blue;
+				font-weight: bold;
+				font-size: 14px;
+			}
+		</style>
+	</head>
+	<body>
+		<p>Hello {{username}}, here is the link to verify your email address:</p>
+		<br>
+		<a class="button" href="{{verifylink}}" target="_blank">Verify Email</a>
+		<br><hr><br>
+		<p>Best Regards,<br>EbookMarket</p>
+	</body>
 </html>

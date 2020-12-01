@@ -7,6 +7,7 @@ namespace EbookMarket\Pages;
 use EbookMarket\{
 	App,
 	Visitor,
+	Exceptions\ServerException,
 };
 
 abstract class AbstractPage
@@ -182,6 +183,92 @@ abstract class AbstractPage
 	{
 		return static::htmlEscapeQuotes(
 			$this->visitor->generateCsrfToken()->usertoken);
+	}
+
+	protected function getTxtMail(string $template, string &$subject,
+		array $params = []): string
+	{
+		$file = App::SRC_ROOT . "/templates/mail/$template.txt";
+		if (!file_exists($file))
+			throw new \InvalidArgumentException(
+				"The required template '$file' does not exists.");
+		$content = file_get_contents($file);
+		if ($content === false)
+			throw new ServerException(
+				"Can not access file '$file'.");
+		$content = preg_replace('/\r?\n/', "\r\n", $content);
+		$content = strtr($content, $replace);
+		$content = explode("\r\n\r\n", $content, 2);
+		$subject = $content[0];
+		if (count($content) !== 2)
+			return '';
+		$message = wordwrap($content[1], 70, "\r\n");
+		return mb_convert_encoding($message, '7bit');
+	}
+
+	protected function getHtmlMail(string $template,
+		array $params = []): ?string
+	{
+		$file = App::SRC_ROOT . "/templates/mail/$template.html";
+		if (!file_exists($file))
+			return null;
+		$content = file_get_contents($file);
+		if ($content === false)
+			return null;
+		$content = preg_replace('/\r?\n/', "\r\n", $content);
+		$content = strtr($content, $replace);
+		$content = wordwrap($content, 70, "\r\n", true);
+		return quoted_printable_encode($content);
+	}
+
+	protected function buildMailMessage(string $txt, ?string $html,
+		array &$headers): string
+	{
+		if (!empty($txt) && isset($html)) {
+			$boundary = uniqid('------=_Part_', true);
+			$contenttype = "multipart/alternative; boundary=\"$boundary\"";
+			$message = $boundary . "\r\n"
+				. 'Content-Type: text/plain; charset=UTF-8' . "\r\n"
+				. 'Content-Transfer-Encoding: 7bit' . "\r\n"
+				. "\r\n" . $txt . "\r\n"
+				. $boundary . "\r\n"
+				. 'Content-Type: text/html; charset=UTF-8' . "\r\n"
+				. 'Content-Transfer-Encoding: quoted-printable' . "\r\n"
+				. "\r\n" . $html . "\r\n"
+				. $boundary . "\r\n";
+		} else if (isset($html)) {
+			$contenttype = 'text/html; charset=UTF-8';
+			$headers['Content-Transfer-Encoding'] = 'quoted-printable';
+			$message = $html;
+		} else if (!empty($txt)) {
+			$contenttype = 'text/plain; charset=UTF-8';
+			$headers['Content-Transfer-Encoding'] = '7bit';
+			$message = $txt;
+		} else {
+			throw new \InvalidArgumentException(
+				'Either the text/plain or the text/html mail message must be provided.');
+		}
+		$headers['MIME-Version'] = '1.0';
+		$headers['Content-Type'] = $contenttype;
+		return $message;
+	}
+
+	protected function sendmail(string $to, string $template,
+		?array $params = null): bool
+	{
+		$replace = [];
+		if (!empty($params))
+			foreach ($params as $key => $value)
+				$replace['{{' . $key . '}}'] = $value;
+		$subject='';
+		$txtmsg = $this->getTxtMail($template, $subject, $replace);
+		$htmlmsg = $this->getHtmlMail($template, $replace);
+		$headers = [
+			'From' => 'noreply@ebookmarket.com',
+			'X-Mailer' => 'PHP/' . phpversion(),
+		];
+		$message = $this->buildMailMessage($txtmsg, $htmlmsg, $headers);
+		return mail($to, $subject, $message, $headers);
 	}
 
 	abstract public function actionIndex(): void;
