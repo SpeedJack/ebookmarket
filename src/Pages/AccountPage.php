@@ -127,11 +127,9 @@ class AccountPage extends AbstractPage
 		$method = $this->visitor->getMethod();
 		switch($method) {
 		case Visitor::METHOD_GET:
-			
+			$this->visitor->logout();
 			$this->setTitle("EbookMarket - Logout");
 			$this->show("account/logout");
-			break;
-		case Visitor::METHOD_POST:
 			break;
 		}
 	}

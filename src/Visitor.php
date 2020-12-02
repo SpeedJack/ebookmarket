@@ -216,6 +216,13 @@ class Visitor extends AbstractSingleton
 		$this->setUser($user);
 	}
 
+	public function logout() : void {
+		if (!$this->user || !$this->user->hasAuthtoken())
+			return;
+		$this->unsetSessionToken();
+		$this->setUser(null);
+	}
+
 	protected function setSessionToken(Token $token,
 		bool $rememberme = false): void
 	{
@@ -250,7 +257,7 @@ class Visitor extends AbstractSingleton
 		unset($_COOKIE[$key]);
 	}
 
-	protected function cookie(string $name): ?string
+	public function cookie(string $name): ?string
 	{
 		return $_COOKIE[$name] ?? null;
 	}
