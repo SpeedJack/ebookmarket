@@ -82,17 +82,21 @@ class App extends AbstractSingleton
 					'username' => 'root',
 					'password' => '',
 					'dbname' => 'ebookmarket',
-					'use_mysqli' => false
+					'use_mysqli' => false,
+				],
+				'mail' => [
+					'enable' => true,
+					'from_address' => 'noreply@ebookmarket.com',
+					'smtp_host' => 'localhost',
+					'smtp_username' => '',
+					'smtp_password' => '',
+					'smtp_security' => 'ssl',
+					'smtp_port' => 587,
 				],
 				'session_token_expire_time' => 30*24*60*60,
 				'verify_token_expire_time' => 24*60*60,
 				'recovery_token_expire_time' => 2*60*60,
 				'csrf_token_expire_time' => 30*60,
-				'enable_mail' => true,
-				'mail_headers' => [
-					'From' => 'noreply@ebookmarket.com',
-					'X-Mailer' => 'PHP/' . phpversion(),
-				],
 				'log_level' => 6,
 				'error_reporting' => E_ALL,
 			], $config);

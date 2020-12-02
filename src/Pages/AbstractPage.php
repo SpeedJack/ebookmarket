@@ -8,6 +8,7 @@ use EbookMarket\{
 	App,
 	Visitor,
 	Exceptions\ServerException,
+	Services\MailerService,
 };
 
 abstract class AbstractPage
@@ -208,6 +209,63 @@ abstract class AbstractPage
 		if (count($content) !== 2)
 			return '';
 		$message = wordwrap($content[1], 70, "\r\n");
+		return $message;
+	}
+
+	protected function getHtmlMail(string $template,
+		array $params = []): ?string
+	{
+		$file = App::SRC_ROOT . "/templates/mail/$template.html";
+		if (!file_exists($file))
+			return null;
+		$content = file_get_contents($file);
+		if ($content === false)
+			return null;
+		$content = preg_replace('/\r?\n/', "\r\n", $content);
+		$content = strtr($content, $params);
+		$content = wordwrap($content, 70, "\r\n", true);
+		return $content;
+	}
+
+	protected function sendmail(string $to, string $template,
+		?array $params = null): void
+	{
+		if ($this->app->config('mail')['enable'] !== true)
+			return;
+
+		$replace = [];
+		if (!empty($params))
+			foreach ($params as $key => $value)
+				$replace['{{' . $key . '}}'] = $value;
+
+		$subject='';
+		$txtmsg = $this->getTxtMail($template, $subject, $replace);
+		$htmlmsg = $this->getHtmlMail($template, $replace);
+
+		MailerService::sendmail($to, $template, $params);
+	}
+
+	abstract public function actionIndex(): void;
+
+/* Legacy mail() code {{{
+	protected function getTxtMail(string $template, string &$subject,
+		array $params = []): string
+	{
+		$file = App::SRC_ROOT . "/templates/mail/$template.txt";
+		if (!file_exists($file))
+			throw new \InvalidArgumentException(
+				"The required template '$file' does not exists.");
+		$content = file_get_contents($file);
+		if ($content === false)
+			throw new ServerException(
+				"Can not access file '$file'.");
+		$content = preg_replace('/\r?\n/', "\r\n", $content);
+		$content = strtr($content, $params);
+		$content = explode("\r\n\r\n", $content, 2);
+		$subject = $content[0];
+		if (count($content) !== 2)
+			return '';
+		$message = wordwrap($content[1], 70, "\r\n");
 		return mb_convert_encoding($message, '7bit');
 	}
 
@@ -274,6 +332,5 @@ abstract class AbstractPage
 		$message = $this->buildMailMessage($txtmsg, $htmlmsg, $headers);
 		return mail($to, $subject, $message, $headers);
 	}
-
-	abstract public function actionIndex(): void;
+/* }}} */
 }
