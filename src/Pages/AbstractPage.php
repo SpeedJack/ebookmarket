@@ -202,14 +202,13 @@ abstract class AbstractPage
 		if ($content === false)
 			throw new ServerException(
 				"Can not access file '$file'.");
-		$content = preg_replace('/\r?\n/', "\r\n", $content);
 		$content = strtr($content, $params);
+		$content = preg_replace('/\r?\n/', "\r\n", $content);
 		$content = explode("\r\n\r\n", $content, 2);
 		$subject = $content[0];
 		if (count($content) !== 2)
 			return '';
-		$message = wordwrap($content[1], 70, "\r\n");
-		return $message;
+		return $content[1];
 	}
 
 	protected function getHtmlMail(string $template,
@@ -221,9 +220,8 @@ abstract class AbstractPage
 		$content = file_get_contents($file);
 		if ($content === false)
 			return null;
-		$content = preg_replace('/\r?\n/', "\r\n", $content);
 		$content = strtr($content, $params);
-		$content = wordwrap($content, 70, "\r\n", true);
+		$content = preg_replace('/\r?\n/', "\r\n", $content);
 		return $content;
 	}
 
