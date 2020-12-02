@@ -134,7 +134,7 @@ class Visitor extends AbstractSingleton
 	public function param(string $key,
 		int $method = self::METHOD_ANY): ?string
 	{
-		$method = strtoupper($method);
+		//$method = strtoupper($method);
 		switch ($method) {
 		case self::METHOD_POST:
 			return $this->postParams[$key] ?? null;

@@ -72,7 +72,9 @@ class AccountPage extends AbstractPage
 				"accept_terms" => $accept === "on"
 			];
 
-			if(in_array(false, $validation) || User::getOr(["username" => $username, "email" => $email])) {
+			if(in_array(false, $validation) ||
+                User::getOr(["username" => $username, "email" => $email])
+            ) {
 				$this->setTitle("EbookMarket - Register");
 				$this->show("account/register");
 			} else {
@@ -91,18 +93,30 @@ class AccountPage extends AbstractPage
 
 				echo $verifyToken->usertoken;
 
-				/**Send verification email**/
-				// mail($user->email, __("Account verification"),
+				/**Send verification email
+
 				echo $user->email;
 				echo "Welcome to EbookMarket! \n
 				please navigate to the following link for verify your account: \n
-				https://"
+                https://"
 				. $this->app->config("server_name")
 				.":"
 				. $this->app->config("server_port") ?? "443"
 				. "/account/verify?token="
 				. url_encode($verifyToken->usertoken);
-				//));
+				;**/
+                $verifylink = "https://"
+                    . $this->app->config("server_name")
+                    .":"
+                    . $this->app->config("server_port") ?? "443"
+                    . "/account/verify?token="
+                    . url_encode($verifyToken->usertoken);
+
+                $this->sendmail($user->email, "mail/verify",
+                    [
+                        "username" => $this->username,
+                        "verifylink" => $verifylink,
+                    ]);
 			}
 			break;
 		}
@@ -138,7 +152,18 @@ class AccountPage extends AbstractPage
 				if($user){
 					$token = Token::createNew($user, Token::RECOVERY);
 					$token->save();
-					echo "Recovery Token : " . $token->usertoken;
+                    $recoverylink = "https://"
+                        . $this->app->config("server_name")
+                        .":"
+                        . $this->app->config("server_port") ?? "443"
+                        . "/account/changepassword?token="
+                        . url_encode($token->usertoken);
+
+                    $this->sendmail($user->email, "mail/recovery",
+                        [
+                            "username" => $this->username,
+                            "recoverylink" => $recoverylink,
+                        ]);
 				}
 			}
 			break;

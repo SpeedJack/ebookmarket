@@ -1,0 +1,9 @@
+Recover your account
+
+Hello {{username}}, here is the link to recover your account:
+
+{{recoverylink}}
+
+--
+Best regards,
+EbookMarket
