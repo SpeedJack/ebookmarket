@@ -6,3 +6,4 @@ assets/ebooks/*.mobi
 assets/ebooks/*.epub
 assets/covers/*.jpg
 assets/covers/*.png
+.idea/*
