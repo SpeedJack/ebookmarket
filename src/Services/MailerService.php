@@ -20,7 +20,7 @@ require 'vendor/PHPMailer/src/SMTP.php';
 class MailerService
 {
 	public static function sendmail(string $to, string $toname,
-		string $txtmsg, ?string $htmlmsg = null,
+		string $subject, string $txtmsg, ?string $htmlmsg = null,
 		?array $params = null): void
 	{
 		$mailcfg = App::getInstance()->config('mail');

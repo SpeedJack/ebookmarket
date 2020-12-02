@@ -16,10 +16,11 @@ class BookPage extends AbstractPage
 
 	public function actionTestmail(): void
 	{
-		var_dump($this->sendmail('user@example.com', 'Example Username',
+		$this->sendmail('user@example.com', 'Example Username',
 			'verify', [
 			'username' => 'RandomUser',
 			'verifylink' => 'the_verify_link',
-		]));
+		]);
+		echo 'Done!';
 	}
 }

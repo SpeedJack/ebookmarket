@@ -15,9 +15,9 @@
 //$config['mail']['enable'] = true;
 //$config['mail']['from_address'] = 'noreply@ebookmarket.com';
 //$config['mail']['smtp_host'] = 'localhost';
-//$config['mail']['username'] = '';
-//$config['mail']['password'] = '';
-//$config['mail']['security'] = 'ssl';
+//$config['mail']['smtp_username'] = '';
+//$config['mail']['smtp_password'] = '';
+//$config['mail']['smtp_security'] = 'ssl';
 //$config['mail']['smtp_port'] = 587;
 
 //$config['session_token_expire_time'] = 30*24*60*60;

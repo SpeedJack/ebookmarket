@@ -242,7 +242,8 @@ abstract class AbstractPage
 		$txtmsg = $this->getTxtMail($template, $subject, $replace);
 		$htmlmsg = $this->getHtmlMail($template, $replace);
 
-		MailerService::sendmail($to, $toname, $template, $params);
+		MailerService::sendmail($to, $toname, $subject, $txtmsg,
+			$htmlmsg, $params);
 	}
 
 	abstract public function actionIndex(): void;
