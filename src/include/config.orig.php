@@ -14,6 +14,7 @@
 
 //$config['mail']['enable'] = true;
 //$config['mail']['from_address'] = 'noreply@ebookmarket.com';
+//$config['mail']['from_name'] = 'EbookMarket';
 //$config['mail']['smtp_host'] = 'localhost';
 //$config['mail']['smtp_username'] = '';
 //$config['mail']['smtp_password'] = '';

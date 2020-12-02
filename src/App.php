@@ -87,6 +87,7 @@ class App extends AbstractSingleton
 				'mail' => [
 					'enable' => true,
 					'from_address' => 'noreply@ebookmarket.com',
+					'from_name' => 'EbookMarket',
 					'smtp_host' => 'localhost',
 					'smtp_username' => '',
 					'smtp_password' => '',

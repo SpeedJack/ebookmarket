@@ -36,10 +36,13 @@ class MailerService
 			$mail->SMTPSecure = $mailcfg['smtp_security'];
 			$mail->Port = $mailcfg['smtp_port'];
 
-			$mail->setFrom($mailcfg['from_address']);
+			$mail->CharSet = PHPMailer::CHARSET_UTF8;
+			$mail->Encoding = PHPMailer::ENCODING_QUOTED_PRINTABLE;
+			$mail->WordWrap = PHPMailer::STD_LINE_LENGTH;
+			$mail->setFrom($mailcfg['from_address'],
+				$mailcfg['from_name']);
 			$mail->addAddress($to, $toname);
 			$mail->Subject = $subject;
-			$mail->CharSet = 'UTF-8';
 			if (!empty($htmlmsg)) {
 				$mail->isHTML();
 				$mail->Body = $htmlmsg;
