@@ -227,8 +227,8 @@ abstract class AbstractPage
 		return $content;
 	}
 
-	protected function sendmail(string $to, string $template,
-		?array $params = null): void
+	protected function sendmail(string $to, string $toname,
+		string $template, ?array $params = null): void
 	{
 		if ($this->app->config('mail')['enable'] !== true)
 			return;
@@ -242,7 +242,7 @@ abstract class AbstractPage
 		$txtmsg = $this->getTxtMail($template, $subject, $replace);
 		$htmlmsg = $this->getHtmlMail($template, $replace);
 
-		MailerService::sendmail($to, $template, $params);
+		MailerService::sendmail($to, $toname, $template, $params);
 	}
 
 	abstract public function actionIndex(): void;
