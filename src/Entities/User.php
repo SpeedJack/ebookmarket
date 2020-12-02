@@ -7,7 +7,10 @@ namespace EbookMarket\Entities;
 class User extends AbstractEntity
 {
 	private $token;
-
+	public const EMAIL_IN_USE = 1;
+	public const USERNAME_IN_USE = 2;
+	public const BOTH_IN_USE = 3;
+	public const FREE = 0; 
 	public static function getStructure(): array
 	{
 		return [
@@ -57,6 +60,25 @@ class User extends AbstractEntity
 	public function getAuthtoken(): ?Token
 	{
 		return $this->token;
+	}
+
+	public function checkCredentials(string $username, string $email) : int{
+		$query = "SELECT ". 
+		"CASE ".  
+        	"WHEN email = ? AND username = ? OR count(*) > 1 THEN ". static::BOTH_IN_USE ." ".
+			"WHEN email = ? THEN ". static::EMAIL_IN_USE ." ".
+			"WHEN username = ? THEN ". static::USERNAME_IN_USE ." ".
+        	"ELSE ".static::FREE." ".
+    	"END as result ". 
+		"FROM ".static::getStructure()['table']." ".
+		"WHERE username = ? ".
+		"GROUP BY email, username ".
+		"OR email = ? ;" ;
+
+		$db = $this->app->db();
+		$params = [$email, $username,  $email, $username, $username, $email];
+		$data = $db->fetchRow($query, ...$params);
+		return $data["result"];
 	}
 
 	public function setAuthtoken(?Token $token): void

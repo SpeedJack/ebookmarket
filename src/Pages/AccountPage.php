@@ -71,14 +71,27 @@ class AccountPage extends AbstractPage
 				"password_confirm" => ($password == $passwordConfirm),
 				"accept_terms" => $accept === "on"
 			];
-
-			if(in_array(false, $validation) ||
-                User::getOr(["username" => $username, "email" => $email])
-            ) {
-				$this->setTitle("EbookMarket - Register");
-				$this->show("account/register");
-			} else {
-				$user = new User();
+			 
+			if(in_array(false, $validation)) {
+				$this->setTitle("EbookMarket - Registration failed ");
+				$this->show("account/register_result", ["success"=>false]);
+			};
+			
+			$user = new User();
+			$check = $user->checkCredentials($username, $email);
+			
+			if($check === User::EMAIL_IN_USE || $check === User::BOTH_IN_USE){
+				$this->setTitle("EbookMarket - Registration failed ");
+				$this->show("account/register_result", ["success"=>false]);
+			} else if($check === User::USERNAME_IN_USE){
+				$this->setTitle("EbookMarket - Registration failed ");
+				$this->show("account/register_result", ["success"=>true]);
+				$this->sendmail($user->email, "already_in_use",
+                    [
+                        "username" => $user->username,
+					]);
+			} else if($check === User::FREE) {
+				
 				$user->username = $username;
 				$user->email = $email;
 				$user->password = $password;
@@ -91,20 +104,7 @@ class AccountPage extends AbstractPage
 				$verifyToken = Token::createNew($user, Token::VERIFY);
 				$verifyToken->save();
 
-				echo $verifyToken->usertoken;
 
-				/**Send verification email
-
-				echo $user->email;
-				echo "Welcome to EbookMarket! \n
-				please navigate to the following link for verify your account: \n
-                https://"
-				. $this->app->config("server_name")
-				.":"
-				. $this->app->config("server_port") ?? "443"
-				. "/account/verify?token="
-				. url_encode($verifyToken->usertoken);
-				;**/
                 $verifylink = "https://"
                     . $this->app->config("server_name")
                     .":"
@@ -116,7 +116,10 @@ class AccountPage extends AbstractPage
                     [
                         "username" => $user->username,
                         "verifylink" => $verifylink,
-                    ]);
+					]);
+					
+				$this->setTitle("EbookMarket - Registration Complete");
+				$this->show("account/register_complete", ["success" => true]);
 			}
 			break;
 		}

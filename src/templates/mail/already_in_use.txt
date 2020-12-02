@@ -1,0 +1,7 @@
+Username already in use
+
+Hello, the username: {{username}}is already in use, please retry with another username
+
+--
+Best regards,
+EbookMarket
