@@ -147,7 +147,7 @@ class Token extends AbstractEntity
 		if (function_exists('random_bytes'))
 			try {
 				$bytes = random_bytes(32);
-				$token = hash('sha256', $token);
+				$token = hash('sha256', $bytes);
 				$selector = bin2hex(random_bytes(8));
 				return $selector . ':' . $token;
 			} catch(\Exception $e) {

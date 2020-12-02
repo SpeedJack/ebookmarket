@@ -112,9 +112,9 @@ class AccountPage extends AbstractPage
                     . "/account/verify?token="
                     . url_encode($verifyToken->usertoken);
 
-                $this->sendmail($user->email, "mail/verify",
+                $this->sendmail($user->email, "verify",
                     [
-                        "username" => $this->username,
+                        "username" => $user->username,
                         "verifylink" => $verifylink,
                     ]);
 			}
@@ -127,8 +127,9 @@ class AccountPage extends AbstractPage
 		$method = $this->visitor->getMethod();
 		switch($method) {
 		case Visitor::METHOD_GET:
+			
 			$this->setTitle("EbookMarket - Logout");
-			$this->show("authentication/logout");
+			$this->show("account/logout");
 			break;
 		case Visitor::METHOD_POST:
 			break;
@@ -159,9 +160,9 @@ class AccountPage extends AbstractPage
                         . "/account/changepassword?token="
                         . url_encode($token->usertoken);
 
-                    $this->sendmail($user->email, "mail/recovery",
+                    $this->sendmail($user->email, "recovery",
                         [
-                            "username" => $this->username,
+                            "username" => $user->username,
                             "recoverylink" => $recoverylink,
                         ]);
 				}

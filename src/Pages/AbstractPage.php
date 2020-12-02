@@ -202,7 +202,7 @@ abstract class AbstractPage
 			throw new ServerException(
 				"Can not access file '$file'.");
 		$content = preg_replace('/\r?\n/', "\r\n", $content);
-		$content = strtr($content, $replace);
+		$content = strtr($content, $params);
 		$content = explode("\r\n\r\n", $content, 2);
 		$subject = $content[0];
 		if (count($content) !== 2)
@@ -221,7 +221,7 @@ abstract class AbstractPage
 		if ($content === false)
 			return null;
 		$content = preg_replace('/\r?\n/', "\r\n", $content);
-		$content = strtr($content, $replace);
+		$content = strtr($content, $params);
 		$content = wordwrap($content, 70, "\r\n", true);
 		return quoted_printable_encode($content);
 	}
