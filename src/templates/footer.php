@@ -1,5 +1,3 @@
 <footer>
-    <p>©2020 NyLoN</p>
-    <a href="<?php $app->buildLink("/privacy")?>">Privacy</a>
-    <a href="<?php $app->buildLink("/terms")?>">Terms and Conditions</a>
+    <p id="copyright">&copy; 2020 - Lorenzo Cima, Nicola Ferrante, Niccolò Scatena (University of Pisa) - MIT License</p>
 </footer>

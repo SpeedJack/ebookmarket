@@ -20,7 +20,8 @@
 	</head>
 	<body>
 		<?php 
-			$this->loadTemplate("navbar", $params); 
+			$this->loadTemplate("header", $params);
+			$this->loadTemplate("sidebar", $params); 
 			$this->loadTemplate($template, $params);
 			$this->loadTemplate("footer", $params);
 		?>

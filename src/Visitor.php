@@ -90,6 +90,7 @@ class Visitor extends AbstractSingleton
 		$this->action = "action$action";
 	}
 
+
 	public function setRoute(?string $route): void
 	{
 		$route = $route ?? '';
@@ -109,6 +110,21 @@ class Visitor extends AbstractSingleton
 	public function getRoute(): string
 	{
 		return $this->getPageParam() . '/' . $this->getActionParam();
+	}
+
+	public function isRoute(string $route): bool
+	{
+		return strcasecmp($this->getRoute(), $route) === 0;
+	}
+
+	public function isPage(string $page): bool
+	{
+		return strcasecmp($this->getPageParam(), $page) === 0;
+	}
+
+	public function isAction(string $action): bool
+	{
+		return strcasecmp($this->getActionParam(), $action) === 0;
 	}
 
 	public function getPage(): string

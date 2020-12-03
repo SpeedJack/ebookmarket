@@ -227,13 +227,15 @@ class App extends AbstractSingleton
 		if (empty($route))
 			return "$subdir" . static::buildGetParams($params);
 		$parts = explode('/', $route);
-		if (count($parts) === 2)
+		if (count($parts) === 2) {
 			list($page, $action) = $parts;
-		else if (count($parts) === 1)
+		} else if (count($parts) === 1) {
 			$page = $parts[0];
-		else
+			$action = null;
+		} else {
 			throw new \InvalidArgumentException(
 				"Invalid route specified: $route.");
+		}
 		$defpage = lcfirst(substr(static::DEFAULT_PAGE, 0, -4));
 		$defaction = lcfirst(substr(static::DEFAULT_ACTION, 6));
 		if (empty($page) && !empty($action))

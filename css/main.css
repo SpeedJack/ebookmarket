@@ -1,8 +1,101 @@
 body {
-	background-color: rgb(27, 29, 30);
-	color: rgb(209, 205, 199);
+	background-color: #212223;
+	color: #D1CDC7;
+	margin: 0;
 }
 
 a {
-	color: rgb(103, 159, 213);
+	color: #679FD5;
+}
+
+header nav {
+	overflow: hidden;
+	background-color: #191A1B;
+	width: 100%;
+	height: 52px;
+}
+
+header nav a {
+	float: left;
+	display: block;
+	color: #978E83;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+	font-size: 17px;
+}
+
+header nav .right {
+	float: right;
+}
+
+header nav p {
+	display: inline-block;
+}
+
+header nav a#username {
+	margin-left: 6px;
+	font-weight: bold;
+	float: right;
+}
+
+header nav a:hover {
+	background-color: #212223;
+	color: #D5D1CB;
+	border-bottom: 3px solid #212223;
+}
+
+header nav a.active {
+	border-bottom: 3px solid #039BE5;
+	color: #D5D1CB;
+}
+
+header {
+	background-color: #212223;
+	height: 125px;
+}
+
+header input#searchbar {
+	float: left;
+	background-color: #191A1B;
+	color: #D1CDC7;
+	display: block;
+	width: 100%;
+	max-width: 400px;
+	padding: 6px;
+	border: 1px solid #292A2B;
+	margin-top: 20px;
+	margin-left: 100px;
+	font-size: 17px;
+}
+
+header input#searchbar:hover {
+	border: 1px solid #3D3E3F;
+}
+
+header input#searchbar:focus {
+	border: 1px solid #039BE5;
+}
+
+header button#searchbtn {
+	margin-top: 20px;
+	padding: 6px;
+	border: none;
+	height: 34px;
+	min-width: 75px;
+	background-color: #039BE5;
+}
+
+header h1#title {
+	float: right;
+	margin-top: 20px;
+	margin-right: 20px;
+}
+
+footer {
+	background-color: #191A1B;
+	min-height: 55px;
+	box-shadow: 0 50vh 0 50vh #191A1B;
+	padding: 20px;
+	text-align: center;
 }
