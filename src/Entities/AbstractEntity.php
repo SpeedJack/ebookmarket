@@ -308,7 +308,8 @@ abstract class AbstractEntity
 	abstract public static function getStructure(): array;
 
 	public static function get($name = null, $value = null,
-		bool $or = false, bool $multirow = false)
+		bool $or = false, bool $multirow = false,
+		?string $orderby = null)
 	{
 		$query = 'SELECT * FROM `' . static::getStructure()['table'] . '`';
 		if (is_scalar($name) && !isset($value)) {
@@ -343,6 +344,9 @@ abstract class AbstractEntity
 			return new static($data);
 		}
 
+		if (!isset($orderby))
+			$orderby = 'id';
+		$query .= ' ORDER BY `' . $orderby . '`';
 		$data = $db->fetchAll($query, ...$params);
 		$entities = [];
 		foreach ($data as $row)
@@ -351,19 +355,20 @@ abstract class AbstractEntity
 	}
 
 	public static function getOr($name, $value = null,
-		bool $multirow = false)
+		bool $multirow = false, ?string $orderby = null)
 	{
-		return static::get($name, $value, true, $multirow);
+		return static::get($name, $value, true, $multirow, $orderby);
 	}
 
 	public static function getAll($name = null, $value = null,
-		bool $or = false): array
+		?string $orderby = null, bool $or = false): array
 	{
-		return static::get($name, $value, $or, true);
+		return static::get($name, $value, $or, true, $orderby);
 	}
 
-	public static function getAllOr($name = null, $value = null): array
+	public static function getAllOr($name = null, $value = null,
+		?string $orderby = null): array
 	{
-		return static::getAll($name, $value, true);
+		return static::getAll($name, $value, $orderby, true);
 	}
 }

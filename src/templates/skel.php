@@ -21,7 +21,8 @@
 	<body>
 		<?php 
 			$this->loadTemplate("header", $params);
-			$this->loadTemplate("sidebar", $params); 
+			if (empty($params['noaside']))
+				$this->loadTemplate("sidebar", $params); 
 			$this->loadTemplate($template, $params);
 			$this->loadTemplate("footer", $params);
 		?>

@@ -73,14 +73,18 @@ class ErrorPage extends AbstractPage
 	public function showError(): void
 	{
 		$code = 500;
-		if ($this->exception instanceof Exception)
+		if ($this->exception instanceof Exception) {
 			$code = $this->exception->getCode();
+			$message = $this->exception->getUserMessage()
+				?? static::getMessage($code);
+		} else {
+			$message = static::getMessage($code);
+		}
 		$title = static::getTitle($code);
-		$message = $this->exception->getUserMessage()
-			?? static::getMessage($code);
 		$params = [
 			'title' => parent::htmlEscape($title),
 			'message' => parent::htmlEscape($message),
+			'noaside' => true,
 		];
 		http_response_code($code);
 		$this->setTitle($code . ' - ' . $title);

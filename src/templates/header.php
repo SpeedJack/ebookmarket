@@ -6,7 +6,7 @@
 	</button>
 	<h1 id="title">EbookMarket</h1>
 	<nav>
-		<a href="<?= $app->buildLink('') ?>"
+		<a href="<?= $app->buildLink(null) ?>"
 		<?php if ($visitor->isPage('book') && !$visitor->isAction('library')): ?>
 			class="active"
 		<?php endif; ?>

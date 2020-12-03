@@ -215,7 +215,8 @@ class App extends AbstractSingleton
 			return '';
 		$getstr = $append ? '&' : '?';
 		foreach ($params as $key => $val)
-			$getstr .= urlencode($key) . '=' . urlencode($val) . '&';
+			$getstr .= urlencode($key) . '='
+			. urlencode(strval($val)) . '&';
 		return rtrim($getstr, '&');
 	}
 

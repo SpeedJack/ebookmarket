@@ -166,10 +166,11 @@ class Token extends AbstractEntity
 	}
 
 	public static function get($name = null, $value = null,
-		bool $or = false, bool $multirow = false)
+		bool $or = false, bool $multirow = false,
+		?string $orderby = null)
 	{
 		if (is_scalar($name) && !isset($value))
 			$name = strstr($name, ':', true) ?: $name;
-		return parent::get($name, $value, $or, $multirow);
+		return parent::get($name, $value, $or, $multirow, $orderby);
 	}
 }

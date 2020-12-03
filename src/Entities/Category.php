@@ -21,4 +21,12 @@ class Category extends AbstractEntity
 	{
 		return Book::getByCategory($this->name);
 	}
+
+	public static function getAll($name = null, $value = null,
+		?string $orderby = null, bool $or = false): array
+	{
+		if (!isset($orderby))
+			$orderby = 'name';
+		return parent::getAll($name, $value, $orderby, $or);
+	}
 }
