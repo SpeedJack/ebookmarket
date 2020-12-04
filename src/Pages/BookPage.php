@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace EbookMarket\Pages;
 
 use EbookMarket\Entities\User;
+use EbookMarket\Entities\Book;
 use EbookMarket\Entities\Category;
 use EbookMarket\Visitor;
 
@@ -21,7 +22,32 @@ class BookPage extends AbstractPage
 	{
 		$this->setActiveMenu('Shop');
 		$this->setTitle('EbookMarket - Books');
-		$this->show('loripsum');
+		if(Visitor::getMethod() === Visitor::METHOD_GET){
+			$cat = $this->visitor->param("cat", Visitor::METHOD_GET);
+			$books = [];
+			if(!$cat){
+				$books = Book::getAll();
+			} else {
+				$category = Category::get(intval($cat));
+				$books = $category->getBooks();
+			}
+				$this->show('books/booklist', ["books" => $books]);
+			}
+		
+	}
+
+	public function actionView(): void
+	{
+		$this->setActiveMenu('Shop');
+		$this->setTitle('EbookMarket - Books');
+		$cat = $this->visitor->param("cat", Visitor::METHOD_GET);
+		$books = [];
+		if(!$cat){
+			$books = Book::getAll();
+		} else {
+			$books = Book::get("category", intval($cat));
+		}
+		$this->show('books/booklist', ["books" => $books]);
 	}
 
 	protected function buildSidebar(): ?string
