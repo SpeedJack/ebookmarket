@@ -239,10 +239,10 @@ class Visitor extends AbstractSingleton
 	}
 
 	public function logout() : void {
-		if (!$this->user || !$this->user->hasAuthtoken())
+		if (!$this->user)
 			return;
 		$this->unsetSessionToken();
-		$this->setUser(null);
+		$this->user = null;
 	}
 
 	protected function setSessionToken(Token $token,
