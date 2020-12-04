@@ -164,6 +164,12 @@ class Visitor extends AbstractSingleton
 		}
 	}
 
+	public function hasParam(string $key,
+		int $method = self::METHOD_ANY): bool
+	{
+		return !empty($this->param($key, $method));
+	}
+
 	public static function assertMethod(
 		int $allowed = self::METHOD_GET | self::METHOD_POST): void
 	{

@@ -12,12 +12,10 @@ class BookPage extends AbstractPage
 {
 	public function actionIndex(): void
 	{
-		$categories = Category::getAll();
+		$this->setActiveMenu('Shop');
+		$this->enableSearchbar();
 		$this->setTitle('EbookMarket - Books');
-		$this->show('test', [
-			'categories' => $categories,
-			'activecat' => $this->visitor->param('cat', Visitor::METHOD_GET),
-		]);
+		$this->show('test');
 	}
 
 	public function actionTestmail(): void
@@ -28,5 +26,19 @@ class BookPage extends AbstractPage
 			'verifylink' => 'the_verify_link',
 		]);
 		echo 'Done!';
+	}
+
+	protected function buildSidebar(): ?string
+	{
+		$curcat = $this->visitor->param('cat', Visitor::METHOD_GET);
+		$html = $this->buildMenuEntry('All Books', null, null,
+			empty($curcat));
+		$curcat = intval($curcat);
+		$categories = Category::getAll();
+		foreach ($categories as $category)
+			$html .= $this->buildMenuEntry($category->name, null,
+				[ 'cat' => $category->id ],
+				$curcat === $category->id);
+		return $html;
 	}
 }

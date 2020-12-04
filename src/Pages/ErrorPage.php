@@ -84,7 +84,6 @@ class ErrorPage extends AbstractPage
 		$params = [
 			'title' => parent::htmlEscape($title),
 			'message' => parent::htmlEscape($message),
-			'noaside' => true,
 		];
 		http_response_code($code);
 		$this->setTitle($code . ' - ' . $title);
@@ -94,5 +93,10 @@ class ErrorPage extends AbstractPage
 	public function actionIndex(): void
 	{
 		$this->redirectHomePermanently();
+	}
+
+	protected function buildSidebar(): ?string
+	{
+		return null;
 	}
 }

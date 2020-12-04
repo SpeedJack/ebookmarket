@@ -64,7 +64,7 @@ class App extends AbstractSingleton
 
 	protected static function mergeConfigDefaults(array $config = []): array
 	{
-		if (!empty($config['app_subdir']))
+		if (isset($config['app_subdir']))
 			$config['app_subdir'] = '/' . trim($config['app_subdir'], '/');
 		if (empty($config['https_port']))
 			$config['https_port'] = 443;
@@ -74,7 +74,7 @@ class App extends AbstractSingleton
 				'server_name' => $_SERVER['SERVER_NAME'],
 				'server_port' => !empty($_SERVER['HTTPS'])
 					? $config['https_port'] : 80,
-				'app_subdir' => '',
+				'app_subdir' => '/',
 				'force_https' => true,
 				'db' => [
 					'host' => 'localhost',
@@ -192,19 +192,19 @@ class App extends AbstractSingleton
 
 	public function getCssFile(string $cssname): string
 	{
-		$file = "/css/$cssname.css";
-		if (!file_exists($GLOBALS['APP_ROOT'] . $file))
+		$file = "css/$cssname.css";
+		if (!file_exists($GLOBALS['APP_ROOT'] . "/$file"))
 			throw new \InvalidArgumentException(
-				"The required CSS file '$file' does not exists.");
+				"The required CSS file '/$file' does not exists.");
 		return $this->config['app_subdir'] . $file;
 	}
 
 	public function getJsFile(string $jsname): string
 	{
-		$file = "/js/$jsname.js";
-		if (!file_exists($GLOBALS['APP_ROOT'] . $file))
+		$file = "js/$jsname.js";
+		if (!file_exists($GLOBALS['APP_ROOT'] . "/$file"))
 			throw new \InvalidArgumentException(
-				"The required JavaScript file '$file' does not exists.");
+				"The required JavaScript file '/$file' does not exists.");
 		return $this->config['app_subdir'] . $file;
 	}
 
@@ -255,6 +255,7 @@ class App extends AbstractSingleton
 			if (strcmp($page, $defpage) === 0)
 				$page = '';
 		}
+		$subdir = rtrim($subdir, '/');
 		return rtrim("$subdir/$page/$action", '/')
 			. static::buildGetParams($params);
 	}

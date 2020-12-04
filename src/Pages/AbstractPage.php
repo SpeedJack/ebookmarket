@@ -21,6 +21,8 @@ abstract class AbstractPage
 	protected $title = 'EbookMarket';
 	protected $cssfiles = [];
 	protected $jsfiles = [];
+	protected $activeMenu = '';
+	protected $showSearchbar = false;
 
 	public function __construct(?string $title = null)
 	{
@@ -65,6 +67,16 @@ abstract class AbstractPage
 	protected function setTitle(string $title): void
 	{
 		$this->title = static::htmlEscape($title);
+	}
+
+	protected function setActiveMenu(string $menu): void
+	{
+		$this->activeMenu = $menu;
+	}
+
+	protected function enableSearchbar(bool $enable = true): void
+	{
+		$this->showSearchbar = $enable;
 	}
 
 	protected function addCss(string $css): void
@@ -122,36 +134,26 @@ abstract class AbstractPage
 		]);
 	}
 
-	protected function showModal(string $template, array $params = [],
-		?string $redirect = null): void
+	protected function showModal(string $template, array $params = []): void
 	{
 		ob_start();
 		$this->loadTemplate($template, $params);
 		$html = ob_get_clean();
 		$data = [
-			'modal' => true,
 			'html' => $html,
 		];
-		if (isset($redirect))
-			$data['redirect'] = $redirect;
 		$this->replyJson($data);
 	}
 
-	protected function message(string $title, string $message,
-		?string $redirect = null, bool $error = false): void
+	protected function modalMessage(string $title, string $message,
+		?string $redirect = null): void
 	{
 		$params = [
 			'title' => $title,
 			'message' => $message,
-			'error' => $error,
+			'redirect' => $redirect,
 		];
-		$this->showModal('messagebox', $params, $redirect);
-	}
-
-	protected function error(string $title, string $message,
-		?string $redirect = null): void
-	{
-		$this->message($title, $message, $redirect, true);
+		$this->showModal('messagebox', $params);
 	}
 
 	protected static function externalRedirect(string $link,
@@ -244,7 +246,44 @@ abstract class AbstractPage
 			$htmlmsg, $params);
 	}
 
+	protected function buildMenuEntry(string $name, ?string $route = null,
+		?array $params = null, bool $active = false): string
+	{
+		ob_start();
+		$this->loadTemplate('menuentry', [
+			'name' => $name,
+			'link' => $this->app->buildLink($route, $params),
+			'active' => $active,
+		]);
+		return ob_get_clean();
+	}
+
+	protected function buildTopMenuEntry(string $name, ?string $route = null,
+		?array $params = null): string
+	{
+		return $this->buildMenuEntry($name, $route, $params,
+			strcasecmp($name, $this->activeMenu) === 0);
+	}
+
+	protected function buildMenu(): string
+	{
+		$html = $this->buildTopMenuEntry('Shop');
+		if ($this->visitor->isLoggedIn())
+			$html .= $this->buildTopMenuEntry('My Library', 'book/library');
+		$html .= '<div class="right">';
+		if ($this->visitor->isLoggedIn()) {
+			$html .= $this->buildTopMenuEntry(static::htmlEscape(
+				$this->visitor->user()->username), 'account');
+			$html .= $this->buildTopMenuEntry('Logout', 'account/logout');
+		} else {
+			$html .= $this->buildTopMenuEntry('Login', 'account/login');
+			$html .= $this->buildTopMenuEntry('Sign Up', 'account/register');
+		}
+		return $html . '</div>';
+	}
+
 	abstract public function actionIndex(): void;
+	abstract protected function buildSidebar(): ?string;
 
 /* Legacy mail() code {{{
 	protected function getTxtMail(string $template, string &$subject,

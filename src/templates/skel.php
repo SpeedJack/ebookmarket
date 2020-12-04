@@ -21,10 +21,11 @@
 	<body>
 		<?php 
 			$this->loadTemplate("header", $params);
-			if (empty($params['noaside']))
-				$this->loadTemplate("sidebar", $params); 
-			$this->loadTemplate($template, $params);
-			$this->loadTemplate("footer", $params);
+			$this->loadTemplate("sidebar", $params); 
 		?>
+			<main>
+			<?php $this->loadTemplate($template, $params); ?>
+			</main>
+		<?php $this->loadTemplate("footer", $params); ?>
 	</body>
 </html>
