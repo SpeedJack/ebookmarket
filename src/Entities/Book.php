@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace EbookMarket\Entities;
+use EbookMarket\App;
 
 class Book extends AbstractEntity
 {
@@ -14,7 +15,7 @@ class Book extends AbstractEntity
 				'id' => [ 'type' => self::UINT, 'auto_increment' => true ],
 				'title' => [ 'type' => self::STR, 'required' => true ],
 				'author' => [ 'type' => self::STR, 'required' => true ],
-				'pubdate' => [ 'type' => self::DATE ],
+				'pubdate' => [ 'type' => self::STR ],
 				'price' => [ 'type' => self::FLOAT, 'required' => true ],
 				'filehandle' => [ 'type' => self::STR, 'required' => true ],
 				'categoryid' => [ 'type' => self::UINT, 'required' => true ],
@@ -24,14 +25,14 @@ class Book extends AbstractEntity
 
 	public static function getByCategory(string $category): array
 	{
-		$query = 'SELECT b.* FROM `'
+		$query = 'SELECT b.* FROM '
 			. static::getStructure()['table']
-			. '` b INNER JOIN `'
+			. ' b INNER JOIN '
 			. Category::getStructure()['table']
-			. '` c ON b.categoryid = c.id WHERE c.name = ? ;';
+			. ' c ON b.categoryid = c.id WHERE c.name = ? ;';
 
-		$db = $this->app->db();
-		$data = $db->fetchAll($query, $name);
+		$db = App::getInstance()->db();
+		$data = $db->fetchAll($query, $category);
 		$entities = [];
 		foreach ($data as $row)
 			$entities[] = new static($row);
@@ -45,7 +46,7 @@ class Book extends AbstractEntity
 		$query = 'SELECT * FROM `' . self::getStructure()['table']
 		. '` WHERE `author` LIKE ? OR `title` LIKE ?;';
 
-		$db = $this->app->db();
+		$db = App::getInstance()->db();
 		$data = $db->fetchAll($query, $pattern, $pattern);
 		$entities = [];
 		foreach ($data as $row)
