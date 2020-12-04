@@ -47,7 +47,7 @@ class AccountPage extends AbstractPage
 	{
 		if ($this->visitor->isLoggedIn())
 			$this->redirectHome();
-
+		$this->setActiveMenu('Login');
 		switch (Visitor::getMethod()) {
 		case Visitor::METHOD_POST:
 			$username = $this->visitor->param('username', Visitor::METHOD_POST);
@@ -70,6 +70,7 @@ class AccountPage extends AbstractPage
 
 	public function actionRegister(): void
 	{
+		$this->setActiveMenu('Sign Up');
 		$method = $this->visitor->getMethod();
 		switch($method) {
 		case Visitor::METHOD_GET :
