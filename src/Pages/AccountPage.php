@@ -27,18 +27,18 @@ class AccountPage extends AbstractPage
 			case Visitor::METHOD_GET : 
 				$this->show("account/profile", ["user"=>$this->visitor->user()]);
 			case Visitor::METHOD_POST : 
-				$oldPassword = $this->visitor->param("old_password", "POST");
-				$password = $this->visitor->param("password", "POST");
-				$passwordConfirm = $this->visitor->param("password_confirm", "POST");
-				if (empty($oldPassword) || empty($password) || empty($passwordConfirm))
-					$this->error('Error.', 'Invalid password.');
+				$currentPassword = $this->visitor->param("current_password", Visitor::METHOD_POST);
+				$password = $this->visitor->param("password",  Visitor::METHOD_POST);
+				$passwordConfirm = $this->visitor->param("password_confirm",  Visitor::METHOD_POST);
+				if (empty($currentPassword) || empty($password) || empty($passwordConfirm))
+				$this->show("account/profile", ["user"=>$this->visitor->user(), "success" => false]);
 				
 				$user = $this->visitor->user();
 				$user->password = $password;
 				$user->save();
 
 				$this->setTitle("EbookMarket - Password Change Complete");
-				$this->show("account/profile", ["user"=>$this->visitor->user, "success" => false]);
+				$this->show("account/profile", ["user"=>$this->visitor->user(), "success" => true]);
 
 		}
 	}
