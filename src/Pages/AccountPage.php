@@ -22,7 +22,25 @@ class AccountPage extends AbstractPage
 	{
 		if (!$this->visitor->isLoggedIn())
 			$this->redirect('/login');
-		echo "Logged In";
+		
+		switch(Visitor::getMethod()) {
+			case Visitor::METHOD_GET : 
+				$this->show("account/profile", ["user"=>$this->visitor->user()]);
+			case Visitor::METHOD_POST : 
+				$oldPassword = $this->visitor->param("old_password", "POST");
+				$password = $this->visitor->param("password", "POST");
+				$passwordConfirm = $this->visitor->param("password_confirm", "POST");
+				if (empty($oldPassword) || empty($password) || empty($passwordConfirm))
+					$this->error('Error.', 'Invalid password.');
+				
+				$user = $this->visitor->user();
+				$user->password = $password;
+				$user->save();
+
+				$this->setTitle("EbookMarket - Password Change Complete");
+				$this->show("account/profile", ["user"=>$this->visitor->user, "success" => false]);
+
+		}
 	}
 
 	public function actionLogin(): void
@@ -231,5 +249,9 @@ class AccountPage extends AbstractPage
 			}
 			break;
 		}
+	}
+
+	public function buildSidebar(): ?string {
+		return null;
 	}
 }
