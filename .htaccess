@@ -3,8 +3,7 @@
 
 	#RewriteBase /ebookmarket
 
-	RewriteRule ^(js/|css/|favicon\.ico|crossdomain\.xml|robots\.txt|assets/covers/) - [NC,L]
-	RewriteRule ^(src/|assets/ebooks/) - [NC,L,F]
+	RewriteRule ^(src/|assets/ebooks/|docker/|scripts/) - [NC,L,F]
 	RewriteCond %{REQUEST_FILENAME} -f [OR]
 	RewriteCond %{REQUEST_FILENAME} -d
 	RewriteRule ^.*$ - [NC,L,E=APACHE_MOD_REWRITE:1]

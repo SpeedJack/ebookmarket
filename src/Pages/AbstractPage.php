@@ -23,6 +23,7 @@ abstract class AbstractPage
 	protected $jsfiles = [];
 	protected $activeMenu = '';
 	protected $showSearchbar = false;
+	protected $exitOnShow = true;
 
 	public function __construct(?string $title = null)
 	{
@@ -116,7 +117,8 @@ abstract class AbstractPage
 	{
 		$skelfile = static::getTemplateFile('skel');
 		include $skelfile;
-		exit();
+		if ($this->exitOnShow)
+			exit();
 	}
 
 	protected function replyJson(array $data): void

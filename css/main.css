@@ -73,6 +73,19 @@ header button#searchbtn {
 	height: 34px;
 	width: 75px;
 	background-color: #039BE5;
+	border-radius: 0 4px 4px 0;
+
+}
+
+header button svg {
+	width: 20px;
+	height: 20px;
+	fill: #D5D1CB;
+	transition: transform 0.25s;
+}
+
+header button:hover svg {
+	transform: scale(1.1);
 }
 
 header h1#title {

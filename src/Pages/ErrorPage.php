@@ -72,6 +72,7 @@ class ErrorPage extends AbstractPage
 
 	public function showError(): void
 	{
+		$this->exitOnShow = false;
 		$code = 500;
 		if ($this->exception instanceof Exception) {
 			$code = $this->exception->getCode();

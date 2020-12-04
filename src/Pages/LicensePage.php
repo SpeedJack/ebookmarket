@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace EbookMarket\Pages;
 
-class PhpinfoPage extends AbstractPage
+class LicensePage extends AbstractPage
 {
-	public function __construct(?string $title = null)
-	{
-	}
-
 	public function actionIndex(): void
 	{
-		phpinfo();
+		$this->setTitle('EbookMarket - License');
+		$this->show('license');
 	}
 
 	protected function buildSidebar(): ?string
