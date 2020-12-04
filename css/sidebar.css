@@ -1,3 +1,11 @@
+header {
+	padding-left: 160px;
+}
+
+header + nav {
+	padding-left: 160px;
+}
+
 aside {
 	position: absolute;
 	float: left;
@@ -19,4 +27,8 @@ aside nav a {
 
 aside nav a.active:before {
 	content: "> ";
+}
+
+main {
+	padding-left: 180px;
 }

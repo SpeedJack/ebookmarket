@@ -272,8 +272,9 @@ abstract class AbstractPage
 			$html .= $this->buildTopMenuEntry('My Library', 'book/library');
 		$html .= '<div class="right">';
 		if ($this->visitor->isLoggedIn()) {
-			$html .= $this->buildTopMenuEntry(static::htmlEscape(
-				$this->visitor->user()->username), 'account');
+			$html .= $this->buildMenuEntry(static::htmlEscape(
+				$this->visitor->user()->username), 'account',
+				null, $this->visitor->isPage('account'));
 			$html .= $this->buildTopMenuEntry('Logout', 'account/logout');
 		} else {
 			$html .= $this->buildTopMenuEntry('Login', 'account/login');
