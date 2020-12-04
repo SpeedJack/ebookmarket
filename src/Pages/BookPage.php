@@ -10,22 +10,18 @@ use EbookMarket\Visitor;
 
 class BookPage extends AbstractPage
 {
+	public function __construct()
+	{
+		parent::__construct();
+		$this->enableSearchbar();
+		$this->addCss('sidebar');
+	}
+
 	public function actionIndex(): void
 	{
 		$this->setActiveMenu('Shop');
-		$this->enableSearchbar();
 		$this->setTitle('EbookMarket - Books');
-		$this->show('test');
-	}
-
-	public function actionTestmail(): void
-	{
-		$this->sendmail('user@example.com', 'Example Username',
-			'verify', [
-			'username' => 'RandomUser',
-			'verifylink' => 'the_verify_link',
-		]);
-		echo 'Done!';
+		$this->show('loripsum');
 	}
 
 	protected function buildSidebar(): ?string

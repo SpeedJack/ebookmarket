@@ -1,0 +1,22 @@
+aside {
+	position: absolute;
+	float: left;
+	bottom: 0;
+	top: 130px;
+	width: 150px;
+	padding: 10px 0 0 10px;
+	background-color: #191A1B;
+	box-shadow: 0 50vh 0 0 #191A1B
+}
+
+aside.sticky {
+	top: 52px;
+}
+
+aside nav a {
+	padding: 10px 0;
+}
+
+aside nav a.active:before {
+	content: "> ";
+}

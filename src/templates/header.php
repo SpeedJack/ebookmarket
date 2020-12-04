@@ -7,8 +7,8 @@
 		</button>
 	<?php endif ?>
 	<h1 id="title">EbookMarket</h1>
-	<nav>
-		<?= $this->buildMenu() ?>
-	</nav>
 </header>
+<nav>
+	<?= $this->buildMenu() ?>
+</nav>
 

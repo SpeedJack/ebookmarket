@@ -8,65 +8,56 @@ a {
 	color: #679FD5;
 }
 
-header nav {
+nav {
 	overflow: hidden;
 	background-color: #191A1B;
-	width: 100%;
-	height: 52px;
 }
 
-header nav a {
-	float: left;
+nav a {
 	display: block;
 	color: #978E83;
-	text-align: center;
-	padding: 14px 16px;
 	text-decoration: none;
 	font-size: 17px;
 }
 
-header nav .right {
+nav a:hover {
+	color: #D5D1CB;
+}
+
+nav a.active {
+	color: #D5D1CB;
+}
+
+.right {
 	float: right;
 }
 
-header nav p {
-	display: inline-block;
+.sticky {
+	position: fixed;
+	top: 0;
 }
 
-header nav a#username {
-	margin-left: 6px;
-	font-weight: bold;
-	float: right;
-}
-
-header nav a:hover {
-	background-color: #212223;
-	color: #D5D1CB;
-	border-bottom: 3px solid #212223;
-}
-
-header nav a.active {
-	border-bottom: 3px solid #039BE5;
-	color: #D5D1CB;
+.sticky ~ main {
+	padding-top: 72px;
 }
 
 header {
 	background-color: #212223;
-	height: 125px;
+	padding: 20px;
+	overflow: hidden;
 }
 
 header input#searchbar {
 	float: left;
 	background-color: #191A1B;
-	color: #D1CDC7;
 	display: block;
 	width: 100%;
 	max-width: 400px;
 	padding: 6px;
 	border: 1px solid #292A2B;
-	margin-top: 20px;
 	margin-left: 100px;
 	font-size: 17px;
+	color: #D1CDC7;
 }
 
 header input#searchbar:hover {
@@ -78,23 +69,48 @@ header input#searchbar:focus {
 }
 
 header button#searchbtn {
-	margin-top: 20px;
 	padding: 6px;
 	border: none;
 	height: 34px;
-	min-width: 75px;
+	width: 75px;
 	background-color: #039BE5;
 }
 
 header h1#title {
 	float: right;
-	margin-top: 20px;
-	margin-right: 20px;
+	margin: 0;
+}
+
+header + nav {
+	width: 100%;
+	height: 52px;
+	padding-left: 160px;
+	box-sizing: border-box;
+}
+
+header + nav a {
+	float: left;
+	text-align: center;
+	padding: 14px 16px;
+}
+
+header + nav a:hover {
+	background-color: #212223;
+	border-bottom: 3px solid #212223;
+}
+
+header + nav a.active {
+	border-bottom: 3px solid #039BE5;
+}
+
+main {
+	border-left: 1px solid #292A2B;
+	padding: 20px 20px 20px 180px;
 }
 
 footer {
 	background-color: #191A1B;
-	min-height: 55px;
+	min-height: 60px;
 	box-shadow: 0 50vh 0 50vh #191A1B;
 	padding: 20px;
 	text-align: center;
