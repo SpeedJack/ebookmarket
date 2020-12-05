@@ -23,7 +23,7 @@ class Book extends AbstractEntity
 		];
 	}
 
-	public static function getByCategory(string $category, User $user): array
+	public static function getByCategory(string $category, User $user = null): array
 	{
 		$query = 'SELECT b.* FROM '
 			. static::getStructure()['table']
@@ -40,7 +40,11 @@ class Book extends AbstractEntity
 		}
 
 		$db = App::getInstance()->db();
-		$data = $db->fetchAll($query, $category, $user->id);
+		
+		if($user)
+			$data = $db->fetchAll($query, $category, $user->id);
+		else 
+			$data = $db->fetchAll($query, $category);
 		$entities = [];
 		foreach ($data as $row)
 			$entities[] = new static($row);
