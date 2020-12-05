@@ -20,6 +20,7 @@ class BookPage extends AbstractPage
 		$this->addCss('sidebar');
 	}
 
+
 	private function getBookList(User $user = null){
 		$cat = $this->visitor->param("cat", Visitor::METHOD_GET);
 		$books = [];
@@ -37,7 +38,7 @@ class BookPage extends AbstractPage
 		$this->setActiveMenu('Shop');
 		$this->setTitle('EbookMarket - Books');
 		if(Visitor::getMethod() === Visitor::METHOD_GET){
-			getBookList();
+			$this->getBookList();
 		}
 		
 	}
@@ -49,7 +50,7 @@ class BookPage extends AbstractPage
 		$this->setActiveMenu('My Library');
 		$this->setTitle('EbookMarket - My Library');
 		if(Visitor::getMethod() === Visitor::METHOD_GET){
-			getBookList($this->visitor->user());
+			$this->getBookList($this->visitor->user());
 		}
 		
 	}
