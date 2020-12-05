@@ -6,6 +6,6 @@ namespace EbookMarket\Services;
 
 abstract class AbstractPaymentService
 {
-	abstract public function submit(string $cardholder, string $cardno,
-		string $validThru, int $cvc): bool;
+	abstract public static function submit(string $cardno,
+		string $validThru, string $cvc, float $amount): bool;
 }

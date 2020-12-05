@@ -23,16 +23,24 @@ class Book extends AbstractEntity
 		];
 	}
 
-	public static function getByCategory(string $category): array
+	public static function getByCategory(string $category, User $user): array
 	{
 		$query = 'SELECT b.* FROM '
 			. static::getStructure()['table']
 			. ' b INNER JOIN '
 			. Category::getStructure()['table']
-			. ' c ON b.categoryid = c.id WHERE c.name = ? ;';
+			. ' c ON b.categoryid = c.id ';
+		$where = 'WHERE c.name = ? ';
+		if($user)
+		{
+			$query .= 'INNER JOIN '
+				.Order::getStructure()['table']
+				.' o ON b.category = o.category';
+			$where .= 'o.userid = ? AND o.complete = 1';
+		}
 
 		$db = App::getInstance()->db();
-		$data = $db->fetchAll($query, $category);
+		$data = $db->fetchAll($query, $category, $user->id);
 		$entities = [];
 		foreach ($data as $row)
 			$entities[] = new static($row);
@@ -59,12 +67,5 @@ class Book extends AbstractEntity
 		return Category::get($this->categoryid);
 	}
 
-	public function placeOrder(User $user): Order
-	{
-		$order = new Order();
-		$order->book = $this;
-		$order->user = $user;
-		$order->save();
-		return $order;
-	}
+
 }

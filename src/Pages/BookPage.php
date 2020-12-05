@@ -9,6 +9,7 @@ use EbookMarket\Entities\Book;
 use EbookMarket\Entities\Category;
 use EbookMarket\Entities\Order;
 use EbookMarket\Visitor;
+use EbookMarket\Services\FakePaymentService;
 
 class BookPage extends AbstractPage
 {
@@ -19,20 +20,36 @@ class BookPage extends AbstractPage
 		$this->addCss('sidebar');
 	}
 
+	private function getBookList(User $user = null){
+		$cat = $this->visitor->param("cat", Visitor::METHOD_GET);
+		$books = [];
+		if(!$cat){
+			$books = Book::getAll();
+		} else {
+			$category = Category::get(intval($cat));
+			$books = $category->getBooks();
+		}
+			$this->show('books/booklist', ["books" => $books]);
+	}
+
 	public function actionIndex(): void
 	{
 		$this->setActiveMenu('Shop');
 		$this->setTitle('EbookMarket - Books');
 		if(Visitor::getMethod() === Visitor::METHOD_GET){
-			$cat = $this->visitor->param("cat", Visitor::METHOD_GET);
-			$books = [];
-			if(!$cat){
-				$books = Book::getAll();
-			} else {
-				$category = Category::get(intval($cat));
-				$books = $category->getBooks();
-			}
-				$this->show('books/booklist', ["books" => $books]);
+			getBookList();
+		}
+		
+	}
+
+	public function actionLibrary(): void
+	{
+		if(!$this->visitor->isLoggedIn())
+			$this->redirect("account/login");
+		$this->setActiveMenu('My Library');
+		$this->setTitle('EbookMarket - My Library');
+		if(Visitor::getMethod() === Visitor::METHOD_GET){
+			getBookList($this->visitor->user());
 		}
 		
 	}
@@ -47,7 +64,9 @@ class BookPage extends AbstractPage
 				$book = Book::get(intval($id));
 				if($book){
 					$user = $this->visitor->user();
-					$order = Order::get(["bookid" => $book->id, "userid" => $user->id]);
+					$order = null;
+					if($user)
+						$order = Order::get(["bookid" => $book->id, "userid" => $user->id]);
 					$bought = $order ? $order->completed ? true : false : false;
 					$this->show("books/bookdetails", ["book" => $book, "bought" => $bought]);
 				} else
@@ -72,8 +91,14 @@ class BookPage extends AbstractPage
 					$order = Order::get(["bookid" => $book->id, "userid" => $user->id, "completed" => true]);
 					if(!$order)
 						$this->redirect("/buy", $book->id);
-					//TODO DOWNLOAD!
-						$this->show("books/download", ["book" => $book, "bought" => true]);
+					header('Content-Type: application/pdf');
+					header('Content-Disposition: attachment; filename="'.$book->filehandle.'.pdf"');
+					header('Content-Transfer-Encoding: binary');
+					header('Accept-Ranges: bytes');
+					header('Connection: Keep-Alive');
+					header('Content-Length: ' . filesize("assets/ebooks/$book->filehandle.pdf"));
+					readfile("assets/ebooks/$book->filehandle.pdf");
+
 				} else
 					$this->error("Book Not Found");
 			} else 
@@ -112,6 +137,31 @@ class BookPage extends AbstractPage
 			} else 
 				$this->error("Book Not Found");
 		} else if(Visitor::getMethod() === Visitor::METHOD_POST) {
+			$orderid = $this->visitor->param("orderid", Visitor::METHOD_POST);
+			$cc_number = $this->visitor->param("cc_number", Visitor::METHOD_POST);
+			$cc_cv2 = $this->visitor->param("cc_cv2", Visitor::METHOD_POST);
+			$expiration = $this->visitor->param("expiration", Visitor::METHOD_POST);
+			
+			$order = Order::get($orderid);
+			$user = $this->visitor->user();
+			if(!$order)
+				$this->error("Payment Rejected ", "The payment has not been accepted");
+			if($order->userid !== $user->id)
+				$this->error("Payment Rejected ", "The payment has not been accepted");
+			if($order->completed)
+				$this->redirect("/view", ["id" => $order->bookid]);
+			if(empty($cc_number) || empty($cc_cv2) || empty($expiration))
+				$this->error("Payment Rejected ", "The payment has not been accepted");
+			$book = Book::get($order->bookid);
+			if(!$book)
+				$this->error("Payment Rejected ", "The payment has not been accepted");
+			if(FakePaymentService::submit($cc_number, $expiration, $cc_cv2, $book->price)){
+				$order->completed = true;
+				$order->save();
+				$this->redirect("/view", ["id" => $order->bookid]);
+			} else {
+				$this->error("Payment Rejected ", "The payment has not been accepted");
+			}
 
 		}
 	}
