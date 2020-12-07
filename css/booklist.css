@@ -1,0 +1,49 @@
+#booklist {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+#booklist article {
+	width: 237px;
+	height: 408px;
+	padding: 6px;
+	margin: 10px;
+	background-color: #171819;
+}
+
+#booklist article a {
+	text-decoration: none;
+}
+
+img.bookcover {
+	height: 327px;
+	object-fit: contain;
+	overflow: hidden;
+	margin: auto;
+	display: block;
+	max-width: 100%;
+}
+
+div.bookdesc span {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: center;
+	white-space: nowrap;
+	color: #D5D1CB;
+	padding: 4px;
+}
+
+div.bookdesc span.booktitle {
+	font-size: 17px;
+}
+
+div.bookdesc span.bookauthor {
+	font-size: 14px;
+}
+
+div.bookdesc span.bookprice {
+	font-weight: bold;
+	color: #039BE5;
+	text-align: right;
+}

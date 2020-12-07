@@ -23,7 +23,7 @@ class Book extends AbstractEntity
 		];
 	}
 
-	public static function getByCategory(string $category, User $user = null): array
+	public static function getByCategory(string $category, ?User $user = null): array
 	{
 		$query = 'SELECT b.* FROM '
 			. static::getStructure()['table']
@@ -40,10 +40,10 @@ class Book extends AbstractEntity
 		}
 
 		$db = App::getInstance()->db();
-		
+
 		if($user)
 			$data = $db->fetchAll($query, $category, $user->id);
-		else 
+		else
 			$data = $db->fetchAll($query, $category);
 		$entities = [];
 		foreach ($data as $row)
@@ -72,4 +72,13 @@ class Book extends AbstractEntity
 	}
 
 
+	public function getCover(): string
+	{
+		$coverfile = 'assets/covers/' . $this->filehandle;
+		if (file_exists($GLOBALS['APP_ROOT'] . "/$coverfile.jpg"))
+			return "$coverfile.jpg";
+		if (file_exists($GLOBALS['APP_ROOT'] . "/$coverfile.png"))
+			return "$coverfile.png";
+		return '';
+	}
 }
