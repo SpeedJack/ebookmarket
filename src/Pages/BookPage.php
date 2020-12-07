@@ -178,14 +178,17 @@ class BookPage extends AbstractPage
 	protected function buildSidebar(): ?string
 	{
 		$curcat = $this->visitor->param('cat', Visitor::METHOD_GET);
-		$html = $this->buildMenuEntry('All Books', null, null,
-			empty($curcat));
 		$curcat = intval($curcat);
 		$categories = Category::getAll();
-		foreach ($categories as $category)
+		$allbooks = true;
+		$html = '';
+		foreach ($categories as $category) {
 			$html .= $this->buildMenuEntry($category->name, null,
 				[ 'cat' => $category->id ],
 				$curcat === $category->id);
-		return $html;
+			if ($curcat === $category->id)
+				$allbooks = false;
+		}
+		return $this->buildMenuEntry('All Books', null, null, $allbooks) . $html;
 	}
 }
