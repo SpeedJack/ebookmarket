@@ -4,7 +4,7 @@
 		<div class="bookdesc">
 			<span class="booktitle"><?= static::htmlEscape($book->title) ?></span>
 			<span class="bookauthor"><?= static::htmlEscape($book->author) ?></span>
-			<span class="bookprice">$ <?= $book->price ?></span>
+			<span class="bookprice"><?= number_format($book->price, 2, ',', '') ?></span>
 		</div>
 	</a>
 </article>

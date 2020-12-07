@@ -15,7 +15,7 @@
 	text-decoration: none;
 }
 
-img.bookcover {
+#booklist article a img.bookcover {
 	height: 327px;
 	object-fit: contain;
 	overflow: hidden;
@@ -24,7 +24,7 @@ img.bookcover {
 	max-width: 100%;
 }
 
-div.bookdesc span {
+#booklist article a div.bookdesc span {
 	display: block;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -34,16 +34,20 @@ div.bookdesc span {
 	padding: 4px;
 }
 
-div.bookdesc span.booktitle {
+#booklist article a div.bookdesc span.booktitle {
 	font-size: 17px;
 }
 
-div.bookdesc span.bookauthor {
+#booklist article a div.bookdesc span.bookauthor {
 	font-size: 14px;
 }
 
-div.bookdesc span.bookprice {
+#booklist article a div.bookdesc span.bookprice {
 	font-weight: bold;
 	color: #039BE5;
 	text-align: right;
+}
+
+#booklist article a div.bookdesc span.bookprice:before {
+	content: "$ ";
 }
