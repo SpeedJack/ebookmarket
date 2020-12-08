@@ -81,6 +81,12 @@ class AccountPage extends AbstractPage
 					$this->visitor->getRoute(),
 					'Invalid username or password.');
 
+			if (!$user->valid)
+				throw new InvalidValueException(
+					'Unverified user tryied to login.',
+					$this->visitor->getRoute(),
+					'Account not verified. Check your email.');
+
 			$this->visitor->login($user, $rememberme === 'yes');
 			$this->redirectHome();
 		case Visitor::METHOD_GET:
@@ -291,31 +297,36 @@ class AccountPage extends AbstractPage
 						'Submitted an invalid old password.',
 						$this->visitor->getRoute(),
 						'Invalid password.');
-			} else {
-				if ($this->visitor->hasParam('oldpassword'))
-					throw new InvalidValueException(
-						'Submitted an old password when user is not logged in.',
-						$this->visitor->getRoute(),
-						'Invalid request.');
-				$usertoken = $this->visitor->param('token', Visitor::METHOD_POST);
-				if (empty($usertoken))
-					throw new InvalidValueException(
-						'Submitted an empty token.',
-						$this->visitor->getRoute(),
-						'Invalid token.');
-				$token = Token::get($usertoken);
-				if ($token === null)
-					throw new InvalidValueException(
-						'Submitted a non-existent token.',
-						$this->visitor->getRoute(),
-						'Invalid token.');
-				$user = $token->authenticate($usertoken, Token::RECOVERY);
-				if ($user === null)
-					throw new InvalidValueException(
-						'Submitted an invalid token.',
-						$this->visitor->getRoute(),
-						'Invalid token.');
+				$user->password = $password;
+				$user->save();
+				$this->show('message', [
+					'title' => 'Password changed!',
+					'message' => 'Your password has been successfully changed!',
+				]);
 			}
+			if ($this->visitor->hasParam('oldpassword'))
+				throw new InvalidValueException(
+					'Submitted an old password when user is not logged in.',
+					$this->visitor->getRoute(),
+					'Invalid request.');
+			$usertoken = $this->visitor->param('token', Visitor::METHOD_POST);
+			if (empty($usertoken))
+				throw new InvalidValueException(
+					'Submitted an empty token.',
+					$this->visitor->getRoute(),
+					'Invalid token.');
+			$token = Token::get($usertoken);
+			if ($token === null)
+				throw new InvalidValueException(
+					'Submitted a non-existent token.',
+					$this->visitor->getRoute(),
+					'Invalid token.');
+			$user = $token->authenticate($usertoken, Token::RECOVERY);
+			if ($user === null)
+				throw new InvalidValueException(
+					'Submitted an invalid token.',
+					$this->visitor->getRoute(),
+					'Invalid token.');
 			$user->password = $password;
 			$user->save();
 			$this->show('message', [
@@ -354,7 +365,7 @@ class AccountPage extends AbstractPage
 		$token->delete();
 		$this->show('message', [
 			'title' => 'Registration completed!',
-			'message' => 'You have successfully verified yout email address! Now, <a href="' . $this->app->buildLink('/login') . '">Login into your account!</a>.',
+			'message' => 'You have successfully verified your email address! Now, <a href="' . $this->app->buildLink('/login') . '">Login into your account!</a>.',
 		]);
 	}
 

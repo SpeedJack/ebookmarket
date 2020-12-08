@@ -145,7 +145,7 @@ class Token extends AbstractEntity
 	public function deleteOthers(): void
 	{
 		$this->db->query('DELETE FROM `' . $this->structure['table'] . '`'
-			. ' (WHERE id <> ? AND type = ?) OR expiretime <= ?',
+			. ' WHERE (id <> ? AND type = ?) OR expiretime <= ?',
 			$this->id, $this->type, time());
 	}
 

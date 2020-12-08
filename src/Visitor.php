@@ -264,8 +264,15 @@ class Visitor extends AbstractSingleton
 	{
 		if (!$this->user)
 			return;
+		$authtoken = $this->cookie('authtoken');
 		$this->unsetSessionToken();
 		$this->user = null;
+		if ($authtoken === null)
+			return;
+		$token = Token::get($authtoken);
+		if ($token === null)
+			return;
+		$token->delete();
 	}
 
 	protected function setSessionToken(Token $token,
