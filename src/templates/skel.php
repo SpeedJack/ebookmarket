@@ -27,5 +27,6 @@
 			<?php $this->loadTemplate($template, $params); ?>
 			</main>
 		<?php $this->loadTemplate("footer", $params); ?>
+		<div id="modal-box"></div>
 	</body>
 </html>

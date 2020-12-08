@@ -1,16 +1,15 @@
 <article>
-    <?php
-    $coverfile = "assets/covers/$book->filehandle";
-    if(file_exists("$coverfile.png"))
-        $coverfile = "$coverfile.png";
-    if(file_exists("$coverfile.jpg"))
-        $coverfile = "$coverfile.jpg";
-    ?>
-    <h2><?= $book->title ?></h2>
-    <h3><?= $book->author ?></h3>
-    <img src="<?= '/'.$coverfile ?>" alt="<?= $book->title.'_cover' ?>" />
-    <p><strong>€ <?= $book->price ?></strong></p>
-    <?php if($bought) : ?> <p><a class= "button" download = "<?= $book->filehandle ?>.pdf" href = "<?= $app->buildLink("/download", ["id" => $book->id]) ?>">Download</a></p>
-    <?php else : ?>  <p><a class= "button" href = "<?= $app->buildLink("/buy", ["id" => $book->id]) ?>">Buy</a></p>
-    <?php endif; ?>
+	<img class="bookcover" alt="<?= static::htmlEscapeQuotes($book->title) ?>" src="<?= $book->cover ?>">
+	<div class="bookdesc">
+		<span class="booktitle"><?= static::htmlEscape($book->title) ?></span>
+		<span class="bookauthor"><?= static::htmlEscape($book->author) ?></span>
+		<?php if($bought): ?>
+			<?php foreach (explode($book->availableFormats, ',') as $format): ?>
+				<a class="button" href="<?= $app->buildLink('/download', [ 'id' => $book->id, 'fmt' => $format ]) ?>" download="<?= $book->filehandle ?>">Download <?= strtoupper($format) ?></a>
+			<?php endforeach; ?>
+		<?php else: ?>
+			<span class="bookprice"><?= number_format($book->price, 2, ',', '') ?></span>
+			<a class="button" href="<?= $app->buildLink('/buy', [ 'id' => $book->id ]) ?>">Buy Book</a>
+		<?php endif; ?>
+	</div>
 </article>

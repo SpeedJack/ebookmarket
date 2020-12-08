@@ -11,8 +11,8 @@ class Category extends AbstractEntity
 		return [
 		'table' => 'categories',
 		'columns' => [
-			'id' => [ 'type' => self::UINT, 'auto_increment' => true ],
-			'name' => [ 'type' => self::STR, 'required' => true ],
+			'id' => [ 'auto_increment' => true ],
+			'name' => [ 'required' => true ],
 			],
 		];
 	}

@@ -12,13 +12,13 @@ class Book extends AbstractEntity
 		return [
 			'table' => 'books',
 			'columns' => [
-				'id' => [ 'type' => self::UINT, 'auto_increment' => true ],
-				'title' => [ 'type' => self::STR, 'required' => true ],
-				'author' => [ 'type' => self::STR, 'required' => true ],
-				'pubdate' => [ 'type' => self::STR ],
-				'price' => [ 'type' => self::FLOAT, 'required' => true ],
-				'filehandle' => [ 'type' => self::STR, 'required' => true ],
-				'categoryid' => [ 'type' => self::UINT, 'required' => true ],
+				'id' => [ 'auto_increment' => true ],
+				'title' => [ 'required' => true ],
+				'author' => [ 'required' => true ],
+				'pubdate' => [ 'required' => true ],
+				'price' => [ 'required' => true ],
+				'filehandle' => [ 'required' => true ],
+				'categoryid' => [ 'required' => true ],
 			]
 		];
 	}
@@ -76,9 +76,22 @@ class Book extends AbstractEntity
 	{
 		$coverfile = 'assets/covers/' . $this->filehandle;
 		if (file_exists($GLOBALS['APP_ROOT'] . "/$coverfile.jpg"))
-			return "$coverfile.jpg";
+			return "/$coverfile.jpg";
 		if (file_exists($GLOBALS['APP_ROOT'] . "/$coverfile.png"))
-			return "$coverfile.png";
+			return "/$coverfile.png";
 		return '';
+	}
+
+	public function getAvailableFormats(): string
+	{
+		$ebookfile = 'assets/ebooks/' . $this->filehandle;
+		$fmts = '';
+		if (file_exists($GLOBALS['APP_ROOT'] . "/$ebookfile.pdf"))
+			$fmts[] = 'pdf,';
+		if (file_exists($GLOBALS['APP_ROOT'] . "/$ebookfile.epub"))
+			$fmts[] = 'epub,';
+		if (file_exists($GLOBALS['APP_ROOT'] . "/$ebookfile.mobi"))
+			$fmts[] = 'mobi';
+		return rtrim($fmts,  ',');
 	}
 }

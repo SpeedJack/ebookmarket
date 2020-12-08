@@ -28,11 +28,11 @@ class Token extends AbstractEntity
 		return [
 			'table' => 'tokens',
 			'columns' => [
-				'id' => [ 'type' => self::STR, 'required' => true ],
-				'token' => [ 'type' => self::STR, 'required' => true ],
-				'userid' => [ 'type' => self::UINT, 'required' => false ],
-				'expiretime' => [ 'type' => self::UINT, 'required' => true ],
-				'type' => [ 'type' => self::STR, 'required' => true ],
+				'id' => [ 'required' => true ],
+				'token' => [ 'required' => true ],
+				'userid' => [],
+				'expiretime' => [ 'required' => true ],
+				'type' => [ 'required' => true ],
 			]
 		];
 	}

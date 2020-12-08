@@ -115,6 +115,8 @@ abstract class AbstractPage
 
 	protected function show(string $template, array $params = []): void
 	{
+		if ($this->visitor->isAjax())
+			$this->showAjax($template, $params);
 		$skelfile = static::getTemplateFile('skel');
 		include $skelfile;
 		if ($this->exitOnShow)
@@ -124,19 +126,13 @@ abstract class AbstractPage
 	protected function replyJson(array $data): void
 	{
 		header('Content-Type: application/json');
+		$data['csrftoken'] = $this->getCsrfToken();
 		echo json_encode($data);
-		exit();
+		if ($this->exitOnShow)
+			exit();
 	}
 
-	protected function redirectAjax(?string $route,
-		?array $params = []): void
-	{
-		$this->replyJson([
-			'redirect' => $this->app->buildLink($route, $params),
-		]);
-	}
-
-	protected function showModal(string $template, array $params = []): void
+	protected function showAjax(string $template, array $params = [])
 	{
 		ob_start();
 		$this->loadTemplate($template, $params);
@@ -147,20 +143,38 @@ abstract class AbstractPage
 		$this->replyJson($data);
 	}
 
-	protected function modalMessage(string $title, string $message,
-		?string $redirect = null): void
+	protected function redirectAjax(string $link): void
+	{
+		$this->replyJson([
+			'redirect' => $link,
+		]);
+	}
+
+	protected function showModal(string $template, array $params = []): void
+	{
+		ob_start();
+		$this->loadTemplate($template, $params);
+		$html = ob_get_clean();
+		$data = [
+			'modalhtml' => $html,
+		];
+		$this->replyJson($data);
+	}
+
+	protected function modalMessage(string $title, string $message): void
 	{
 		$params = [
 			'title' => $title,
 			'message' => $message,
-			'redirect' => $redirect,
 		];
 		$this->showModal('messagebox', $params);
 	}
 
-	protected static function externalRedirect(string $link,
+	protected function externalRedirect(string $link,
 		bool $permanent = false): void
 	{
+		if ($this->visitor->isAjax())
+			$this->redirectAjax($link);
 		header("Location: $link", true, $permanent ? 301 : 302);
 		exit();
 	}

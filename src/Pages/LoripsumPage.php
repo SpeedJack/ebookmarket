@@ -6,17 +6,14 @@ namespace EbookMarket\Pages;
 
 use EbookMarket\Exceptions\InvalidRouteException;
 
-class PhpinfoPage extends AbstractPage
+class LoripsumPage extends AbstractPage
 {
-	public function __construct(?string $title = null)
-	{
-	}
-
 	public function actionIndex(): void
 	{
 		/* Disable page used for testing */
-		//throw new InvalidRouteException('phpinfo/index', null, null, 404);
-		phpinfo();
+		//throw new InvalidRouteException($this->visitor->getRoute(), null, null, 404);
+		$this->setTitle('EbookMarket - Test Page');
+		$this->show('loripsum');
 	}
 
 	protected function buildSidebar(): ?string

@@ -1,0 +1,90 @@
+form {
+	margin: auto;
+	max-width: 450px;
+}
+
+form label {
+	font-size: 17px;
+}
+
+form label:not(.inline) {
+	display: block;
+}
+
+form input:not([type=checkbox]) {
+	background-color: #191A1B;
+	display: block;
+	width: 100%;
+	max-width: 400px;
+	padding: 6px;
+	border: 1px solid #292A2B;
+	font-size: 17px;
+	color: #D1CDC7;
+	margin-bottom: 20px;
+}
+
+form input:hover {
+	border: 1px solid #3D3E3F;
+}
+
+form input:focus {
+	border: 1px solid #039BE5;
+}
+
+form button {
+	color: #D5D1CB;
+	font-weight: bold;
+	font-size: 17px;
+	width: 100%;
+	max-width: 400px;
+	height: 50px;
+	margin-top: 20px;
+	padding: 6px;
+	background-color: #039BE5;
+	text-decoration: none;
+	text-align: center;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	box-sizing: content-box;
+}
+
+form button:hover {
+	box-shadow: 5px 5px 5px #191A1B;
+	color: #E5E1DB;
+}
+
+form p.validator {
+	display: none;
+	padding: 6px;
+	width: 100%;
+	max-width: 400px;
+	background-color: #CC2222;
+	border-radius: 5px;
+	opacity: 0.8;
+	margin-bottom: 20px;
+	margin-top: -10px;
+	animation: animatescale 0.8s;
+}
+
+@keyframes animatescale {
+	from {
+		transform: scaleY(0);
+	}
+	to {
+		transform: scaleY(1);
+	}
+}
+
+form p.validator.show {
+	display: block;
+}
+
+form p.validator a {
+	text-decoration: none;
+	font-weight: bold;
+}
+
+form p.validator a:hover {
+	color: #87BFF5;
+}

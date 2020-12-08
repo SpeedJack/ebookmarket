@@ -35,6 +35,7 @@ class Visitor extends AbstractSingleton
 	protected $user;
 	protected $csrfToken;
 	protected $verifiedCsrf;
+	protected $ajax;
 
 	protected function __construct()
 	{
@@ -178,6 +179,12 @@ class Visitor extends AbstractSingleton
 			. $_SERVER['REQUEST_METHOD'] . '.');
 	}
 
+	public function assertAjax()
+	{
+		if (!$this->isAjax())
+			throw new InvalidMethodExcepton('Expected an ajax request. Normal request received.');
+	}
+
 	public static function getMethod(): int
 	{
 		$method = $_SERVER['REQUEST_METHOD'];
@@ -205,6 +212,16 @@ class Visitor extends AbstractSingleton
 		}
 	}
 
+	protected function setAjax(bool $ajax = true): void
+	{
+		$this->ajax = $ajax;
+	}
+
+	public function isAjax(): bool
+	{
+		return Visitor::getMethod() === self::METHOD_POST && $this->ajax;
+	}
+
 	protected function readParams(): void
 	{
 		foreach ($_GET as $key => $value) {
@@ -217,9 +234,14 @@ class Visitor extends AbstractSingleton
 			else
 				$this->addGetParams([$key => $value]);
 		}
-		foreach ($_POST as $key => $value)
-			if (preg_match('/^[A-Za-z_][A-Za-z0-9_]{0,20}$/', $key) === 1)
+		foreach ($_POST as $key => $value) {
+			if (preg_match('/^[A-Za-z_][A-Za-z0-9_]{0,20}$/', $key) !== 1)
+				continue;
+			if (strcasecmp($key, 'ajax') === 0)
+				$this->setAjax();
+			else
 				$this->addPostParams([$key => $value]);
+		}
 	}
 
 	public function isLoggedIn(bool $valid = true): bool
@@ -238,7 +260,8 @@ class Visitor extends AbstractSingleton
 		$this->setUser($user);
 	}
 
-	public function logout() : void {
+	public function logout(): void
+	{
 		if (!$this->user)
 			return;
 		$this->unsetSessionToken();

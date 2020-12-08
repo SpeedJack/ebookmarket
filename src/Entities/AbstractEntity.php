@@ -9,12 +9,6 @@ use EbookMarket\Exceptions\InvalidValueException;
 
 abstract class AbstractEntity
 {
-	protected const INT = 0;
-	protected const UINT = 1;
-	protected const BOOL = 2;
-	protected const STR = 3;
-	protected const FLOAT = 4;
-
 	protected $values = [];
 	protected $newvalues = [];
 	protected $gettercache = [];
@@ -47,7 +41,7 @@ abstract class AbstractEntity
 			return false;
 		$hasid = false;
 		foreach ($this->structure['columns'] as $name => $col) {
-			if (!is_array($col) || !isset($col['type']))
+			if (!is_array($col))
 				return false;
 			if (strcmp($name, 'id') === 0)
 				$hasid = true;

@@ -86,9 +86,14 @@ class ErrorPage extends AbstractPage
 			'title' => parent::htmlEscape($title),
 			'message' => parent::htmlEscape($message),
 		];
-		http_response_code($code);
 		$this->setTitle($code . ' - ' . $title);
-		$this->show('error', $params);
+		if ($this->visitor->isAjax()) {
+			$params['title'] = 'Error';
+			$this->showModal('messagebox', $params);
+			return;
+		}
+		http_response_code($code);
+		$this->show('message', $params);
 	}
 
 	public function actionIndex(): void

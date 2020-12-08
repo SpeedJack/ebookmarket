@@ -1,3 +1,8 @@
+main h1 {
+	margin: 20px 10px;
+	max-width: 100%;
+}
+
 #booklist {
 	display: flex;
 	flex-wrap: wrap;
@@ -24,6 +29,10 @@
 	max-width: 100%;
 }
 
+#booklist article a img.bookcover:hover {
+	filter: brightness(60%);
+}
+
 #booklist article a div.bookdesc span {
 	display: block;
 	overflow: hidden;
@@ -32,6 +41,10 @@
 	white-space: nowrap;
 	color: #D5D1CB;
 	padding: 4px;
+}
+
+#booklist article a div.bookdesc span:hover {
+	text-decoration: underline;
 }
 
 #booklist article a div.bookdesc span.booktitle {

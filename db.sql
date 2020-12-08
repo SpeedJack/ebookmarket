@@ -29,7 +29,7 @@ CREATE TABLE `books` (
 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`title` VARCHAR(255) NOT NULL,
 	`author` VARCHAR(64) NOT NULL,
-	`pubdate` DATE,
+	`pubdate` DATE NOT NULL,
 	`price` DECIMAL(10,2) NOT NULL,
 	`filehandle` VARCHAR(255) NOT NULL,
 	`categoryid` INT UNSIGNED,
@@ -43,12 +43,11 @@ CREATE TABLE `books` (
 		ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4;
 
-DROP TABLE IF EXISTS `orders`;
+DROP TABLE IF EXISTS `purchases`;
 CREATE TABLE `orders` (
 	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`userid` INT UNSIGNED NOT NULL,
 	`bookid` INT UNSIGNED NOT NULL,
-	`completed` TINYINT NOT NULL DEFAULT '0',
 	PRIMARY KEY (`id`),
 	KEY (`userid`),
 	FOREIGN KEY (`bookid`)

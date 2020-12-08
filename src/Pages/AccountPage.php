@@ -8,7 +8,7 @@ use EbookMarket\{
 	Entities\Token,
 	Entities\User,
 	Visitor,
-	AppException
+	Exceptions\InvalidValueException,
 };
 
 class AccountPage extends AbstractPage
@@ -22,25 +22,11 @@ class AccountPage extends AbstractPage
 	{
 		if (!$this->visitor->isLoggedIn())
 			$this->redirect('/login');
-		
-		switch(Visitor::getMethod()) {
-			case Visitor::METHOD_GET : 
-				$this->show("account/profile", ["user"=>$this->visitor->user()]);
-			case Visitor::METHOD_POST : 
-				$currentPassword = $this->visitor->param("current_password", Visitor::METHOD_POST);
-				$password = $this->visitor->param("password",  Visitor::METHOD_POST);
-				$passwordConfirm = $this->visitor->param("password_confirm",  Visitor::METHOD_POST);
-				if (empty($currentPassword) || empty($password) || empty($passwordConfirm))
-				$this->show("account/profile", ["user"=>$this->visitor->user(), "success" => false]);
-				
-				$user = $this->visitor->user();
-				$user->password = $password;
-				$user->save();
-
-				$this->setTitle("EbookMarket - Password Change Complete");
-				$this->show("account/profile", ["user"=>$this->visitor->user(), "success" => true]);
-
-		}
+		Visitor::assertMethod(Visitor::METHOD_GET);
+		$this->setTitle('EbookMarket - ' . $this->visitor->user()->username);
+		$this->show('account/profile', [
+			'user' => $this->visitor->user(),
+		]);
 	}
 
 	public function actionLogin(): void
@@ -50,19 +36,28 @@ class AccountPage extends AbstractPage
 		$this->setActiveMenu('Login');
 		switch (Visitor::getMethod()) {
 		case Visitor::METHOD_POST:
+			$this->visitor->assertAjax();
 			$username = $this->visitor->param('username', Visitor::METHOD_POST);
 			$password = $this->visitor->param('password', Visitor::METHOD_POST);
 			$rememberme = $this->visitor->param('rememberme', Visitor::METHOD_POST);
 			if (empty($username) || empty($password))
-				$this->error('Error.', 'Invalid username or password.');
+				throw new InvalidValueException(
+					'Submitted an invalid username or password.',
+					$this->visitor->getRoute(),
+					'Invalid username or password.');
 
 			$user = User::get('username', $username);
 			if (!$user || !$user->verifyPassword($password))
-				$this->error('Error.', 'Invalid username or password.');
+				throw new InvalidValueException(
+					'Submitted a wrong username or password.',
+					$this->visitor->getRoute(),
+					'Invalid username or password.');
 
 			$this->visitor->login($user, $rememberme === 'yes');
 			$this->redirectHome();
 		case Visitor::METHOD_GET:
+			$this->addCss('form');
+			$this->addJs('validation');
 			$this->setTitle('EbookMarket - Login');
 			$this->show('account/login');
 		}
@@ -71,188 +66,254 @@ class AccountPage extends AbstractPage
 	public function actionRegister(): void
 	{
 		$this->setActiveMenu('Sign Up');
-		$method = $this->visitor->getMethod();
-		switch($method) {
-		case Visitor::METHOD_GET :
-			$this->setTitle("EbookMarket - Register");
-			$this->show("account/register");
-			break;
-		case Visitor::METHOD_POST :
-			$username = $this->visitor->param("username", Visitor::METHOD_POST);
-			$email = $this->visitor->param("email", Visitor::METHOD_POST);
-			$password = $this->visitor->param("password", Visitor::METHOD_POST);
-			$passwordConfirm = $this->visitor->param("password_confirm", Visitor::METHOD_POST);
-			$accept = $this->visitor->param("accept_terms", Visitor::METHOD_POST);
-			$validation = [
-				"username" => !empty($username),
-				"email" => !empty($email),
-				"password" => !empty($password),
-				"password_confirm" => ($password == $passwordConfirm),
-				"accept_terms" => $accept === "on"
-			];
-			 
-			if(in_array(false, $validation)) {
-				$this->setTitle("EbookMarket - Registration failed ");
-				$this->show("account/register_result", ["success"=>false]);
-			};
-			
-			$user = new User();
-			$check = $user->checkCredentials($username, $email);
-			
-			if($check === User::EMAIL_IN_USE || $check === User::BOTH_IN_USE){
-				$this->setTitle("EbookMarket - Registration failed ");
-				$this->show("account/register_result", ["success"=>false]);
-			} else if($check === User::USERNAME_IN_USE){
-				$this->setTitle("EbookMarket - Registration failed ");
-				$this->show("account/register_result", ["success"=>true]);
-				$this->sendmail($user->email, "already_in_use",
-                    [
-                        "username" => $user->username,
+		switch(Visitor::getMethod()) {
+		case Visitor::METHOD_POST:
+			$this->visitor->assertAjax();
+
+			$verify = $this->visitor->param('verify', Visitor::METHOD_POST);
+			$username = $this->visitor->param('username', Visitor::METHOD_POST);
+			$email = $this->visitor->param('email', Visitor::METHOD_POST);
+			$password = $this->visitor->param('password', Visitor::METHOD_POST);
+
+			if (!empty($verify)) {
+				if (empty($email) || !User::validateEmail($email))
+					$this->replyJson([
+						'invalid' => true,
+						'inuse' => false,
 					]);
-			} else if($check === User::FREE) {
-				
+				$user = User::get('email', strtolower($email));
+				$this->replyJson([
+					'invalid' => false,
+					'inuse' => isset($user),
+				]);
+			}
+
+			if (empty($username) || empty($password) || empty($email))
+				throw new InvalidValueException(
+					'Submitted an invalid form.',
+					$this->visitor->getRoute(),
+					'Please, fill out all the required fields.');
+			$email = strtolower($email);
+			if (!User::validateUsername($username))
+				throw new InvalidValueException(
+					'Submitted an invalid username.',
+					$this->visitor->getRoute(),
+					'Invalid username.');
+			if (!User::validateEmail($email))
+				throw new InvalidValueException(
+					'Submitted an invalid email.',
+					$this->visitor->getRoute(),
+					'Invalid email.');
+			if (!User::validatePassword($password))
+				throw new InvalidValueException(
+					'Submitted an invalid password.',
+					$this->visitor->getRoute(),
+					'Invalid password.');
+
+			$alreadyIn = user::getOr([
+				'username' => $username,
+				'email' => $email,
+			]);
+			if ($alreadyIn !== null
+				&& strcasecmp($alreadyIn->email, $email) === 0)
+				throw new InvalidValueException(
+					'User trying to register with an already registered email: ' . $email . '.',
+					$this->visitor->getRoute(),
+					'User with this email already registered.');
+
+			if ($alreadyIn !== null
+				&& strcasecmp($alreadyIn->username, $username) === 0) {
+				$this->sendmail($email, $alreadyIn->username,
+					'usernametaken', [
+					'username' => $username,
+				]);
+			} else {
+				$user = new User();
 				$user->username = $username;
 				$user->email = $email;
 				$user->password = $password;
-				$user->valid = false;
-
 				$user->save();
-				$user = User::get("username", $user->username);
-				//Create AuthToken for email verification
 
+				$user = User::get('username', $user->username);
 				$verifyToken = Token::createNew($user, Token::VERIFY);
 				$verifyToken->save();
+				$verifyLink = $this->app->buildAbsoluteLink('/verify', [
+					'token' => $verifyToken->usertoken,
+				]);
 
-
-                $verifylink = "https://"
-                    . $this->app->config("server_name")
-                    .":"
-                    . $this->app->config("server_port") ?? "443"
-                    . "/account/verify?token="
-                    . url_encode($verifyToken->usertoken);
-
-                $this->sendmail($user->email, "verify",
-                    [
-                        "username" => $user->username,
-                        "verifylink" => $verifylink,
-					]);
-					
-				$this->setTitle("EbookMarket - Registration Complete");
-				$this->show("account/register_complete", ["success" => true]);
+				$this->sendmail($user->email, $user->username, 'verify', [
+					'username' => $user->username,
+					'verifylink' => $verifyLink,
+				]);
 			}
-			break;
+
+			$this->show('message', [
+				'title' => 'Account created!',
+				'message' => 'We have sent you an email containing the instructions to complete the registration.',
+			]);
+		case Visitor::METHOD_GET:
+			$this->addCss('form');
+			$this->addJs('validation');
+			$this->setTitle('EbookMarket - Register');
+			$this->show('account/register');
 		}
 	}
 
 	public function actionLogout(): void
 	{
-		$method = $this->visitor->getMethod();
-		switch($method) {
-		case Visitor::METHOD_GET:
-			$this->visitor->logout();
-			$this->setTitle("EbookMarket - Logout");
-			$this->show("account/logout");
-			break;
-		}
+		$this->visitor->logout();
+		$this->redirectHome();
 	}
 
 	public function actionRecovery(): void
 	{
-		$method = $this->visitor->getMethod();
-		switch($method) {
+		switch(Visitor::getMethod()) {
 		case Visitor::METHOD_GET:
-			$this->setTitle("EbookMarket - Password Recovery");
-			$this->show("account/recovery");
-			break;
+			$this->setTitle('EbookMarket - Password Recovery');
+			$this->addCss('form');
+			$this->addJs('recovery');
+			$this->show('account/recovery');
 		case Visitor::METHOD_POST:
-			$email = $this->visitor->param("email", Visitor::METHOD_POST);
-			//$captcha = $this->visitor->param("captcha", Visitor::METHOD_POST);
-			//if(VerifyCaptcha($captcha));
-			if(!empty($email)){
-				$user = User::get("email", $email);
-				if($user){
-					$token = Token::createNew($user, Token::RECOVERY);
-					$token->save();
-                    $recoverylink = "https://"
-                        . $this->app->config("server_name")
-                        .":"
-                        . $this->app->config("server_port") ?? "443"
-                        . "/account/changepassword?token="
-                        . url_encode($token->usertoken);
-
-                    $this->sendmail($user->email, "recovery",
-                        [
-                            "username" => $user->username,
-                            "recoverylink" => $recoverylink,
-                        ]);
-				}
-			}
-			break;
+			$this->visitor->assertAjax();
+			$email = $this->visitor->param('email', Visitor::METHOD_POST);
+			if(empty($email))
+				throw new InvalidValueException(
+					'Submitted an empty email during password recovery.',
+					$this->visitor->getRoute(),
+					'Invalid email address.');
+			$user = User::get('email', $email);
+			if($user === null)
+				throw new InvalidValueException(
+					'Submitted a wrong email during password recovery.',
+					$this->visitor->getRoute(),
+					'No account registered with this email address.');
+			$token = Token::createNew($user, Token::RECOVERY);
+			$token->save();
+			$recoverylink = $this->app->buildAbsoluteLink('/changepwd', [
+				'token' => $token->usertoken,
+			]);
+			$this->sendmail($user->email, $user->username, 'recovery', [
+			    'username' => $user->username,
+			    'recoverylink' => $recoverylink,
+			]);
+			$this->show('message', [
+				'title' => 'Check your email!',
+				'message' => 'We have sent you an email with the instructions to recover your account.',
+			]);
 		}
 	}
 
-	public function actionChangepassword(): void
+	public function actionChangepwd(): void
 	{
-		$method = $this->visitor->getMethod();
-		switch($method) {
+		switch(Visitor::getMethod()) {
 		case Visitor::METHOD_GET:
-			$usertoken = $this->visitor->param("token", Visitor::METHOD_GET);
+			$usertoken = $this->visitor->param('token', Visitor::METHOD_GET);
+			if (empty($usertoken))
+				throw new InvalidValueException(
+					'User visited the recovery page with an empty token.',
+					$this->visitor->getRoute(),
+					'Invalid token.');
 			$token = Token::get($usertoken);
-			if($token->authenticate($usertoken, Token::RECOVERY)){
-				$this->setTitle("EbookMarket - Change Password");
-				//verifica token e se valido show template
-				$this->show("account/change_password", ["usertoken" => $usertoken]);
-			}
-			break;
+			if ($token === null)
+				throw new InvalidValueException(
+					'User visited the recovery page with a non-existent token.',
+					$this->visitor->getRoute(),
+					'Invalid token.');
+			if($token->authenticate($usertoken, Token::RECOVERY) === null)
+				throw new InvalidValueException(
+					'User visited the recovery page with an invalid token.',
+					$this->visitor->getRoute(),
+					'Invalid token.');
+			$this->setTitle('EbookMarket - Change Password');
+			$this->addCss('form');
+			$this->addJs('validation');
+			$this->show('account/changepassword', [
+				'token' => $usertoken,
+			]);
 		case Visitor::METHOD_POST:
-			//Verifica token e cambio password
-			$this->setTitle("EbookMarket - Password Change Result");
-			$password = $this->visitor->param("password", Visitor::METHOD_POST);
-			$passwordConfirm = $this->visitor->param("password_confirm", Visitor::METHOD_POST);
-			$usertoken = $this->visitor->param("usertoken", Visitor::METHOD_POST);
-			$token = Token::get($usertoken);
-
-			if(!empty($password)
-				&& !(empty($passwordConfirm))
-				&& ($password == $passwordConfirm)
-				&& $token->authenticate($usertoken, Token::RECOVERY)
-				){
-				$user = $token->getUser();
-				if($user){
-					$user->password = $password;
-					$user->save();
-					$this->show("account/password_change_result", ["success" => true]);
-				} else {
-					$this->show("account/password_change_result", ["success" => false]);
-				}
-				$token->delete();
+			$this->visitor->assertAjax();
+			$this->setTitle('EbookMarket - Password Changed');
+			$password = $this->visitor->param('password', Visitor::METHOD_POST);
+			if (empty($password) || !User::validatePassword($password))
+				throw new InvalidValueException(
+					'Submitted an invalid password.',
+					$this->visitor->getRoute(),
+					'Invalid password.');
+			if ($this->visitor->isLoggedIn()) {
+				$oldpassword = $this->visitor->param('oldpassword', Visitor::METHOD_POST);
+				if (empty($oldpassword))
+					throw new InvalidValueException(
+						'Submitted an empty old password.',
+						$this->visitor->getRoute(),
+						'Invalid password.');
+				$user = $this->visitor->user();
+				if (!$user->verifyPassword($oldpassword))
+					throw new InvalidValueException(
+						'Submitted an invalid old password.',
+						$this->visitor->getRoute(),
+						'Invalid password.');
+			} else {
+				$usertoken = $this->visitor->param('token', Visitor::METHOD_POST);
+				if (empty($usertoken))
+					throw new InvalidValueException(
+						'Submitted an empty token.',
+						$this->visitor->getRoute(),
+						'Invalid token.');
+				$token = Token::get($usertoken);
+				if ($token === null)
+					throw new InvalidValueException(
+						'Submitted a non-existent token.',
+						$this->visitor->getRoute(),
+						'Invalid token.');
+				$user = $token->authenticate($usertoken, Token::RECOVERY);
+				if ($user === null)
+					throw new InvalidValueException(
+						'Submitted an invalid token.',
+						$this->visitor->getRoute(),
+						'Invalid token.');
 			}
-			break;
+			$user->password = $password;
+			$user->save();
+			$this->show('message', [
+				'title' => 'Password changed!',
+				'message' => 'Your password has been successfully changed! Now, <a href="' . $this->app->buildLink('/login') . '">Login into your account!</a>.',
+			]);
 		}
 	}
 
 	public function actionVerify(): void
 	{
-		$method = $this->visitor->getMethod();
-		switch($method) {
-		case Visitor::METHOD_GET:
-			$this->setTitle("EbookMarket - Account Verification");
-			$usertoken = $this->visitor->param("token", Visitor::METHOD_GET);
-			$token = Token::get($usertoken);
-			$user = $token->authenticate($usertoken, Token::VERIFY);
-			if($user){
-				$user->valid = true;
-				$user->save();
-				$token->delete();
-				$this->show("account/verify_result",  ["success" => true]);
-			} else {
-				$this->show("account/verify_result",  ["success" => false]);
-			}
-			break;
-		}
+		Visitor::assertMethod(Visitor::METHOD_GET);
+		$this->setTitle('EbookMarket - Account Verified');
+		$usertoken = $this->visitor->param('token', Visitor::METHOD_GET);
+		if (empty($usertoken))
+			throw new InvalidValueException(
+				'Received a verification request with an empty token.',
+				$this->visitor->getRoute(),
+				'Invalid token.');
+		$token = Token::get($usertoken);
+		if ($token === null)
+			throw new InvalidValueException(
+				'Received a verification request with an invalid token.',
+				$this->visitor->getRoute(),
+				'Invalid token.');
+		$user = $token->authenticate($usertoken, Token::VERIFY);
+		if($user === null)
+			throw new InvalidValueException(
+				'Received a verification request with a token not associated with an user.',
+				$this->visitor->getRoute(),
+				'Invalid token.');
+		$user->valid = true;
+		$user->save();
+		$token->delete();
+		$this->show('message', [
+			'title' => 'Registration completed!',
+			'message' => 'You have successfully verified yout email address! Now, <a href="' . $this->app->buildLink('/login') . '">Login into your account!</a>.',
+		]);
 	}
 
-	public function buildSidebar(): ?string {
+	public function buildSidebar(): ?string
+	{
 		return null;
 	}
 }
