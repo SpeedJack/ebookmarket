@@ -73,9 +73,9 @@ class Book extends AbstractEntity
 	{
 		$coverfile = 'assets/covers/' . $this->filehandle;
 		if (file_exists($GLOBALS['APP_ROOT'] . "/$coverfile.jpg"))
-			return "/$coverfile.jpg";
+			return $this->app->config('app_subdir') . "$coverfile.jpg";
 		if (file_exists($GLOBALS['APP_ROOT'] . "/$coverfile.png"))
-			return "/$coverfile.png";
+			return $this->app->config('app_subdir') . "$coverfile.png";
 		return '';
 	}
 
