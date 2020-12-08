@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace EbookMarket\Entities;
+
 use EbookMarket\App;
 
 class Book extends AbstractEntity

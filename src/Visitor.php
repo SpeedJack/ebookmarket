@@ -8,7 +8,7 @@ use EbookMarket\Entities\{
 	User,
 	Token,
 };
-use EbookMarket\Exception\{
+use EbookMarket\Exceptions\{
 	InvalidMethodException,
 	UserAuthenticationException,
 };

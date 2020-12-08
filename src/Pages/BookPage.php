@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace EbookMarket\Pages;
 
-use EbookMarket\Entities\User;
-use EbookMarket\Entities\Book;
-use EbookMarket\Entities\Category;
-use EbookMarket\Entities\Purchase;
-use EbookMarket\Visitor;
-use EbookMarket\Services\FakePaymentService;
+use EbookMarket\{
+	Entities\User,
+	Entities\Book,
+	Entities\Category,
+	Entities\Purchase,
+	Visitor,
+	Services\FakePaymentService,
+};
 
 class BookPage extends AbstractPage
 {
@@ -77,8 +79,7 @@ class BookPage extends AbstractPage
 
 	public function actionLibrary(): void
 	{
-		if(!$this->visitor->isLoggedIn())
-			$this->redirect('account/login');
+		$this->visitor->assertUser();
 		$this->setActiveMenu('My Library');
 		$this->setTitle('EbookMarket - My Library');
 		$this->showBooks(true);

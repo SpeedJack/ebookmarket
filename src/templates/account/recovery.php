@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 <h1>Account Recovery</h1>
 <form id="recovery-form" autocomplete="on" action="<?= $app->buildLink('/recovery') ?>" method="POST">
 	<label for="email">Email</label>

@@ -1,3 +1,4 @@
+<?php declare(strict_types=1) ?>
 <h1>Login</h1>
 <form id="login-form" autocomplete="on" action="<?= $app->buildLink('/login') ?>" method="POST">
 	<label for="username">Username</label>

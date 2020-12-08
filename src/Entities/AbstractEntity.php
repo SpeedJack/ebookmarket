@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace EbookMarket\Entities;
 
-use EbookMarket\App;
-use EbookMarket\Exceptions\InvalidValueException;
+use EbookMarket\{
+	App,
+	Exceptions\InvalidValueException,
+};
 
 abstract class AbstractEntity
 {

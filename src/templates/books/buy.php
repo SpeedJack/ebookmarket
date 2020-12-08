@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 <section>
     <div>
         <h1>Order</h1>

@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 <h1>Enter a new password</h1>
 <form id="changepwd-form" autocomplete="off" action="<?= $app->buildLink('/changepwd') ?>" method="POST">
 	<label for="password">Password</label>

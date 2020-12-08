@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 <article>
 	<a href=<?= $app->buildLink('/view', [ 'id' => $book->id ]) ?>>
 		<img class="bookcover" alt="<?= static::htmlEscapeQuotes($book->title) ?>" src="<?= $book->cover ?>">

@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 <h1>Your Account</h1>
 
 <h2>Info</h2>
@@ -17,7 +18,7 @@
 </form>
 
 <h2>Sessions</h2>
-<p>Currently, there are other <?= $sessioncount ?> sessions active.</p>
+<p>Currently, there are <?= $sessioncount ?> other sessions active.</p>
 <?php if ($sessioncount > 0): ?>
 	<form id="secure-form" autocomplete="off" action="<?= $app->buildLink('/secure') ?>" method="POST">
 		<input type="hidden" name="csrftoken" value="<?= $this->getCsrfToken() ?>">

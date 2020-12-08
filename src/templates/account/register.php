@@ -1,3 +1,4 @@
+<?php declare(strict_types=1); ?>
 <h1>Create a new account</h1>
 <form id="register-form" autocomplete="on" action="<?= $app->buildLink("account/register") ?>" method="POST">
 	<label for="username">Username</label>
