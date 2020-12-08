@@ -1,10 +1,13 @@
-.vscode/
-*.code-workspace
-.history/
 assets/ebooks/*.pdf
 assets/ebooks/*.mobi
 assets/ebooks/*.epub
 assets/covers/*.jpg
 assets/covers/*.png
-.idea/*
+
+.vscode/
+*.code-workspace
+.history/
+
+.idea/
+
 docker/web/mail-credentials.csv
