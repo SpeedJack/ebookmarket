@@ -2,13 +2,6 @@ USE ebookmarket;
 
 SET FOREIGN_KEY_CHECKS=0;
 
-LOCK TABLES `users` WRITE;
-
-INSERT INTO `users`(`id`, `username`, `email`, `passwordhash`, `valid`)
-VALUES (1, 'user', 'user@example.com', '$2y$10$QEZuorXml.sqP7RrCOEJWek9uG.poXaKLMehiOV8BTatw/cM0hmv.', 1);
-
-UNLOCK TABLES;
-
 LOCK TABLES `categories` WRITE;
 
 TRUNCATE TABLE `categories`;

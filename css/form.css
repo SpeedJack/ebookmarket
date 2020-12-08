@@ -1,17 +1,17 @@
-form {
+main form {
 	margin: auto;
 	max-width: 450px;
 }
 
-form label {
+main form label {
 	font-size: 17px;
 }
 
-form label:not(.inline) {
+main form label:not(.inline) {
 	display: block;
 }
 
-form input:not([type=checkbox]) {
+main form input:not([type=checkbox]) {
 	background-color: #191A1B;
 	display: block;
 	width: 100%;
@@ -23,15 +23,15 @@ form input:not([type=checkbox]) {
 	margin-bottom: 20px;
 }
 
-form input:hover {
+main form input:hover {
 	border: 1px solid #3D3E3F;
 }
 
-form input:focus {
+main form input:focus {
 	border: 1px solid #039BE5;
 }
 
-form button {
+main form button {
 	color: #D5D1CB;
 	font-weight: bold;
 	font-size: 17px;
@@ -49,12 +49,12 @@ form button {
 	box-sizing: content-box;
 }
 
-form button:hover {
+main form button:hover {
 	box-shadow: 5px 5px 5px #191A1B;
 	color: #E5E1DB;
 }
 
-form p.validator {
+main form p.validator {
 	display: none;
 	padding: 6px;
 	width: 100%;
@@ -76,15 +76,15 @@ form p.validator {
 	}
 }
 
-form p.validator.show {
+main form p.validator.show {
 	display: block;
 }
 
-form p.validator a {
+main form p.validator a {
 	text-decoration: none;
 	font-weight: bold;
 }
 
-form p.validator a:hover {
+main form p.validator a:hover {
 	color: #87BFF5;
 }

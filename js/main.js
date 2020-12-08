@@ -42,7 +42,11 @@ function ajax(url, data, handler)
 		if (this.readyState !== 4)
 			return;
 		if (this.status === 200) {
-			var data = JSON.parse(this.responseText);
+			try {
+				var data = JSON.parse(this.responseText);
+			} catch (e) {
+				return;
+			}
 			if (!data || typeof data !== 'object')
 				return;
 			if (data.redirect) {
@@ -64,8 +68,6 @@ function ajax(url, data, handler)
 		}
 	};
 	xhttp.open('POST', url, true);
-	//xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	//data += '&csrftoken=' + encodeURIComponent(getCSRFToken());
 	data.set('ajax', true);
 	data.set('csrftoken', getCSRFToken());
 	xhttp.send(data);
@@ -97,16 +99,6 @@ function closeModal()
 function submitForm(event)
 {
 	event.preventDefault();
-	/*var data = '';
-	var elements = this.querySelectorAll('input');
-	for (var i = 0; i < elements.length; i++) {
-		if (elements[i].name === 'csrftoken')
-			continue;
-		if (elements[i].type === 'checkbox' && elements[i].checked == false)
-			continue;
-		data += elements[i].name + '=' + encodeURIComponent(elements[i].value) + '&';
-	}
-	data = data.slice(0, -1);*/
 	var data = new FormData(this);
 	ajax(this.getAttribute('action'), data);
 }

@@ -142,6 +142,13 @@ class Token extends AbstractEntity
 		return $this->user;
 	}
 
+	public function deleteOthers(): void
+	{
+		$this->db->query('DELETE FROM `' . $this->structure['table'] . '`'
+			. ' (WHERE id <> ? AND type = ?) OR expiretime <= ?',
+			$this->id, $this->type, time());
+	}
+
 	private static function generateToken(): string
 	{
 		if (function_exists('random_bytes'))

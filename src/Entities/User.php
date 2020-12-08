@@ -69,4 +69,13 @@ class User extends AbstractEntity
 		$this->token = Token::createNew($this, Token::SESSION);
 		$this->token->save();
 	}
+
+	public function getSessioncount(): int
+	{
+		$tokens = Token::getAll([
+			'userid' => $this->id,
+			'type' => Token::SESSION,
+		]);
+		return empty($tokens) ? 0 : count($tokens);
+	}
 }

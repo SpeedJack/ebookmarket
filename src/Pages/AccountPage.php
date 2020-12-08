@@ -13,20 +13,48 @@ use EbookMarket\{
 
 class AccountPage extends AbstractPage
 {
-	public const LOGIN = 1;
-	public const REGISTER = 2;
-	public const RECOVERY = 3;
-	public const VERIFY = 4;
-
 	public function actionIndex(): void
 	{
 		if (!$this->visitor->isLoggedIn())
 			$this->redirect('/login');
 		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->setTitle('EbookMarket - ' . $this->visitor->user()->username);
+		$this->addCss('form');
+		$this->addJs('validation');
+		$sessions = $this->visitor->user()->sessioncount;
+		if ($sessions > 0)
+			$sessions = $sessions - 1;
 		$this->show('account/profile', [
 			'user' => $this->visitor->user(),
+			'sessioncount' => $sessions,
 		]);
+	}
+
+	public function actionSecure(): void
+	{
+		if (!$this->visitor->isLoggedIn())
+			$this->redirect('/login');
+		$this->visitor->assertAjax();
+		$authtoken = $this->visitor->cookie('authtoken');
+		if ($authtoken === null)
+			throw new InvalidValueException(
+				'Submitted an invalid authtoken.',
+				$this->visitor->getRoute(),
+				'Not authorized.');
+		$token = Token::get($authtoken);
+		if ($token === null)
+			throw new InvalidValueException(
+				'Submitted a non-existent authtoken.',
+				$this->visitor->getRoute(),
+				'Not authorized.');
+		$user = $token->authenticate($authtoken);
+		if ($user === null || $user->id !== $this->visitor->user()->id)
+			throw new InvalidValueException(
+				'Submitted an invalid authtoken.',
+				$this->visitor->getRoute(),
+				'Not authorized.');
+		$token->deleteOthers();
+		$this->redirect('account/');
 	}
 
 	public function actionLogin(): void
@@ -65,6 +93,8 @@ class AccountPage extends AbstractPage
 
 	public function actionRegister(): void
 	{
+		if ($this->visitor->isLoggedIn())
+			$this->redirectHome();
 		$this->setActiveMenu('Sign Up');
 		switch(Visitor::getMethod()) {
 		case Visitor::METHOD_POST:
@@ -167,6 +197,8 @@ class AccountPage extends AbstractPage
 
 	public function actionRecovery(): void
 	{
+		if ($this->visitor->isLoggedIn())
+			$this->redirectHome();
 		switch(Visitor::getMethod()) {
 		case Visitor::METHOD_GET:
 			$this->setTitle('EbookMarket - Password Recovery');
@@ -207,6 +239,8 @@ class AccountPage extends AbstractPage
 	{
 		switch(Visitor::getMethod()) {
 		case Visitor::METHOD_GET:
+			if ($this->visitor->isLoggedIn())
+				$this->redirectHome();
 			$usertoken = $this->visitor->param('token', Visitor::METHOD_GET);
 			if (empty($usertoken))
 				throw new InvalidValueException(
@@ -240,6 +274,11 @@ class AccountPage extends AbstractPage
 					$this->visitor->getRoute(),
 					'Invalid password.');
 			if ($this->visitor->isLoggedIn()) {
+				if ($this->visitor->hasParam('token'))
+					throw new InvalidValueException(
+						'Submitted a recovery token when user is logged in.',
+						$this->visitor->getRoute(),
+						'Invalid request.');
 				$oldpassword = $this->visitor->param('oldpassword', Visitor::METHOD_POST);
 				if (empty($oldpassword))
 					throw new InvalidValueException(
@@ -253,6 +292,11 @@ class AccountPage extends AbstractPage
 						$this->visitor->getRoute(),
 						'Invalid password.');
 			} else {
+				if ($this->visitor->hasParam('oldpassword'))
+					throw new InvalidValueException(
+						'Submitted an old password when user is not logged in.',
+						$this->visitor->getRoute(),
+						'Invalid request.');
 				$usertoken = $this->visitor->param('token', Visitor::METHOD_POST);
 				if (empty($usertoken))
 					throw new InvalidValueException(
@@ -283,6 +327,8 @@ class AccountPage extends AbstractPage
 
 	public function actionVerify(): void
 	{
+		if ($this->visitor->isLoggedIn())
+			$this->redirectHome();
 		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->setTitle('EbookMarket - Account Verified');
 		$usertoken = $this->visitor->param('token', Visitor::METHOD_GET);
@@ -312,7 +358,7 @@ class AccountPage extends AbstractPage
 		]);
 	}
 
-	public function buildSidebar(): ?string
+	protected function buildSidebar(): ?string
 	{
 		return null;
 	}

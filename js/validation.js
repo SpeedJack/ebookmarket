@@ -22,6 +22,9 @@ if (loginform)
 var changepwdform = document.getElementById('changepwd-form');
 if (changepwdform)
 	changepwdform.addEventListener('submit', submitForm);
+var secureform = document.getElementById('secure-form');
+if (secureform)
+	secureform.addEventListener('submit', submitForm);
 
 function validateLength()
 {
@@ -45,7 +48,6 @@ function validateEmail()
 	data.set('verify', true);
 	data.set('email', this.value);
 	ajax(url, data, handleEmailValidationResponse);
-	//ajax(url, 'verify=1&email=' + encodeURIComponent(this.value), handleEmailValidationResponse);
 }
 
 function handleEmailValidationResponse(data)
