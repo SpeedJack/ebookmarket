@@ -231,8 +231,8 @@ class AccountPage extends AbstractPage
 				'token' => $token->usertoken,
 			]);
 			$this->sendmail($user->email, $user->username, 'recovery', [
-			    'username' => $user->username,
-			    'recoverylink' => $recoverylink,
+				'username' => $user->username,
+				'recoverylink' => $recoverylink,
 			]);
 			$this->show('message', [
 				'title' => 'Check your email!',
@@ -299,6 +299,9 @@ class AccountPage extends AbstractPage
 						'Invalid password.');
 				$user->password = $password;
 				$user->save();
+				$this->sendmail($user->email, $user->username, 'passwordchanged', [
+					'username' => $user->username,
+				]);
 				$this->show('message', [
 					'title' => 'Password changed!',
 					'message' => 'Your password has been successfully changed!',
@@ -329,6 +332,9 @@ class AccountPage extends AbstractPage
 					'Invalid token.');
 			$user->password = $password;
 			$user->save();
+			$this->sendmail($user->email, $user->username, 'passwordchanged', [
+				'username' => $user->username,
+			]);
 			$this->show('message', [
 				'title' => 'Password changed!',
 				'message' => 'Your password has been successfully changed! Now, <a href="' . $this->app->buildLink('/login') . '">Login into your account!</a>.',
