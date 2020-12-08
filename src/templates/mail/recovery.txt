@@ -1,9 +1,14 @@
 Recover your account
 
-Hello {{username}}, here is the link to recover your account:
+Hello,
 
+You are receiving this email because you have requested to recover your
+account.
+
+Your username: {{username}}
+Use this link to recover your password:
 {{recoverylink}}
 
---
+-- 
 Best regards,
 EbookMarket

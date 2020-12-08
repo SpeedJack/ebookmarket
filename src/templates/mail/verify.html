@@ -11,17 +11,22 @@
 				appearance: button;
 				text-decoration: none;
 				color: white;
-				background-color: blue;
+				background-color: #039BE5;
 				font-weight: bold;
-				font-size: 14px;
+				font-size: 17px;
+				width: 100%;
+				max-width: 200px;
+				display: block;
+				box-shadow: 5px 5px 5px #111213;
+				text-align: center;
+				padding: 10px;
 			}
 		</style>
 	</head>
 	<body>
-		<p>Hello {{username}}, here is the link to verify your email address:</p>
-		<br>
+		<p>Hello {{username}}, we are glad that you have decided to join us!</p>
 		<a class="button" href="{{verifylink}}" target="_blank">Verify Email</a>
-		<br><hr><br>
+		<hr>
 		<p>Best Regards,<br>EbookMarket</p>
 	</body>
 </html>

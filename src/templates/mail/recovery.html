@@ -1,27 +1,34 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recover your account</title>
-    <style>
-        a.button {
-            -webkit-appearance: button;
-            -moz-appearance: button;
-            appearance: button;
-            text-decoration: none;
-            color: white;
-            background-color: blue;
-            font-weight: bold;
-            font-size: 14px;
-        }
-    </style>
-</head>
-<body>
-<p>Hello {{username}}, here is the link to recover your account:</p>
-<br>
-<a class="button" href="{{recoverylink}}" target="_blank">Recover Account</a>
-<br><hr><br>
-<p>Best Regards,<br>EbookMarket</p>
-</body>
+	<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Recover your account</title>
+		<style>
+			a.button {
+				-webkit-appearance: button;
+				-moz-appearance: button;
+				appearance: button;
+				text-decoration: none;
+				color: white;
+				background-color: #039BE5;
+				font-weight: bold;
+				font-size: 17px;
+				width: 100%;
+				max-width: 200px;
+				display: block;
+				box-shadow: 5px 5px 5px #111213;
+				text-align: center;
+				padding: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<p>Hello,</p>
+		<p>You are receiving this email because you have requested to recover your account.</p>
+		<p>Your username: {{username}}</p>
+		<a class="button" href="{{recoverylink}}" target="_blank">Recover Your Password</a>
+		<hr>
+		<p>Best Regards,<br>EbookMarket</p>
+	</body>
 </html>

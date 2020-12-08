@@ -1,7 +1,6 @@
 Verify your email address
 
-Hello {{username}}, here is the link to verify your email address:
-
+Hello {{username}}, use the following link to verify your email address:
 {{verifylink}}
 
 -- 
