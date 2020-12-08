@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EbookMarket\Entities;
 
-class Order extends AbstractEntity
+class Purchase extends AbstractEntity
 {
 	public static function getStructure(): array
 	{

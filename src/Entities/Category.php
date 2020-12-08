@@ -17,11 +17,6 @@ class Category extends AbstractEntity
 		];
 	}
 
-	public function getBooks(User $user = null): array
-	{
-		return Book::getByCategory($this->name, $user);
-	}
-
 	public static function getAll($name = null, $value = null,
 		?string $orderby = null, bool $or = false): array
 	{

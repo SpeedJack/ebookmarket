@@ -159,7 +159,7 @@ abstract class AbstractEntity
 
 		$this->preDelete();
 		$this->db->query('DELETE FROM `' . $this->structure['table'] . '`'
-		       . ' WHERE id=?', $this->values['id']);
+		       . ' WHERE `id`=?', $this->values['id']);
 		$this->deleted = true;
 		$this->newvalues = [];
 		$this->gettercache = [];
@@ -260,7 +260,7 @@ abstract class AbstractEntity
 		if (!isset($this->values['id']))
 			throw new \LogicException(
 				"Entity '" . get_class($this) . "' does not define an id.");
-		$query .= ' WHERE id = ?';
+		$query .= ' WHERE `id` = ?';
 		$values[] = $this->values['id'];
 
 		$this->db->query($query, ...$values);
@@ -307,7 +307,7 @@ abstract class AbstractEntity
 	{
 		$query = 'SELECT * FROM `' . static::getStructure()['table'] . '`';
 		if (is_scalar($name) && !isset($value)) {
-			$query .= ' WHERE id = ?';
+			$query .= ' WHERE `id` = ?';
 			$params = [ $name ];
 		} else if (is_string($name)) {
 			$query .= " WHERE `$name` = ?";

@@ -64,3 +64,12 @@ main h1 {
 #booklist article a div.bookdesc span.bookprice:before {
 	content: "$ ";
 }
+
+#booklist div.page-controls {
+	flex: 0 0 100%;
+	padding: 10px;
+}
+
+#booklist div.page-controls a.page-next {
+	float: right;
+}

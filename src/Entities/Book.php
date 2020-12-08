@@ -23,43 +23,41 @@ class Book extends AbstractEntity
 		];
 	}
 
-	public static function getByCategory(string $category, ?User $user = null): array
+	public static function getPaged(int $page = 1,
+		?Category $category = null, ?User $user = null,
+		?string $search = null): array
 	{
-		$query = 'SELECT b.* FROM '
-			. static::getStructure()['table']
-			. ' b INNER JOIN '
-			. Category::getStructure()['table']
-			. ' c ON b.categoryid = c.id ';
-		$where = 'WHERE c.name = ? ';
-		if($user)
-		{
-			$query .= 'INNER JOIN '
-				.Order::getStructure()['table']
-				.' o ON b.category = o.category';
-			$where .= 'o.userid = ? AND o.complete = 1';
+		$perpage = 20;
+		$params = [];
+		$query = 'SELECT b.* FROM `' . static::getStructure()['table'] . '` b';
+		if (isset($user))
+			$query .= ' INNER JOIN `' . Purchase::getStructure()['table'] . '` p'
+				. ' ON b.`id` = p.`bookid`';
+		if (!empty($search) || isset($category) || isset($user))
+			$query .= ' WHERE';
+		$and = false;
+		if (!empty($search)) {
+			$search = "%$search%";
+			$query .= ' (b.`title` LIKE ? OR b.`author` LIKE ?)';
+			$params[] = $search;
+			$params[] = $search;
+			$and = true;
 		}
+		if (isset($category)) {
+			$query .= ($and ? ' AND' : '') . ' b.`categoryid` = ?';
+			$params[] = $category->id;
+			$and = true;
+		}
+		if (isset($user)) {
+			$query .= ($and ? ' AND' : '') . ' p.`userid` = ?';
+			$params[] = $user->id;
+		}
+		$query .= ' ORDER BY b.`title` ASC LIMIT ?, ?';
+		$params[] = ($page - 1)*$perpage;
+		$params[] = $perpage + 1;
 
 		$db = App::getInstance()->db();
-
-		if($user)
-			$data = $db->fetchAll($query, $category, $user->id);
-		else
-			$data = $db->fetchAll($query, $category);
-		$entities = [];
-		foreach ($data as $row)
-			$entities[] = new static($row);
-		return $entities;
-	}
-
-	public static function getBooksLike(string $value): array
-	{
-		$pattern = '%'.$value.'%';
-
-		$query = 'SELECT * FROM `' . self::getStructure()['table']
-		. '` WHERE `author` LIKE ? OR `title` LIKE ?;';
-
-		$db = App::getInstance()->db();
-		$data = $db->fetchAll($query, $pattern, $pattern);
+		$data = $db->fetchAll($query, ...$params);
 		$entities = [];
 		foreach ($data as $row)
 			$entities[] = new static($row);
@@ -70,7 +68,6 @@ class Book extends AbstractEntity
 	{
 		return Category::get($this->categoryid);
 	}
-
 
 	public function getCover(): string
 	{

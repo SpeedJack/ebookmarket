@@ -7,7 +7,7 @@ namespace EbookMarket\Pages;
 use EbookMarket\Entities\User;
 use EbookMarket\Entities\Book;
 use EbookMarket\Entities\Category;
-use EbookMarket\Entities\Order;
+use EbookMarket\Entities\Purchase;
 use EbookMarket\Visitor;
 use EbookMarket\Services\FakePaymentService;
 
@@ -20,25 +20,46 @@ class BookPage extends AbstractPage
 		$this->addCss('sidebar');
 	}
 
-	private function showBookList(?User $user = null): void
+	protected function showBooks(bool $userlibrary = false): void
 	{
 		$cat = $this->visitor->param('cat', Visitor::METHOD_GET);
+		$search = $this->visitor->param('s', Visitor::METHOD_GET);
+		$pageparam = $this->visitor->param('p', Visitor::METHOD_GET);
 		$category = null;
 		if (!empty($cat)) {
 			$catid = intval($cat);
 			if ($catid !== 0)
 				$category = Category::get($catid);
 		}
-		if (isset($category)) {
-			$books = $category->getBooks();
+		if (!empty($search))
+			$title = 'Search Results';
+		else if ($userlibrary)
+			$title = 'Your Library';
+		else if (isset($category))
 			$title = 'Books in ' . static::htmlEscape($category->name);
-		} else {
-			$books = Book::getAll();
+		else
 			$title = 'All Books';
+		$search = empty($search) ? null : trim($search);
+		$page = 1;
+		if (!empty($pageparam)) {
+			$page = intval($pageparam);
+			$page = $page <= 0 ? 1 : $page;
 		}
+		$books = Book::getPaged($page, $category,
+			$userlibrary ? $this->visitor->user() : null, $search);
+		$last = true;
+		if (count($books) > 20)
+			$last = false;
+		$books = array_slice($books, 0, 20, true);
+		$this->addCss('booklist');
 		$this->show('books/booklist', [
 			'title' => $title,
 			'books' => $books,
+			'page' => $page,
+			'lastpage' => $last,
+			'islibrary' => $userlibrary,
+			'category' => $category,
+			'search' => $search ? static::htmlEscapeQuotes($search) : null,
 		]);
 	}
 
@@ -51,8 +72,7 @@ class BookPage extends AbstractPage
 	{
 		$this->setActiveMenu('Shop');
 		$this->setTitle('EbookMarket - Shop');
-		$this->addCss('booklist');
-		$this->showBookList();
+		$this->showBooks();
 	}
 
 	public function actionLibrary(): void
@@ -61,7 +81,7 @@ class BookPage extends AbstractPage
 			$this->redirect('account/login');
 		$this->setActiveMenu('My Library');
 		$this->setTitle('EbookMarket - My Library');
-		$this->getBookList($this->visitor->user());
+		$this->showBooks(true);
 	}
 
 	public function actionView(): void
@@ -175,6 +195,39 @@ class BookPage extends AbstractPage
 		}
 	}
 
+	protected function buildPageLink(?int $page = null,
+		?Category $category = null, ?string $search = null): string
+	{
+		$params = [];
+		if (!isset($page)) {
+			$pageparam = $this->visitor->param('p', Visitor::METHOD_GET);
+			$page = 1;
+			if (!empty($pageparam)) {
+				$page = intval($pageparam);
+				$page = $page <= 0 ? 1 : $page;
+			}
+		}
+		$catid = 0;
+		if (!isset($category)) {
+			$cat = $this->visitor->param('cat', Visitor::METHOD_GET);
+			if (!empty($cat))
+				$catid = intval($cat);
+		} else {
+			$catid = $category->id;
+		}
+		$search = empty($search) ? null : $search;
+		if ($catid !== 0)
+			$params['cat'] = $catid;
+		if ($search !== null)
+			$params['s'] = $search;
+		if ($page > 1)
+			$params['p'] = $page;
+		$route = null;
+		if ($this->visitor->isAction('library'))
+			$route = 'book/library';
+		return $this->app->buildLink($route, $params);
+	}
+
 	protected function buildSidebar(): ?string
 	{
 		$curcat = $this->visitor->param('cat', Visitor::METHOD_GET);
@@ -182,13 +235,16 @@ class BookPage extends AbstractPage
 		$categories = Category::getAll();
 		$allbooks = true;
 		$html = '';
+		$route = null;
+		if ($this->visitor->isAction('library'))
+			$route = 'book/library';
 		foreach ($categories as $category) {
-			$html .= $this->buildMenuEntry($category->name, null,
-				[ 'cat' => $category->id ],
-				$curcat === $category->id);
+			$html .= $this->buildMenuEntry($category->name, $route, [
+				'cat' => $category->id,
+				], $curcat === $category->id);
 			if ($curcat === $category->id)
 				$allbooks = false;
 		}
-		return $this->buildMenuEntry('All Books', null, null, $allbooks) . $html;
+		return $this->buildMenuEntry('All Books', $route, null, $allbooks) . $html;
 	}
 }
