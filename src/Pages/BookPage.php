@@ -6,6 +6,7 @@ namespace EbookMarket\Pages;
 
 use EbookMarket\{
 	Entities\User,
+	Entities\Token,
 	Entities\Book,
 	Entities\Category,
 	Entities\Purchase,
@@ -63,6 +64,14 @@ class BookPage extends AbstractPage
 			'category' => $category,
 			'search' => $search ? static::htmlEscapeQuotes($search) : null,
 		]);
+	}
+
+	protected function getBuyStepToken(bool $steptwo = false): string
+	{
+		$type = $steptwo ? Token::BUYSTEP2 : Token::BUYSTEP1;
+		$token = Token::createNew($this->visitor->user(), $type);
+		$token->save();
+		return static::htmlEscapeQuotes($token->usertoken);
 	}
 
 	public function actionIndex(): void
@@ -180,7 +189,7 @@ class BookPage extends AbstractPage
 		readfile($file);
 	}
 
-	//TODO
+	//TODO: make it work; split in two actions (Buy, Finish); check buystep tokens
 	public function actionBuy(): void
 	{
 		if(!$this->visitor->isLoggedIn())

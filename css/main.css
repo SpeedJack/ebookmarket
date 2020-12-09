@@ -199,3 +199,32 @@ div#modal-box div#modal-content button#modal-close {
 	max-width: 100px;
 	height: 30px;
 }
+
+div#modal-box div#modal-content div.spinner {
+	border: 16px solid #292A2B;
+	border-radius: 50%;
+	border-top: 16px solid #039BE5;
+	width: 100px;
+	height: 100px;
+	margin: 50px auto;
+	-webkit-animation: spin 1.5s linear infinite;
+	animation: spin 1.5s linear infinite;
+}
+
+@-webkit-keyframes spin {
+	0% {
+		-webkit-transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}

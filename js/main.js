@@ -35,12 +35,18 @@ function updateCSRFToken(token)
 		fields[i].value = token;
 }
 
+var ajaxlock = false;
+
 function ajax(url, data, handler)
 {
+	if (ajaxlock)
+		return;
+	ajaxlock = true;
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState !== 4)
 			return;
+		ajaxlock = false;
 		if (this.status === 200) {
 			try {
 				var data = JSON.parse(this.responseText);
@@ -69,9 +75,12 @@ function ajax(url, data, handler)
 	};
 	xhttp.open('POST', url, true);
 	data.set('ajax', true);
-	data.set('csrftoken', getCSRFToken());
+	if (!data.has('csrftoken'))
+		data.set('csrftoken', getCSRFToken());
 	xhttp.send(data);
 }
+
+var modalshown = false;
 
 function showModal(content)
 {
@@ -80,6 +89,7 @@ function showModal(content)
 		return;
 	modal.innerHTML = content;
 	modal.classList.add('show');
+	modalshown = true;
 	var closebtn = document.getElementById('modal-close');
 	if (closebtn)
 		closebtn.addEventListener('click', closeModal);
@@ -88,17 +98,27 @@ function showModal(content)
 		form.addEventListener('submit', submitForm);
 }
 
-function closeModal()
+function closeModal(event)
 {
 	var modal = document.getElementById('modal-box');
 	if (!modal)
 		return;
 	modal.classList.remove('show');
+	modalshown = false;
+	if (event.target.hasAttribute('data-reload');
+		location.reload();
 }
 
 function submitForm(event)
 {
 	event.preventDefault();
 	var data = new FormData(this);
+	if (modalshown)
+		showModalSpinner();
 	ajax(this.getAttribute('action'), data);
+}
+
+function showModalSpinner()
+{
+	showModal('<div id="modal-content"><div class="spinner"></div></div>');
 }

@@ -10,6 +10,8 @@ class Token extends AbstractEntity
 	public const VERIFY = 'VERIFY';
 	public const RECOVERY = 'RECOVERY';
 	public const CSRF = 'CSRF';
+	public const BUYSTEP1 = 'BUYSTEP1';
+	public const BUYSTEP2 = 'BUYSTEP2';
 
 	private $usertoken;
 
@@ -84,6 +86,8 @@ class Token extends AbstractEntity
 		case self::VERIFY:
 		case self::RECOVERY:
 		case self::CSRF:
+		case self::BUYSTEP1:
+		case self::BUYSTEP2:
 			return true;
 		default:
 			return false;
@@ -109,6 +113,10 @@ class Token extends AbstractEntity
 			break;
 		case self::CSRF:
 			$time = $this->app->config('csrf_token_expire_time');
+			break;
+		case BUYSTEP1:
+		case BUYSTEP2:
+			$time = $this->app->config('buystep_token_expire_time');
 			break;
 		default:
 			return;

@@ -161,11 +161,13 @@ abstract class AbstractPage
 		$this->replyJson($data);
 	}
 
-	protected function modalMessage(string $title, string $message): void
+	protected function modalMessage(string $title, string $message,
+		bool $reload = false): void
 	{
 		$params = [
 			'title' => $title,
 			'message' => $message,
+			'reload' => $reload,
 		];
 		$this->showModal('messagebox', $params);
 	}
