@@ -1,0 +1,99 @@
+main article {
+	text-align: center;
+	width: 350px;
+	margin: auto;
+}
+
+main article h1 span.bookpubdate {
+	font-size: 16px;
+	font-weight: normal;
+	color: #978E83;
+}
+
+main article img.bookcover {
+	height: 327px;
+	width: 237px;
+	object-fit: contain;
+	overflow: hidden;
+	margin: auto;
+	display: block;
+	max-width: 100%;
+}
+
+main article p.bookauthor {
+	font-size: 17px;
+}
+
+main article p.bookprice {
+	font-weight: bold;
+	color: #039BE5;
+}
+
+main article p.bookprice:before {
+	content: "$ ";
+}
+
+main article form#buy-form {
+	width: 100%;
+}
+
+main article form#buy-form button {
+	color: #D5D1CB;
+	font-weight: bold;
+	font-size: 17px;
+	margin: auto;
+	width: 100%;
+	max-width: 300px;
+	height: 50px;
+	padding: 6px;
+	background-color: #039BE5;
+	text-decoration: none;
+	text-align: center;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	box-sizing: content-box;
+}
+
+main article form#buy-form button:hover {
+	box-shadow: 5px 5px 5px #191A1B;
+	color: #E5E1DB;
+}
+
+main article a.button {
+	-webkit-appearance: button;
+	-moz-appearance: button;
+	appearance: button;
+	display: block;
+	color: #D5D1CB;
+	font-weight: bold;
+	font-size: 17px;
+	margin: 15px auto;
+	width: 100%;
+	max-width: 300px;
+	height: 40px;
+	padding: 10px;
+	text-decoration: none;
+	text-align: center;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	box-sizing: border-box;
+}
+
+main article a.button:hover {
+	box-shadow: 5px 5px 5px #191A1B;
+	color: #E5E1DB;
+}
+
+main article a.button.fmt-pdf {
+	background-color: #FF4136;
+}
+
+main article a.button.fmt-epub {
+	background-color: #2ECC40;
+}
+
+main article a.button.fmt-mobi {
+	background-color: #0074D9;
+}

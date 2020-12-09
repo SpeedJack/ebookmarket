@@ -5,7 +5,9 @@
 		<div class="bookdesc">
 			<span class="booktitle"><?= static::htmlEscape($book->title) ?></span>
 			<span class="bookauthor"><?= static::htmlEscape($book->author) ?></span>
-			<span class="bookprice"><?= number_format($book->price, 2, ',', '') ?></span>
+			<?php if (!$islibrary): ?>
+				<span class="bookprice"><?= number_format($book->price, 2, ',', '') ?></span>
+			<?php endif; ?>
 		</div>
 	</a>
 </article>

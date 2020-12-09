@@ -72,6 +72,7 @@ class BookPage extends AbstractPage
 
 	public function actionList(): void
 	{
+		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->setActiveMenu('Shop');
 		$this->setTitle('EbookMarket - Shop');
 		$this->showBooks();
@@ -79,6 +80,7 @@ class BookPage extends AbstractPage
 
 	public function actionLibrary(): void
 	{
+		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->visitor->assertUser();
 		$this->setActiveMenu('My Library');
 		$this->setTitle('EbookMarket - My Library');
@@ -87,56 +89,98 @@ class BookPage extends AbstractPage
 
 	public function actionView(): void
 	{
+		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->setActiveMenu('Shop');
-		$this->setTitle('EbookMarket - Books');
 		$id = $this->visitor->param('id', Visitor::METHOD_GET);
-		if(Visitor::getMethod() === Visitor::METHOD_GET){
-			if($id){
-				$book = Book::get(intval($id));
-				if($book){
-					$user = $this->visitor->user();
-					$order = null;
-					if($user)
-						$order = Order::get(['bookid' => $book->id, 'userid' => $user->id]);
-					$bought = $order ? $order->completed ? true : false : false;
-					$this->show('books/bookdetails', ['book' => $book, 'bought' => $bought]);
-				} else
-					$this->error('Book Not Found');
-			} else
-				$this->error('Book Not Found');
+		if (empty($id))
+			throw new InvalidValueException(
+				'Submitted an empty book id.',
+				$this->visitor->getRoute(),
+				'Can not find this book.');
+		$id = intval($id);
+		if ($id === 0)
+			throw new InvalidValueException(
+				'Submitted an invalid book id.',
+				$this->visitor->getRoute(),
+				'Can not find this book.');
+		$book = Book::get($id);
+		if($book === null)
+			throw new InvalidValueException(
+				'Submitted a non-existent book id.',
+				$this->visitor->getRoute(),
+				'Can not find this book.');
+
+		$bought = false;
+		if ($this->visitor->isLoggedIn()) {
+			$purchase = Purchase::get([
+				'bookid' => $book->id,
+				'userid' => $this->visitor->user()->id,
+			]);
+			$bought = $purchase !== null;
 		}
+		$this->setTitle('EbookMarket - ' . $book->title);
+		$this->addCss('book');
+		if ($bought)
+			$this->addJs('buyform');
+		$this->show('books/bookdetails', [
+			'book' => $book,
+			'bought' => $bought,
+		]);
 	}
 
 	public function actionDownload(): void
 	{
+		Visitor::assertMethod(Visitor::METHOD_GET);
 		if(!$this->visitor->isLoggedIn())
 			$this->redirect('account/login');
-		$this->setActiveMenu('Shop');
-		$this->setTitle('EbookMarket - Download');
 		$id = $this->visitor->param('id', Visitor::METHOD_GET);
-		if(Visitor::getMethod() === Visitor::METHOD_GET){
-			if($id){
-				$book = Book::get(intval($id));
-				if($book){
-					$user = $this->visitor->user();
-					$order = Order::get(['bookid' => $book->id, 'userid' => $user->id, 'completed' => true]);
-					if(!$order)
-						$this->redirect('/buy', $book->id);
-					header('Content-Type: application/pdf');
-					header('Content-Disposition: attachment; filename="'.$book->filehandle.'.pdf"');
-					header('Content-Transfer-Encoding: binary');
-					header('Accept-Ranges: bytes');
-					header('Connection: Keep-Alive');
-					header('Content-Length: ' . filesize("assets/ebooks/$book->filehandle.pdf"));
-					readfile("assets/ebooks/$book->filehandle.pdf");
+		$fmt = $this->visitor->param('fmt', Visitor::METHOD_GET);
+		if (empty($id))
+			throw new InvalidValueException(
+				'Submitted an empty book id.',
+				$this->visitor->getRoute(),
+				'Can not find this book.');
+		$id = intval($id);
+		if ($id === 0)
+			throw new InvalidValueException(
+				'Submitted an invalid book id.',
+				$this->visitor->getRoute(),
+				'Can not find this book.');
+		$book = Book::get($id);
+		if($book === null)
+			throw new InvalidValueException(
+				'Submitted a non-existent book id.',
+				$this->visitor->getRoute(),
+				'Can not find this book.');
 
-				} else
-					$this->error('Book Not Found');
-			} else
-				$this->error('Book Not Found');
-		}
+		$purchase = Purchase::get([
+			'bookid' => $book->id,
+			'userid' => $this->visitor->user()->id,
+		]);
+		if ($purchase === null)
+			throw new UserAuthenticationException('Not authorized.');
+
+		if (empty($fmt))
+			$fmt = 'pdf';
+		$fmt = trim($fmt);
+		$contenttype = '';
+		$filename = '';
+		$file = $book->getEbookFile($fmt, $contenttype, $filename);
+		if ($file === null)
+			throw new InvalidValueException(
+				'User requested a book in a format not available.',
+				$this->visitor->getRoute(),
+				'Can not find this book.');
+
+		header("Content-Type: $contenttype");
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		header('Content-Transfer-Encoding: binary');
+		header('Accept-Ranges: bytes');
+		header('Content-Length: ' . filesize($file));
+		readfile($file);
 	}
 
+	//TODO
 	public function actionBuy(): void
 	{
 		if(!$this->visitor->isLoggedIn())

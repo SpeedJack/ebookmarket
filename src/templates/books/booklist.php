@@ -11,7 +11,7 @@
 	</div>
 	<?php
 	foreach ($books as $book)
-		$this->loadTemplate('books/book', [ 'book' => $book ] );
+		$this->loadTemplate('books/book', [ 'book' => $book, 'islibrary' => $islibrary ] );
 	?>
 	<div class="page-controls">
 		<?php if ($page > 1): ?>

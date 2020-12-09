@@ -70,6 +70,14 @@ class Book extends AbstractEntity
 		return Category::get($this->categoryid);
 	}
 
+	public function getPubdate(): string
+	{
+		$dt = \DateTime::createFromFormat('Y-m-d', $this->getValue('pubdate'));
+		if ($dt === false)
+			return $this->getValue('pubdate');
+		return date('j M Y', $dt->getTimestamp());
+	}
+
 	public function getCover(): string
 	{
 		$coverfile = 'assets/covers/' . $this->filehandle;
@@ -80,16 +88,39 @@ class Book extends AbstractEntity
 		return '';
 	}
 
-	public function getAvailableFormats(): string
+	public function getEbookFile(string $fmt, string &$contenttype,
+		string &$filename): ?string
 	{
-		$ebookfile = 'assets/ebooks/' . $this->filehandle;
-		$fmts = '';
-		if (file_exists($GLOBALS['APP_ROOT'] . "/$ebookfile.pdf"))
-			$fmts[] = 'pdf,';
-		if (file_exists($GLOBALS['APP_ROOT'] . "/$ebookfile.epub"))
-			$fmts[] = 'epub,';
-		if (file_exists($GLOBALS['APP_ROOT'] . "/$ebookfile.mobi"))
+		switch ($fmt) {
+		case 'pdf':
+			$contenttype = 'application/pdf';
+			$filename = $this->filehandle . '.pdf';
+			break;
+		case 'epub':
+			$contenttype = 'application/epub+zip';
+			$filename = $this->filehandle . '.epub';
+			break;
+		case 'mobi':
+			$contenttype = 'application/x-mobipocket-ebook';
+			$filename = $this->filehandle . '.mobi';
+			break;
+		default:
+			return null;
+		}
+		$file = $GLOBALS['APP_ROOT'] . '/assets/ebooks/' . $filename;
+		return file_exists($file) ? $file : null;
+	}
+
+	public function getAvailableFormats(): array
+	{
+		$ebookfile = '/assets/ebooks/' . $this->filehandle;
+		$fmts = [];
+		if (file_exists($GLOBALS['APP_ROOT'] . "$ebookfile.pdf"))
+			$fmts[] = 'pdf';
+		if (file_exists($GLOBALS['APP_ROOT'] . "$ebookfile.epub"))
+			$fmts[] = 'epub';
+		if (file_exists($GLOBALS['APP_ROOT'] . "$ebookfile.mobi"))
 			$fmts[] = 'mobi';
-		return rtrim($fmts,  ',');
+		return $fmts;
 	}
 }

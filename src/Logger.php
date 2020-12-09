@@ -44,6 +44,7 @@ class Logger
 
 	public function exception(?\Throwable $ex = null): void
 	{
+		/* NOTE: this also logs control flow exceptions as errors */
 		$method = '';
 		if (Visitor::getMethod() !== Visitor::METHOD_UNKNOWN)
 			$method = $_SERVER['REQUEST_METHOD'];
