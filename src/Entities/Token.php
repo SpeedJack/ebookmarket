@@ -114,8 +114,8 @@ class Token extends AbstractEntity
 		case self::CSRF:
 			$time = $this->app->config('csrf_token_expire_time');
 			break;
-		case BUYSTEP1:
-		case BUYSTEP2:
+		case self::BUYSTEP1:
+		case self::BUYSTEP2:
 			$time = $this->app->config('buystep_token_expire_time');
 			break;
 		default:
