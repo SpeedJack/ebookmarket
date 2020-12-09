@@ -182,7 +182,7 @@ class Visitor extends AbstractSingleton
 	public function assertAjax()
 	{
 		if (!$this->isAjax())
-			throw new InvalidMethodExcepton('Expected an ajax request. Normal request received.');
+			throw new InvalidMethodException('Expected an ajax request. Normal request received.');
 	}
 
 	public static function getMethod(): int
@@ -377,11 +377,11 @@ class Visitor extends AbstractSingleton
 			$realtoken->delete();
 			return false;
 		}
-		$token = strstr($token, ':');
+		$token = ltrim(strstr($token, ':'), ':');
 		if ($token === false)
 			return false;
 		if ($realtoken->type !== Token::CSRF
-			&& !$realtoken->verifyToken($token))
+			|| !$realtoken->verifyToken($token))
 			return false;
 		if ((isset($this->user) && $realtoken->userid !== $this->user->id)
 			|| (!isset($this->user) && $realtoken->userid !== null))

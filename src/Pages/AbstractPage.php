@@ -293,7 +293,8 @@ abstract class AbstractPage
 			$html .= $this->buildMenuEntry(static::htmlEscape(
 				$this->visitor->user()->username), 'account',
 				null, $this->visitor->isPage('account'));
-			$html .= $this->buildTopMenuEntry('Logout', 'account/logout');
+			$html .= $this->buildTopMenuEntry('Logout', 'account/logout',
+				[ 'csrftoken' => $this->getCsrfToken() ]);
 		} else {
 			$html .= $this->buildTopMenuEntry('Login', 'account/login');
 			$html .= $this->buildTopMenuEntry('Sign Up', 'account/register');

@@ -197,6 +197,14 @@ class AccountPage extends AbstractPage
 
 	public function actionLogout(): void
 	{
+		if (!$this->visitor->isLoggedIn())
+			$this->redirect('/login');
+		Visitor::assertMethod(Visitor::METHOD_GET);
+		if (!$this->visitor->verifyCsrfToken(Visitor::METHOD_GET))
+			throw new InvalidValueException(
+				'Invalid CSRF token during logout.',
+				$this->visitor->getRoute(),
+				'Invalid CSRF token.');
 		$this->visitor->logout();
 		$this->redirectHome();
 	}

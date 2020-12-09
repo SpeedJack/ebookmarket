@@ -105,7 +105,7 @@ function closeModal(event)
 		return;
 	modal.classList.remove('show');
 	modalshown = false;
-	if (event.target.hasAttribute('data-reload');
+	if (event.target.hasAttribute('data-reload'))
 		location.reload();
 }
 
