@@ -65,7 +65,7 @@ class App extends AbstractSingleton
 	protected static function mergeConfigDefaults(array $config = []): array
 	{
 		if (isset($config['app_subdir']))
-			$config['app_subdir'] = '/' . trim($config['app_subdir'], '/');
+			$config['app_subdir'] = '/' . ltrim($config['app_subdir'], '/');
 		if (empty($config['https_port']))
 			$config['https_port'] = 443;
 		if (empty($config['server_name']))
