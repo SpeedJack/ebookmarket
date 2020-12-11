@@ -295,9 +295,9 @@ class BookPage extends AbstractPage
 			$this->redirect('/view', ['id' => $book->id]);
 		} else{
 				throw new InvalidValueException(
-					'Invalid Request',
+					'Payment Rejected',
 					$this->visitor->getRoute(),
-					'Invalid Request');
+					'Sorry, your payment was rejected, please retry later');
 		}
 	}
 
