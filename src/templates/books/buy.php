@@ -17,8 +17,8 @@
         <input type="text" name="cc_cv2" />
         <label for="expiration">Expiration date</label>
         <input type="month" placeholder = "YYYY-MM" name="expiration" />
-        <input type="hidden" name="steptoken" value="<?= $this->getCsrfToken() ?>">
-        <input type="hidden" name="csrftoken" value="<?= $steptoken ?>">
+        <input type="hidden" name="csrftoken" value="<?= $this->getCsrfToken() ?>">
+        <input type="hidden" name="steptoken" value="<?= $steptoken ?>">
         <button type="submit" >Buy!</button>
     </form>
 
