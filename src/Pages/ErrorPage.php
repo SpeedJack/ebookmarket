@@ -89,7 +89,10 @@ class ErrorPage extends AbstractPage
 			return;
 		}
 		http_response_code($code);
-		$this->show('message', $params);
+		$this->show('message', [
+			'title' => $title,
+			'message' => $message,
+		]);
 	}
 
 	public function actionIndex(): void
