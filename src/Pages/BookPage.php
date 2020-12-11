@@ -99,6 +99,7 @@ class BookPage extends AbstractPage
 
 	public function actionView(): void
 	{
+		
 		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->setActiveMenu('Shop');
 		$id = $this->visitor->param('id', Visitor::METHOD_GET);
@@ -196,6 +197,7 @@ class BookPage extends AbstractPage
 	//TODO: make it work; split in two actions (Buy, Finish); check buystep tokens
 	public function actionBuy(): void
 	{
+		
 		Visitor::assertMethod(Visitor::METHOD_POST);
 		$this->visitor->assertAjax();
 
@@ -250,6 +252,7 @@ class BookPage extends AbstractPage
 
 	public function actionFinish() : void {
 		Visitor::assertMethod(Visitor::METHOD_POST);
+		
 		$this->visitor->assertAjax();
 		if(!$this->visitor->isLoggedIn())
 			$this->redirect('account/login');

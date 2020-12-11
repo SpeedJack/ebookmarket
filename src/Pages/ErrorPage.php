@@ -9,11 +9,16 @@ use EbookMarket\Exceptions\Exception;
 class ErrorPage extends AbstractPage
 {
 	protected $exception;
+	protected static $reload = false;
 
 	public function __construct(\Throwable $exception)
 	{
 		parent::__construct();
 		$this->exception = $exception;
+	}
+
+	public static function reload(bool $reload) : void {
+		self::$reload = $reload;
 	}
 
 	protected static function getTitle(int $code): string
@@ -85,7 +90,7 @@ class ErrorPage extends AbstractPage
 		$message = parent::htmlEscape($message);
 		$this->setTitle($code . ' - ' . $title);
 		if ($this->visitor->isAjax()) {
-			$this->modalMessage('Error', $message, false);
+			$this->modalMessage('Error', $message, self::$reload);
 			return;
 		}
 		http_response_code($code);
