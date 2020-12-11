@@ -129,8 +129,11 @@ class BookPage extends AbstractPage
 		}
 		$this->setTitle('EbookMarket - ' . $book->title);
 		$this->addCss('book');
-		if ($bought)
+		if (!$bought){
 			$this->addJs('buyform');
+			$this->addCss('form');
+		}
+			
 		$this->show('books/bookdetails', [
 			'book' => $book,
 			'bought' => $bought,
@@ -192,59 +195,104 @@ class BookPage extends AbstractPage
 	//TODO: make it work; split in two actions (Buy, Finish); check buystep tokens
 	public function actionBuy(): void
 	{
+		Visitor::assertMethod(Visitor::METHOD_POST);
+		
 		if(!$this->visitor->isLoggedIn())
 			$this->redirect('account/login');
 		$this->setActiveMenu('Shop');
 		$this->setTitle('EbookMarket - Buy');
-		$id = $this->visitor->param('id', Visitor::METHOD_GET);
-		if(Visitor::getMethod() === Visitor::METHOD_GET){
-			if($id){
-				$book = Book::get(intval($id));
-				if($book){
-					$user = $this->visitor->user();
-					$order = Order::get(['bookid'=>$book->id,'userid'=>$user->id]);
-					if(!$order){
-						$order = new Order();
-						$order->bookid = $book->id;
-						$order->userid = $user->id;
-						$order->completed = false;
-						$order->save();
-						$order = Order::get(['bookid'=>$book->id,'userid'=>$user->id]);
-					}
-					//Book already bought
-					if($order->completed)
-						$this->redirect('/download', ['id'=>$book->id]);
-					$this->show('books/buy', ['book' => $book, 'orderid' => $order->id]);
-				} else
-					$this->error('Book Not Found');
-			} else
-				$this->error('Book Not Found');
-		} else if(Visitor::getMethod() === Visitor::METHOD_POST) {
-			$orderid = $this->visitor->param('orderid', Visitor::METHOD_POST);
-			$cc_number = $this->visitor->param('cc_number', Visitor::METHOD_POST);
-			$cc_cv2 = $this->visitor->param('cc_cv2', Visitor::METHOD_POST);
-			$expiration = $this->visitor->param('expiration', Visitor::METHOD_POST);
-
-			$order = Order::get($orderid);
-			$user = $this->visitor->user();
-			if(!$order)
-				$this->error('Payment Rejected ', 'The payment has not been accepted');
-			if($order->userid !== $user->id)
-				$this->error('Payment Rejected ', 'The payment has not been accepted');
-			if($order->completed)
-				$this->redirect('/view', ['id' => $order->bookid]);
-			if(empty($cc_number) || empty($cc_cv2) || empty($expiration))
-				$this->error('Payment Rejected ', 'The payment has not been accepted');
-			$book = Book::get($order->bookid);
-			if(!$book)
-				$this->error('Payment Rejected ', 'The payment has not been accepted');
-			if(FakePaymentService::submit($cc_number, $expiration, $cc_cv2, $book->price)){
-				$order->completed = true;
-				$order->save();
-				$this->redirect('/view', ['id' => $order->bookid]);
-			} else {
-				$this->error('Payment Rejected ', 'The payment has not been accepted');
+		if(Visitor::getMethod() === Visitor::METHOD_POST){
+			$this->visitor->assertAjax();
+			$id = $this->visitor->param('id', Visitor::METHOD_POST);
+			$steptoken = $this->visitor->param('steptoken', Visitor::METHOD_POST);
+			$token = Token::get($steptoken);
+			if( !$token ||
+				!$token->validateType(Token::BUYSTEP1) || 
+				!$token->authenticate($steptoken, Token::BUYSTEP1) 
+			) {
+				throw new InvalidValueException(
+					'Invalid Request',
+					$this->visitor->getRoute(),
+					'Invalid Request');
 			}
+			if(!$id) {
+				throw new InvalidValueException(
+					'Invalid Request',
+					$this->visitor->getRoute(),
+					'Invalid Request');
+			};
+
+			$book = Book::get(intval($id));
+			if(!$book){
+				throw new InvalidValueException(
+					'Invalid Request',
+					$this->visitor->getRoute(),
+					'Invalid Request');
+			}
+			$user = $this->visitor->user();
+			$purchase = Purchase::get(['bookid' => $book->id, 'userid' => $user->id]);
+			
+			if($purchase){
+				$this->show('books/bookdetails', [
+					'book' => $book,
+					'bought' => true,
+				]);
+			} else {
+				$buystep2 = $this->getBuyStepToken(true);
+				$this->showModal('books/buy', [
+					'steptoken' => $buystep2,
+					'book' => $book,
+					'reload' => true
+				]);
+			}
+
+			
+			
+			// if($book){
+			// 	$user = $this->visitor->user();
+			// 	$purchase = Purchase::get(['bookid'=>$book->id,'userid'=>$user->id]);
+			// 	if(!$purchase){
+			// 		$purchase = new Purchase();
+			// 		$purchase->bookid = $book->id;
+			// 		$purchase->userid = $user->id;
+			// 		$purchase->completed = false;
+			// 		$purchase->save();
+			// 		$purchase = Purchase::get(['bookid'=>$book->id,'userid'=>$user->id]);
+			// 	}
+			// 		//Book already bought
+			// 		if($purchase->completed)
+			// 			$this->redirect('/download', ['id'=>$book->id]);
+			// 		$this->show('books/buy', ['book' => $book, 'purchaseid' => $purchase->id]);
+			// 	} else
+			// 		$this->error('Book Not Found');
+			// } else
+			// 	$this->error('Book Not Found');
+		// } else if(Visitor::getMethod() === Visitor::METHOD_POST) {
+		// 	$purchaseid = $this->visitor->param('purchaseid', Visitor::METHOD_POST);
+		// 	$cc_number = $this->visitor->param('cc_number', Visitor::METHOD_POST);
+		// 	$cc_cv2 = $this->visitor->param('cc_cv2', Visitor::METHOD_POST);
+		// 	$expiration = $this->visitor->param('expiration', Visitor::METHOD_POST);
+
+		// 	$purchase = Purchase::get($purchaseid);
+		// 	$user = $this->visitor->user();
+		// 	if(!$purchase)
+		// 		$this->error('Payment Rejected ', 'The payment has not been accepted');
+		// 	if($purchase->userid !== $user->id)
+		// 		$this->error('Payment Rejected ', 'The payment has not been accepted');
+		// 	if($purchase->completed)
+		// 		$this->redirect('/view', ['id' => $purchase->bookid]);
+		// 	if(empty($cc_number) || empty($cc_cv2) || empty($expiration))
+		// 		$this->error('Payment Rejected ', 'The payment has not been accepted');
+		// 	$book = Book::get($purchase->bookid);
+		// 	if(!$book)
+		// 		$this->error('Payment Rejected ', 'The payment has not been accepted');
+		// 	if(FakePaymentService::submit($cc_number, $expiration, $cc_cv2, $book->price)){
+		// 		$purchase->completed = true;
+		// 		$purchase->save();
+		// 		$this->redirect('/view', ['id' => $purchase->bookid]);
+		// 	} else {
+		// 		$this->error('Payment Rejected ', 'The payment has not been accepted');
+		// 	}
 
 		}
 	}
