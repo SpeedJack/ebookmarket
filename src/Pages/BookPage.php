@@ -11,6 +11,7 @@ use EbookMarket\{
 	Entities\Category,
 	Entities\Purchase,
 	Visitor,
+	Exceptions\InvalidValueException,
 	Services\FakePaymentService,
 };
 
@@ -286,6 +287,17 @@ class BookPage extends AbstractPage
 				$this->visitor->getRoute(),
 				'Invalid Request');
 		};
+
+		$expirationdate = \DateTime::createFromFormat("Y-m", $expiration);
+		$now = new \DateTime();
+		
+		if($expirationdate <= $now){
+			throw new InvalidValueException(
+				'Invalid Request',
+				$this->visitor->getRoute(),
+				'Invalid Request');
+		}
+		
 		if(FakePaymentService::submit($cc_number, $expiration, $cc_cv2, $book->price)){
 			$purchase = new Purchase();
 			$purchase->book = $book;
@@ -293,6 +305,7 @@ class BookPage extends AbstractPage
 			$purchase->save();
 			$token->delete();
 			$this->redirect('/view', ['id' => $book->id]);
+			$this->modalMessage("Payment Accepted","Your order has been completed",true);
 		} else{
 				throw new InvalidValueException(
 					'Payment Rejected',
