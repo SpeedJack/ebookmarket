@@ -11,3 +11,9 @@ assets/covers/*.png
 .idea/
 
 docker/web/mail-credentials.csv
+assets/covers/index.php
+assets/ebooks/.htaccess
+assets/ebooks/index.php
+assets/index.php
+db.sql
+populate.sql
