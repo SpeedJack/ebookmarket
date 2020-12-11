@@ -81,15 +81,11 @@ class ErrorPage extends AbstractPage
 		} else {
 			$message = static::getMessage($code);
 		}
-		$title = static::getTitle($code);
-		$params = [
-			'title' => parent::htmlEscape($title),
-			'message' => parent::htmlEscape($message),
-		];
+		$title = parent::htmlEscape(static::getTitle($code));
+		$message = parent::htmlEscape($message);
 		$this->setTitle($code . ' - ' . $title);
 		if ($this->visitor->isAjax()) {
-			$params['title'] = 'Error';
-			$this->showModal('messagebox', $params);
+			$this->modalMessage('Error', $message, false);
 			return;
 		}
 		http_response_code($code);
