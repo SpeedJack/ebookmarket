@@ -188,6 +188,7 @@ class AccountPage extends AbstractPage
 				'message' => 'We have sent you an email containing the instructions to complete the registration.',
 			]);
 		case Visitor::METHOD_GET:
+			$this->enableRecaptcha();
 			$this->addCss('form');
 			$this->addJs('validation');
 			$this->setTitle('EbookMarket - Register');

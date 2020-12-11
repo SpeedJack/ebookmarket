@@ -10,6 +10,7 @@
 	<input type="password" id="password" name="password" autocomplete="off" minlength="8" required>
 	<label>Confirm password</label>
 	<input type="password" id="password-confirm" autocomplete="off" minlength="8" required>
+	<div class="g-recaptcha" data-sitekey="<?= $app->config('grecaptcha_sitekey') ?>" data-theme="dark"></div>
 	<input type="hidden" name="csrftoken" value="<?= $this->getCsrfToken() ?>">
 	<button type="submit">Create Account</button>
 	<p>Already registered? <a href="<?= $app->buildLink('/login') ?>">Login!</a></p>

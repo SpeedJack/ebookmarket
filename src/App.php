@@ -99,6 +99,8 @@ class App extends AbstractSingleton
 				'recovery_token_expire_time' => 2*60*60,
 				'csrf_token_expire_time' => 30*60,
 				'buystep_token_expire_time' => 10*60,
+				'grecaptcha_secretkey' => '',
+				'grecaptcha_sitekey' => '',
 				'log_level' => 6,
 				'error_reporting' => E_ALL,
 			], $config);

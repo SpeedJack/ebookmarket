@@ -17,11 +17,14 @@
 			echo '<script src="' . $js['file'] . '"' . $defer . '></script>';
 		}
 		?>
+		<?php if($this->enableRecaptcha): ?>
+			<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+		<?php endif; ?>
 	</head>
 	<body>
-		<?php 
+		<?php
 			$this->loadTemplate("header", $params);
-			$this->loadTemplate("sidebar", $params); 
+			$this->loadTemplate("sidebar", $params);
 		?>
 			<main>
 			<?php $this->loadTemplate($template, $params); ?>

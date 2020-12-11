@@ -24,6 +24,7 @@ abstract class AbstractPage
 	protected $activeMenu = '';
 	protected $showSearchbar = false;
 	protected $exitOnShow = true;
+	protected $enableRecaptcha = false;
 
 	public function __construct(?string $title = null)
 	{
@@ -33,18 +34,22 @@ abstract class AbstractPage
 			$this->setTitle($title);
 		$this->addCss('main');
 		$this->addJs('main');
-		self::enforceCSP();
+		$this->enforceCSP();
 	}
 
-	private static function enforceCSP(): void
+	private function enforceCSP(): void
 	{
 		header('Content-Security-Policy: '
 			. "default-src 'none'; "
-			. "script-src 'self'; "
+			. "script-src 'self'"
+			. ($this->enableRecaptcha
+				? " https://www.google.com https://www.gstatic.com"
+				: "") . "; "
 			. "style-src 'self'; "
 			. "img-src 'self'; "
 			. "connect-src 'self'; "
 			. "form-action 'self'; "
+			. ($this->enableRecaptcha ? "frame-src https://www.google.com; " : '')
 			. "base-uri 'self'; "
 			. "frame-ancestors 'none'; "
 			. "block-all-mixed-content;");
@@ -63,6 +68,16 @@ abstract class AbstractPage
 		int $flags = ENT_COMPAT): string
 	{
 		return self::htmlEscape($str, $flags);
+	}
+
+	protected function enableRecaptcha(bool $enable = true): void
+	{
+		$old = $this->enableRecaptcha;
+		$this->enableRecaptcha = $enable
+			&& !empty($this->app->config('grecaptcha_secretkey'))
+			&& !empty($this->app->config('grecaptcha_sitekey'));
+		if ($old !== $this->enableRecaptcha)
+			$this->enforceCSP();
 	}
 
 	protected function setTitle(string $title): void
