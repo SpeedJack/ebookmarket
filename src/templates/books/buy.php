@@ -10,7 +10,7 @@
         </ul>
     </div>
     
-    <form id="modal-form" action="<?= $app->buildLink("/purchase")?>" method="post">
+    <form id="modal-form" action="<?= $app->buildLink("/finish")?>" method="post">
         <label for=cc_number>Credit card number</label>
         <input type="text" name="cc_number" />
         <label for="cc_cv2">CV2</label>

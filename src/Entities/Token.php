@@ -33,17 +33,23 @@ class Token extends AbstractEntity
 				'id' => [ 'required' => true ],
 				'token' => [ 'required' => true ],
 				'userid' => [],
+				'bookid' => [],
 				'expiretime' => [ 'required' => true ],
 				'type' => [ 'required' => true ],
 			]
 		];
 	}
 
-	public static function createNew(User $user, string $type): self
-	{
+	public static function createNew(User $user, string $type, ?Book $book = null): self
+	{	
+		if(($type === self::BUYSTEP1 || $type === self::BUYSTEP2) && !$book)
+			return null;
 		$token = new Token();
 		$token->user = $user;
 		$token->type = $type;
+		if(($type === self::BUYSTEP1 || $type === self::BUYSTEP2)) {
+			$token->book = $book;
+		}
 		return $token;
 	}
 
@@ -77,6 +83,16 @@ class Token extends AbstractEntity
 	public function getUser(): ?User
 	{
 		return User::get($this->userid);
+	}
+
+	public function setBook(Book $book): void
+	{
+		$this->setValue('bookid', $book->id);
+	}
+
+	public function getBook(): ?Book
+	{
+		return Book::get($this->bookid);
 	}
 
 	public function validateType(string $type): bool

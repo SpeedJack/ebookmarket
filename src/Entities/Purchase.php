@@ -17,4 +17,24 @@ class Purchase extends AbstractEntity
 			]
 		];
 	}
+
+	public function setUser(User $user): void
+	{
+		$this->setValue('userid', $user->id);
+	}
+
+	public function getUser(): ?User
+	{
+		return User::get($this->userid);
+	}
+
+	public function setBook(Book $book): void
+	{
+		$this->setValue('bookid', $book->id);
+	}
+
+	public function getBook(): ?Book
+	{
+		return Book::get($this->bookid);
+	}
 }
