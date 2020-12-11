@@ -276,7 +276,7 @@ class AccountPage extends AbstractPage
 			$this->addCss('form');
 			$this->addJs('validation');
 			$this->show('account/changepassword', [
-				'token' => $usertoken,
+				'token' => $usertoken, // TODO: token reuse is ok for security?
 			]);
 		case Visitor::METHOD_POST:
 			$this->visitor->assertAjax();
