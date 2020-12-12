@@ -108,7 +108,6 @@ class BookPage extends AbstractPage
 
 	public function actionView(): void
 	{
-		
 		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->setActiveMenu('Shop');
 		$id = $this->visitor->param('id', Visitor::METHOD_GET);
@@ -144,7 +143,7 @@ class BookPage extends AbstractPage
 			$this->addJs('buyform');
 			$this->addCss('form');
 		}
-			
+
 		$this->show('books/bookdetails', [
 			'book' => $book,
 			'bought' => $bought,
@@ -203,11 +202,8 @@ class BookPage extends AbstractPage
 		readfile($file);
 	}
 
-	//TODO: make it work; split in two actions (Buy, Finish); check buystep tokens
 	public function actionBuy(): void
 	{
-		
-		Visitor::assertMethod(Visitor::METHOD_POST);
 		$this->visitor->assertAjax();
 
 		if(!$this->visitor->isLoggedIn())
@@ -217,51 +213,48 @@ class BookPage extends AbstractPage
 		$id = $this->visitor->param('id', Visitor::METHOD_POST);
 		$steptoken = $this->visitor->param('steptoken', Visitor::METHOD_POST);
 		$token = Token::get($steptoken);
-		if( !$token ||
-			!$token->validateType(Token::BUYSTEP1) || 
-			!$token->authenticate($steptoken, Token::BUYSTEP1) 
-		) {
+		if(!$token || !$token->validateType(Token::BUYSTEP1) ||
+			!$token->authenticate($steptoken, Token::BUYSTEP1))
 			throw new InvalidValueException(
 				'Invalid Request',
 				$this->visitor->getRoute(),
 				'Invalid Request');
-		}
-		if(!$id) {
+		if(!$id)
 			throw new InvalidValueException(
 				'Invalid Request',
 				$this->visitor->getRoute(),
 				'Invalid Request');
-		};
 
 		$book = Book::get(intval($id));
-		if(!$book){
+		if (!$book)
 			throw new InvalidValueException(
 				'Invalid Request',
 				$this->visitor->getRoute(),
 				'Invalid Request');
-		}
+
 		$user = $this->visitor->user();
-		$purchase = Purchase::get(['bookid' => $book->id, 'userid' => $user->id]);
-		
-		if($purchase){
+		$purchase = Purchase::get([
+			'bookid' => $book->id,
+			'userid' => $user->id,
+		]);
+
+		if ($purchase)
 			$this->show('books/bookdetails', [
 				'book' => $book,
 				'bought' => true,
 			]);
-		} else {
-			$buystep2 = $this->getBuyStepToken(true, $book);
-			$token->delete();
-			$this->showModal('books/buy', [
-				'steptoken' => $buystep2,
-				'book' => $book,
-				'reload' => true
-			]);
-		}
+
+		$buystep2 = $this->getBuyStepToken(true, $book);
+		$token->delete();
+		$this->showModal('books/buy', [
+			'steptoken' => $buystep2,
+			'book' => $book,
+			'reload' => true,
+		]);
 	}
 
-	public function actionFinish() : void {
-		Visitor::assertMethod(Visitor::METHOD_POST);
-		
+	public function actionFinish(): void
+	{
 		$this->visitor->assertAjax();
 		if(!$this->visitor->isLoggedIn())
 			$this->redirect('account/login');
@@ -273,57 +266,50 @@ class BookPage extends AbstractPage
 		$expiration = $this->visitor->param('expiration', Visitor::METHOD_POST);
 		$token = Token::get($steptoken);
 		ErrorPage::reload(true);
-		if( !$token ||
-			!$token->validateType(Token::BUYSTEP2) || 
-			!$token->authenticate($steptoken, Token::BUYSTEP2) 
-		) {
+		if (!$token || !$token->validateType(Token::BUYSTEP2) ||
+			!$token->authenticate($steptoken, Token::BUYSTEP2)
+		)
 			throw new InvalidValueException(
 				'Invalid Request',
 				$this->visitor->getRoute(),
 				'Invalid Request');
-		}
 
 		$book = $token->book;
-		if(!$book){
+		if (!$book)
 			throw new InvalidValueException(
 				'Invalid Request',
 				$this->visitor->getRoute(),
 				'Invalid Request');
-		};
 
 		$user = $this->visitor->user();
 
-		if(empty($cc_number) || empty($cc_cv2) || empty($expiration)){
+		if (empty($cc_number) || empty($cc_cv2) || empty($expiration))
 			throw new InvalidValueException(
 				'Invalid Request',
 				$this->visitor->getRoute(),
 				'Invalid Request');
-		};
 
-		$expirationdate = \DateTime::createFromFormat("Y-m", $expiration);
+		$expirationdate = \DateTime::createFromFormat('Y-m', $expiration);
 		$now = new \DateTime();
-		
-		if($expirationdate <= $now){
+
+		if ($expirationdate <= $now)
 			throw new InvalidValueException(
 				'Invalid Request',
 				$this->visitor->getRoute(),
 				'Invalid Request');
-		}
-		
-		if(FakePaymentService::submit($cc_number, $expiration, $cc_cv2, $book->price)){
-			$purchase = new Purchase();
-			$purchase->book = $book;
-			$purchase->user = $user;
-			$purchase->save();
-			$token->delete();
-			$this->redirect('/view', ['id' => $book->id]);
-			$this->modalMessage("Payment Accepted","Your order has been completed",true);
-		} else{
-				throw new InvalidValueException(
-					'Payment Rejected',
-					$this->visitor->getRoute(),
-					'Sorry, your payment was rejected, please retry later');
-		}
+
+		if (!FakePaymentService::submit($cc_number, $expiration, $cc_cv2, $book->price))
+			throw new InvalidValueException(
+				'Payment Rejected',
+				$this->visitor->getRoute(),
+				'Sorry, your payment was rejected, please retry later');
+		$purchase = new Purchase();
+		$purchase->book = $book;
+		$purchase->user = $user;
+		$purchase->save();
+		$token->delete();
+		$this->redirect('/view', [ 'id' => $book->id ]);
+		$this->modalMessage('Payment Accepted', 'Your order has been completed', true);
 	}
 
 	protected function buildPageLink(?int $page = null,
