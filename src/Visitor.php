@@ -11,6 +11,7 @@ use EbookMarket\Entities\{
 use EbookMarket\Exceptions\{
 	InvalidMethodException,
 	UserAuthenticationException,
+	CaptchaException,
 };
 
 class Visitor extends AbstractSingleton
@@ -225,7 +226,7 @@ class Visitor extends AbstractSingleton
 	protected function readParams(): void
 	{
 		foreach ($_GET as $key => $value) {
-			if (preg_match('/^[A-Za-z_][A-Za-z0-9_]{0,20}$/', $key) !== 1)
+			if (preg_match('/^[A-Za-z_-][A-Za-z0-9_-]{0,20}$/', $key) !== 1)
 				continue;
 			if (strcasecmp($key, 'page') === 0)
 				$this->setPage($value);
@@ -235,7 +236,7 @@ class Visitor extends AbstractSingleton
 				$this->addGetParams([$key => $value]);
 		}
 		foreach ($_POST as $key => $value) {
-			if (preg_match('/^[A-Za-z_][A-Za-z0-9_]{0,20}$/', $key) !== 1)
+			if (preg_match('/^[A-Za-z_-][A-Za-z0-9_-]{0,20}$/', $key) !== 1)
 				continue;
 			if (strcasecmp($key, 'ajax') === 0)
 				$this->setAjax();
@@ -389,5 +390,38 @@ class Visitor extends AbstractSingleton
 		$realtoken->delete();
 		$this->verifiedCsrf = true;
 		return true;
+	}
+
+	public function assertCaptcha(): void
+	{
+		if (empty($this->app->config('grecaptcha_secretkey'))
+			|| empty($this->app->config('grecaptcha_sitekey')))
+			return;
+		$response = $this->param('g-recaptcha-response', self::METHOD_POST);
+		if (empty($response))
+			throw new CaptchaException($this->getRoute());
+
+		try {
+			$ch = curl_init();
+			curl_setopt($ch, CURLOPT_URL, 'https://www.google.com/recaptcha/api/siteverify');
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
+				'secret' => $this->app->config('grecaptcha_secretkey'),
+				'response' => $response,
+				//'remote' => $_SERVER['REMOTE_ADDR'],
+			]));
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+			$result = curl_exec($ch);
+			curl_close($ch);
+			$result = json_decode($result);
+		} catch (\Throwable $ex) {
+			throw new CaptchaException($this->getRoute(),
+				'Failure in CAPTCHA verification.',
+				'Unable to verify CAPTCHA response. Please, try again.',
+				403, $ex);
+		}
+		if ($result->success !== true)
+			throw new CaptchaException($this->getRoute());
 	}
 }

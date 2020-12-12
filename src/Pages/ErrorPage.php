@@ -17,8 +17,9 @@ class ErrorPage extends AbstractPage
 		$this->exception = $exception;
 	}
 
-	public static function reload(bool $rel) : void {
-		self::$reload = $rel;
+	public static function reload(bool $reload = true): void
+	{
+		self::$reload = $reload;
 	}
 
 	protected static function getTitle(int $code): string
@@ -98,7 +99,6 @@ class ErrorPage extends AbstractPage
 			'title' => $title,
 			'message' => $message,
 		]);
-		self::$reload = false;
 	}
 
 	public function actionIndex(): void

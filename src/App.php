@@ -216,11 +216,12 @@ class App extends AbstractSingleton
 	{
 		if (empty($params))
 			return '';
-		$getstr = $append ? '&' : '?';
+		return ($append ? '&' : '?') . http_build_query($params);
+		/*$getstr = $append ? '&' : '?';
 		foreach ($params as $key => $val)
 			$getstr .= urlencode($key) . '='
 			. urlencode(strval($val)) . '&';
-		return rtrim($getstr, '&');
+		return rtrim($getstr, '&');*/
 	}
 
 	public function buildLink(?string $route, ?array $params = null): string

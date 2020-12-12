@@ -124,6 +124,8 @@ class AccountPage extends AbstractPage
 				]);
 			}
 
+			$this->visitor->assertCaptcha();
+
 			if (empty($username) || empty($password) || empty($email))
 				throw new InvalidValueException(
 					'Submitted an invalid form.',
@@ -216,12 +218,14 @@ class AccountPage extends AbstractPage
 			$this->redirectHome();
 		switch(Visitor::getMethod()) {
 		case Visitor::METHOD_GET:
+			$this->enableRecaptcha();
 			$this->setTitle('EbookMarket - Password Recovery');
 			$this->addCss('form');
 			$this->addJs('recovery');
 			$this->show('account/recovery');
 		case Visitor::METHOD_POST:
 			$this->visitor->assertAjax();
+			$this->visitor->assertCaptcha();
 			$email = $this->visitor->param('email', Visitor::METHOD_POST);
 			if(empty($email))
 				throw new InvalidValueException(
