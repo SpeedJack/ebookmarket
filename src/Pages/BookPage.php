@@ -70,6 +70,15 @@ class BookPage extends AbstractPage
 	protected function getBuyStepToken(bool $steptwo = false, Book $book): string
 	{
 		$type = $steptwo ? Token::BUYSTEP2 : Token::BUYSTEP1;
+		$token = Token::get([
+			"userid" => $this->visitor->user()->id,
+			"bookid" => $book->id,
+			"type" => $type
+			]);
+		if($token){
+			$token->delete();
+			$token = null;
+		}
 		$token = Token::createNew($this->visitor->user(), $type, $book);
 		$token->save();
 		return static::htmlEscapeQuotes($token->usertoken);
