@@ -51,7 +51,11 @@ header {
 	overflow: hidden;
 }
 
-header input#searchbar {
+header form#search-form {
+	display: inline;
+}
+
+header form#search-form input#searchbar {
 	float: left;
 	background-color: #191A1B;
 	display: block;
@@ -63,15 +67,15 @@ header input#searchbar {
 	color: #D1CDC7;
 }
 
-header input#searchbar:hover {
+header form#search-form input#searchbar:hover {
 	border: 1px solid #3D3E3F;
 }
 
-header input#searchbar:focus {
+header form#search-form input#searchbar:focus {
 	border: 1px solid #039BE5;
 }
 
-header button#searchbtn {
+header form#search-form button#searchbtn {
 	padding: 6px;
 	border: none;
 	height: 34px;
@@ -81,14 +85,14 @@ header button#searchbtn {
 
 }
 
-header button svg {
+header form#search-form button#searchbtn svg {
 	width: 20px;
 	height: 20px;
 	fill: #D5D1CB;
 	transition: transform 0.25s;
 }
 
-header button:hover svg {
+header form#search-form button#searchbtn:hover svg {
 	transform: scale(1.1);
 }
 
