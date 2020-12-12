@@ -263,7 +263,7 @@ class BookPage extends AbstractPage
 		$cc_cv2 = $this->visitor->param('cc_cv2', Visitor::METHOD_POST);
 		$expiration = $this->visitor->param('expiration', Visitor::METHOD_POST);
 		$token = Token::get($steptoken);
-		
+		ErrorPage::reload(true);
 		if( !$token ||
 			!$token->validateType(Token::BUYSTEP2) || 
 			!$token->authenticate($steptoken, Token::BUYSTEP2) 
