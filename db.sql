@@ -1,5 +1,4 @@
 CREATE DATABASE IF NOT EXISTS ebookmarket;
-
 USE ebookmarket;
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -80,4 +79,16 @@ CREATE TABLE `tokens` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS=1;
+
+
+SET GLOBAL event_scheduler=ON;
+drop event if exists DeleteExpiredTokens;
+
+create event DeleteExpiredTokens
+on schedule every 1 day
+do
+	delete t.*
+    from tokens t
+    where expiretime < unix_timestamp(CURRENT_TIMESTAMP);
+    
 
