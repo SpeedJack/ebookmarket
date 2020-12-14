@@ -213,6 +213,7 @@ class BookPage extends AbstractPage
 		$id = $this->visitor->param('id', Visitor::METHOD_POST);
 		$steptoken = $this->visitor->param('steptoken', Visitor::METHOD_POST);
 		$token = Token::get($steptoken);
+		ErrorPage::reload(true);
 		if(!$token || !$token->validateType(Token::BUYSTEP1) ||
 			!$token->authenticate($steptoken, Token::BUYSTEP1))
 			throw new InvalidValueException(

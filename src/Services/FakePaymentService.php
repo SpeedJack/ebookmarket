@@ -19,6 +19,6 @@ class FakePaymentService
 			return false;
 		if (preg_match('/^[0-9]{3,4}$/', $cvc) !== 1)
 			return false;
-		return $amount >= 0.01 && mt_rand(1, 100) > self::FAILURE_RATE;
+		return $amount >= 0.01; //&& mt_rand(1, 100) > self::FAILURE_RATE;
 	}
 }
