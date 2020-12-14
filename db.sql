@@ -80,15 +80,9 @@ CREATE TABLE `tokens` (
 
 SET FOREIGN_KEY_CHECKS=1;
 
+DROP EVENT IF EXISTS DeleteExpiredTokens;
 
-SET GLOBAL event_scheduler=ON;
-drop event if exists DeleteExpiredTokens;
-
-create event DeleteExpiredTokens
-on schedule every 1 day
-do
-	delete t.*
-    from tokens t
-    where expiretime < unix_timestamp(CURRENT_TIMESTAMP);
-    
-
+CREATE EVENT DeleteExpiredTokens
+	ON SCHEDULE EVERY 1 DAY
+	DO
+		DELETE FROM tokens WHERE expiretime <= UNIX_TIMESTAMP(CURRENT_TIMESTAMP);

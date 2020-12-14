@@ -305,7 +305,6 @@ class BookPage extends AbstractPage
 		$purchase->user = $user;
 		$purchase->save();
 		$token->delete();
-		$this->redirect('/view', [ 'id' => $book->id ]);
 		$this->modalMessage('Payment Accepted', 'Your order has been completed', true);
 	}
 
