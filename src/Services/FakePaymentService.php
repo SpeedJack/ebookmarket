@@ -6,8 +6,8 @@ namespace EbookMarket\Services;
 
 class FakePaymentService
 {
-	private const PROCESSING_TIME = 10;
-	private const FAILURE_RATE = 10;
+	private const PROCESSING_TIME = 3;
+	private const FAILURE_RATE = 1;
 
 	public static function submit(string $cardno, string $validThru,
 		string $cvc, float $amount): bool
@@ -19,6 +19,6 @@ class FakePaymentService
 			return false;
 		if (preg_match('/^[0-9]{3,4}$/', $cvc) !== 1)
 			return false;
-		return $amount >= 0.01; //&& mt_rand(1, 100) > self::FAILURE_RATE;
+		return $amount >= 0.01 && mt_rand(1, 100) > self::FAILURE_RATE;
 	}
 }

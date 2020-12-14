@@ -291,9 +291,11 @@ class BookPage extends AbstractPage
 				'Invalid Request');
 
 		$expirationdate = \DateTime::createFromFormat('Y-m', $expiration);
+		$expirationdate->modify('last day of this month')->setTime(23,59,59);
+
 		$now = new \DateTime();
 
-		if ($expirationdate <= $now)
+		if ($expirationdate < $now)
 			throw new InvalidValueException(
 				'Invalid Request',
 				$this->visitor->getRoute(),
