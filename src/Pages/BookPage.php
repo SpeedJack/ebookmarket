@@ -198,6 +198,11 @@ class BookPage extends AbstractPage
 		header('Content-Disposition: attachment; filename="' . $filename . '"');
 		header('Content-Transfer-Encoding: binary');
 		header('Accept-Ranges: bytes');
+	    //Try to avoid download issues------------------------------------------
+		header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+		header("Cache-Control: post-check=0, pre-check=0", false);
+		header("Pragma: no-cache");
+		//------------------------------------------------------------------------
 		header('Content-Length: ' . filesize($file));
 		readfile($file);
 	}
