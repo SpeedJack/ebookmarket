@@ -290,17 +290,6 @@ class BookPage extends AbstractPage
 				$this->visitor->getRoute(),
 				'Invalid Request');
 
-		$expirationdate = \DateTime::createFromFormat('Y-m', $expiration);
-		$expirationdate->modify('last day of this month')->setTime(23,59,59);
-
-		$now = new \DateTime();
-
-		if ($expirationdate < $now)
-			throw new InvalidValueException(
-				'Invalid Request',
-				$this->visitor->getRoute(),
-				'Invalid Request');
-
 		if (!FakePaymentService::submit($cc_number, $expiration, $cc_cv2, $book->price))
 			throw new InvalidValueException(
 				'Payment Rejected',

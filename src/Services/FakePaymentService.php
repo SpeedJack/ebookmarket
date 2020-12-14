@@ -7,7 +7,7 @@ namespace EbookMarket\Services;
 class FakePaymentService
 {
 	private const PROCESSING_TIME = 3;
-	private const FAILURE_RATE = 1;
+	private const FAILURE_RATE = 1.05;
 
 	public static function submit(string $cardno, string $validThru,
 		string $cvc, float $amount): bool
@@ -17,6 +17,14 @@ class FakePaymentService
 			return false;
 		if (preg_match('/^(20[2-9][0-9])-(0[1-9]|1[0-2])$/', $validThru) !== 1)
 			return false;
+		else {
+			$expirationdate = \DateTime::createFromFormat('Y-m', $validThru);
+			$expirationdate->modify('last day of this month')->setTime(23,59,59);
+			$now = new \DateTime();
+			if ($expirationdate < $now)
+				return false;
+		}
+
 		if (preg_match('/^[0-9]{3,4}$/', $cvc) !== 1)
 			return false;
 		return $amount >= 0.01 && mt_rand(1, 100) > self::FAILURE_RATE;
