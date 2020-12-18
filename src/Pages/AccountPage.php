@@ -224,6 +224,9 @@ class AccountPage extends AbstractPage
 			$this->enableRecaptcha();
 			$this->setTitle('EbookMarket - Password Recovery');
 			$this->addCss('form');
+			$this->addCss('passwordcheck');
+			$this->addJs('zxcvbn');
+			$this->addJs('passwordcheck');
 			$this->addJs('recovery');
 			$this->show('account/recovery');
 		case Visitor::METHOD_POST:
@@ -281,6 +284,9 @@ class AccountPage extends AbstractPage
 					$this->visitor->getRoute(),
 					'Invalid token.');
 			$this->setTitle('EbookMarket - Change Password');
+			$this->addCss('passwordcheck');
+			$this->addJs('zxcvbn');
+			$this->addJs('passwordcheck');
 			$this->addCss('form');
 			$this->addJs('validation');
 			$this->show('account/changepassword', [
