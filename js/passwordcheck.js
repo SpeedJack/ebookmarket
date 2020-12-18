@@ -1,8 +1,7 @@
 document.getElementById("password").onkeyup = function () {
-    console.log("[check-started]");
+    
     var password = document.getElementById("password").value;
     if (!password || password.length === 0) {
-        console.log("empty password! exiting");
         setStrength();
         return;
     }
@@ -55,6 +54,8 @@ function setStrength(result = null) {
         strengthbar.appendChild(document.createElement("SPAN"));
     }
 
+    if(score !== 0)
+        message = "";
     createMessage(message);
     createHints(hints);
     return;
