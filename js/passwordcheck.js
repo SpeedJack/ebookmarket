@@ -28,8 +28,18 @@ function setStrength(result = null) {
     }
 
     var strengthbar = document.getElementById("strength-bar");
-    if (!strengthbar)
-        return;
+    if (!strengthbar){
+        strengthbar = document.createElement("DIV");
+        strengthbar.setAttribute("id", "strength-bar");
+        document.getElementById("password")
+        .parentNode
+        .insertBefore(
+            strengthbar,
+            document
+                .getElementById("password")
+                .nextSibling
+        );
+    }
 
     var strength = "pwd-strength-" + score;
     var current_strength = null;
