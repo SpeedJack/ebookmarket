@@ -20,6 +20,9 @@ class AccountPage extends AbstractPage
 		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->setTitle('EbookMarket - ' . $this->visitor->user()->username);
 		$this->addCss('form');
+		$this->addCss('passwordcheck');
+		$this->addJs('vendor/zxcvbn');
+		$this->addJs('passwordcheck');
 		$this->addJs('validation');
 		$sessions = $this->visitor->user()->sessioncount;
 		if ($sessions > 0)
