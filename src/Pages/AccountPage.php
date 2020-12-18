@@ -197,8 +197,8 @@ class AccountPage extends AbstractPage
 			$this->addCss('form');
 			$this->addCss("passwordcheck");
 			$this->addJs('validation');
+			$this->addJs('vendor/zxcvbn');
 			$this->addJs('passwordcheck');
-			$this->addJs('vendor/zxcvbn');		
 			$this->setTitle('EbookMarket - Register');
 			$this->show('account/register');
 		}
