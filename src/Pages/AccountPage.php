@@ -225,7 +225,7 @@ class AccountPage extends AbstractPage
 			$this->setTitle('EbookMarket - Password Recovery');
 			$this->addCss('form');
 			$this->addCss('passwordcheck');
-			$this->addJs('zxcvbn');
+			$this->addJs('vendor/zxcvbn');
 			$this->addJs('passwordcheck');
 			$this->addJs('recovery');
 			$this->show('account/recovery');
@@ -285,7 +285,7 @@ class AccountPage extends AbstractPage
 					'Invalid token.');
 			$this->setTitle('EbookMarket - Change Password');
 			$this->addCss('passwordcheck');
-			$this->addJs('zxcvbn');
+			$this->addJs('vendor/zxcvbn');
 			$this->addJs('passwordcheck');
 			$this->addCss('form');
 			$this->addJs('validation');
