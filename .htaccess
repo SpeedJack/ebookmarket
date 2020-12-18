@@ -3,7 +3,7 @@
 
 	#RewriteBase /ebookmarket
 
-	RewriteRule ^(src/|assets/ebooks/|docker/|scripts/) - [NC,L,F]
+	RewriteRule ^(src/|assets/ebooks/|docker/|scripts/|.*\.sql) - [NC,L,F]
 	RewriteCond %{REQUEST_FILENAME} -f [OR]
 	RewriteCond %{REQUEST_FILENAME} -d
 	RewriteRule ^.*$ - [NC,L,E=APACHE_MOD_REWRITE:1]
