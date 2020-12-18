@@ -8,6 +8,7 @@
 	<p class="validator" id="account-recovery">This email address is already in use. If you do not remember your credentials, <a href="<?= $app->buildLink('/recovery') ?>">recover your account</a>.</p>
 	<label for="password">Password</label>
 	<input type="password" id="password" name="password" autocomplete="off" minlength="8" required>
+	<div id="strength-bar"></div>
 	<label>Confirm password</label>
 	<input type="password" id="password-confirm" autocomplete="off" minlength="8" required>
 	<div class="g-recaptcha" data-sitekey="<?= $app->config('grecaptcha_sitekey') ?>" data-theme="dark"></div>
