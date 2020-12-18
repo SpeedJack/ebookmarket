@@ -7,17 +7,25 @@ document.getElementById("password").onkeyup = function () {
     }
 
     var result = zxcvbn(password);
-
     if (!result) {
         setStrength();
         return;
     }
 
+    if(password.length < 8 || result.score === 0){
+        var feedback = result.feedback;
+        if(!feedback.warning){
+            feedback.warning = "Password too weak";
+        }
+        setStrength({score: 0, feedback : feedback});
+        return;
+    };
+
     setStrength(result);
 }
 
 function setStrength(result = null) {
-
+    
     var score = 0;
     var message = "";
     var hints = [];
@@ -63,16 +71,19 @@ function setStrength(result = null) {
         strengthbar.appendChild(strengthTitle);
         strengthbar.appendChild(document.createElement("SPAN"));
     }
-
+    
     if(score !== 0)
         message = "";
+        
     createMessage(message);
     createHints(hints);
     return;
 }
 
 function createMessage(message = "") {
+
     document.getElementById("password").setCustomValidity(message);
+    document.getElementById("password").reportValidity();
     return;
 }
 

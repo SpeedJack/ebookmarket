@@ -6,7 +6,6 @@ if (emailfield)
 	emailfield.addEventListener('change', validateEmail);
 var passwordfield = document.getElementById('password');
 if (passwordfield) {
-	passwordfield.addEventListener('change', validateLength);
 	passwordfield.addEventListener('keyup', validatePasswordMatch);
 }
 var confirmfield = document.getElementById('password-confirm');
