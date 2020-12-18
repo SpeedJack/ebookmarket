@@ -36,7 +36,7 @@ function setStrength(result = null) {
     var strengthbar = document.getElementById("strength-bar");
     if (!strengthbar)
         return;
-
+    
     var strength = "pwd-strength-" + score;
     var current_strength = null;
 
@@ -48,8 +48,18 @@ function setStrength(result = null) {
         strengthbar.classList.remove(current_strength);
     }
     strengthbar.classList.add(strength);
-    if(result){
+    
+    while(strengthbar.hasChildNodes())
+        strengthbar.firstChild.remove();
+    
+    if(score !== 0) {
+            var strengthTitle = document.createElement("P");
+            var strengthTitleText = document.createTextNode("Password Strength: ");
+            strengthTitle.appendChild(strengthTitleText);
+            strengthbar.appendChild(strengthTitle);
+            strengthbar.appendChild(document.createElement("SPAN"));
     }
+    
     createMessage(message);
     createHints(hints);    
 }

@@ -192,6 +192,7 @@ class AccountPage extends AbstractPage
 		case Visitor::METHOD_GET:
 			$this->enableRecaptcha();
 			$this->addCss('form');
+			$this->addCss("passwordcheck");
 			$this->addJs('validation');
 			$this->addJs('passwordcheck');
 			$this->addJs('vendor/zxcvbn');		
