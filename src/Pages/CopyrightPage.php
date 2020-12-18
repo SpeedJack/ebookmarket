@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace EbookMarket\Pages;
 
-class LicensePage extends AbstractPage
+class CopyrightPage extends AbstractPage
 {
 	public function actionIndex(): void
 	{
