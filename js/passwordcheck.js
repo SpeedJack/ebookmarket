@@ -3,40 +3,35 @@ document.getElementById("password").onkeyup = function () {
     var password = document.getElementById("password").value;
     if (!password || password.length === 0) {
         console.log("empty password! exiting");
-        setStrength(0);
+        setStrength();
         return;
     }
-    console.log("result: ");
 
     var result = zxcvbn(password);
 
     if (!result) {
-        console.log("empty result! exiting");
-        setStrength(0);
+        setStrength();
         return;
     }
-    console.log(result);
-    console.log("score: %d", result.score);
+
     setStrength(result);
-
-
 }
 
 function setStrength(result = null) {
-    console.log("Set Strength");
+
     var score = 0;
     var message = "";
     var hints = [];
-    if(result){
+    if (result) {
         score = result.score;
         message = result.feedback.warning;
         hints = result.feedback.suggestions;
     }
-        
+
     var strengthbar = document.getElementById("strength-bar");
     if (!strengthbar)
         return;
-    
+
     var strength = "pwd-strength-" + score;
     var current_strength = null;
 
@@ -48,56 +43,39 @@ function setStrength(result = null) {
         strengthbar.classList.remove(current_strength);
     }
     strengthbar.classList.add(strength);
-    
-    while(strengthbar.hasChildNodes())
+
+    while (strengthbar.hasChildNodes())
         strengthbar.firstChild.remove();
-    
-    if(score !== 0) {
-            var strengthTitle = document.createElement("P");
-            var strengthTitleText = document.createTextNode("Password Strength: ");
-            strengthTitle.appendChild(strengthTitleText);
-            strengthbar.appendChild(strengthTitle);
-            strengthbar.appendChild(document.createElement("SPAN"));
+
+    if (result) {
+        var strengthTitle = document.createElement("P");
+        var strengthTitleText = document.createTextNode("Password Strength: ");
+        strengthTitle.appendChild(strengthTitleText);
+        strengthbar.appendChild(strengthTitle);
+        strengthbar.appendChild(document.createElement("SPAN"));
     }
-    
+
     createMessage(message);
-    createHints(hints);    
+    createHints(hints);
+    return;
 }
 
-function createMessage(message = ""){
-
-    var paragraphChild = document.getElementById("pwd-strength-message");
-    if (!paragraphChild) {
-        paragraphChild = document.createElement("P");
-        console.log(paragraphChild);
-        paragraphChild.setAttribute("id", "pwd-strength-message");
-        document.getElementById("strength-bar")
-            .parentNode
-            .insertBefore(
-                paragraphChild, 
-                document
-                    .getElementById("strength-bar")
-                    .nextSibling
-            );
-    };
-    while (paragraphChild.hasChildNodes()) {
-        paragraphChild.firstChild.remove();
-    };
-    var messageChild = document.createTextNode(message);
-    paragraphChild.appendChild(messageChild);
+function createMessage(message = "") {
+    document.getElementById("password").setCustomValidity(message);
+    return;
 }
 
-function createHints(hints = []){
+function createHints(hints = []) {
     var listChild = document.getElementById("pwd-strength-hints");
     if (!listChild) {
         listChild = document.createElement("UL");
         listChild.setAttribute("id", "pwd-strength-hints");
-        document.getElementById("pwd-strength-message")
+        document.getElementById("strength-bar")
             .parentNode
             .insertBefore(
-                listChild, 
+                listChild,
                 document
-                    .getElementById("pwd-strength-message")
+                    .getElementById("strength-bar")
                     .nextSibling
             );
     };
@@ -107,11 +85,14 @@ function createHints(hints = []){
     hints.forEach(function (value) {
         createHint(value);
     });
+
+    return;
 }
 
-function createHint(hint){
-   var hintElem = document.createElement("LI");
-   var hintText = document.createTextNode(hint);
-   hintElem.appendChild(hintText);
-   document.getElementById("pwd-strength-hints").appendChild(hintElem);
+function createHint(hint) {
+    var hintElem = document.createElement("LI");
+    var hintText = document.createTextNode(hint);
+    hintElem.appendChild(hintText);
+    document.getElementById("pwd-strength-hints").appendChild(hintElem);
+    return
 };
