@@ -357,6 +357,7 @@ class AccountPage extends AbstractPage
 					'Invalid token.');
 			$user->password = $password;
 			$user->save();
+			$token->delete();
 			$this->sendmail($user->email, $user->username, 'passwordchanged', [
 				'username' => $user->username,
 			]);
