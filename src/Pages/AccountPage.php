@@ -78,12 +78,45 @@ class AccountPage extends AbstractPage
 					'Invalid username or password.');
 
 			$user = User::get('username', $username);
-			if (!$user || !$user->verifyPassword($password))
+			if(!$user)
 				throw new InvalidValueException(
 					'Submitted a wrong username or password.',
 					$this->visitor->getRoute(),
 					'Invalid username or password.');
-
+			if($user->remainingattempts === 0){
+				if($user->lastattempt + $this->app->config('inibition_time') > time()){
+					throw new InvalidValueException(
+						'Submitted a wrong username or password.',
+						$this->visitor->getRoute(),
+						'Invalid username or password.');
+				} else {
+					$user->remainingattempts = $this->app->config('max_login_attempts');
+				}
+			}
+			
+			$user->lastattempt = time();
+			$user->save();
+			if (!$user->verifyPassword($password)){
+				if($user->remainingattempts > 0){
+					$user->remainingattempts--;
+					if($user->remainingattempts === 0)
+					//invio email
+					$this->sendmail($user->email, $user->username, 'accountinibited', [
+						'username' => $user->username, 
+						'end_of_inibition' => 
+							date(\DateFormatInterface::ATOM, 
+							$user->lastattempt + $this->app->config('inibition_time')
+							)
+						]);
+				}
+				$user->save();
+				throw new InvalidValueException(
+					'Submitted a wrong username or password.',
+					$this->visitor->getRoute(),
+					'Invalid username or password.');
+			}
+			$user->remainingattempts = $this->app->config('max_login_attempts');	
+			$user->save();
 			if (!$user->valid)
 				throw new InvalidValueException(
 					'Unverified user tryied to login.',

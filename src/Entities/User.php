@@ -18,6 +18,8 @@ class User extends AbstractEntity
 				'email' => [ 'required' => true ],
 				'passwordhash' => [ 'required' => true ],
 				'valid' => [ 'required' => true, 'default' => false ],
+				'remainingattempts' => ['default' => 5 ],
+				'lastattempt' => ['default' => time()]
 			],
 		];
 	}
