@@ -103,6 +103,8 @@ class App extends AbstractSingleton
 				'grecaptcha_sitekey' => '',
 				'log_level' => 6,
 				'error_reporting' => E_ALL,
+				'max_login_attempts' => 5,
+				'inibition_time' => 15*60,
 			], $config);
 	}
 

@@ -8,6 +8,12 @@ class User extends AbstractEntity
 {
 	private $token;
 
+	public function __construct(?array $data = null){
+		parent::__construct($data);
+		if(isset($data) && !empty($data))
+			return;
+		$this->remainingattempts = $this->app->config('max_login_attempts');
+	}
 	public static function getStructure(): array
 	{
 		return [
@@ -18,7 +24,7 @@ class User extends AbstractEntity
 				'email' => [ 'required' => true ],
 				'passwordhash' => [ 'required' => true ],
 				'valid' => [ 'required' => true, 'default' => false ],
-				'remainingattempts' => ['default' => 5 ],
+				'remainingattempts' => [],
 				'lastattempt' => ['default' => time()]
 			],
 		];

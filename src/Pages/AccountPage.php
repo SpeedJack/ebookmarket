@@ -75,20 +75,20 @@ class AccountPage extends AbstractPage
 				throw new InvalidValueException(
 					'Submitted an invalid username or password.',
 					$this->visitor->getRoute(),
-					'Invalid username or password.');
+					'Invalid username or password. Maybe your account is inibited! Try to check your email!');
 
 			$user = User::get('username', $username);
 			if(!$user)
 				throw new InvalidValueException(
 					'Submitted a wrong username or password.',
 					$this->visitor->getRoute(),
-					'Invalid username or password.');
+					'Invalid username or password. Maybe your account is inibited! Try to check your email!');
 			if($user->remainingattempts === 0){
 				if($user->lastattempt + $this->app->config('inibition_time') > time()){
 					throw new InvalidValueException(
 						'Submitted a wrong username or password.',
 						$this->visitor->getRoute(),
-						'Invalid username or password.');
+						'Invalid username or password. Maybe your account is inibited! Try to check your email!');
 				} else {
 					$user->remainingattempts = $this->app->config('max_login_attempts');
 				}
@@ -104,16 +104,14 @@ class AccountPage extends AbstractPage
 					$this->sendmail($user->email, $user->username, 'accountinibited', [
 						'username' => $user->username, 
 						'end_of_inibition' => 
-							date(\DateFormatInterface::ATOM, 
-							$user->lastattempt + $this->app->config('inibition_time')
-							)
+							date('j M Y H:i:s',$user->lastattempt + $this->app->config('inibition_time'))
 						]);
 				}
 				$user->save();
 				throw new InvalidValueException(
 					'Submitted a wrong username or password.',
 					$this->visitor->getRoute(),
-					'Invalid username or password.');
+					'Invalid username or password. Maybe your account is inibited! Try to check your email!');
 			}
 			$user->remainingattempts = $this->app->config('max_login_attempts');	
 			$user->save();
