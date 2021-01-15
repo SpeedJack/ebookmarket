@@ -10,6 +10,8 @@ CREATE TABLE `users` (
 	`email` VARCHAR(254) NOT NULL,
 	`passwordhash` VARCHAR(255) NOT NULL,
 	`valid` TINYINT NOT NULL DEFAULT '0',
+    `remainingattempts` INT UNSIGNED NOT NULL DEFAULT 5,
+    `lastattempt` INT UNSIGNED NOT NULL,
 	PRIMARY KEY (`id`),
 	UNIQUE KEY username (`username`),
 	UNIQUE KEY email (`email`)
