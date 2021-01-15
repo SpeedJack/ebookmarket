@@ -354,6 +354,7 @@ class AccountPage extends AbstractPage
 						$this->visitor->getRoute(),
 						'Invalid password.');
 				$user->password = $password;
+				$user->remainingattempts = $this->app->config('max_login_attempts');
 				$user->save();
 				$this->sendmail($user->email, $user->username, 'passwordchanged', [
 					'username' => $user->username,
