@@ -24,8 +24,8 @@ class User extends AbstractEntity
 				'email' => [ 'required' => true ],
 				'passwordhash' => [ 'required' => true ],
 				'valid' => [ 'required' => true, 'default' => false ],
-				'remainingattempts' => [],
-				'lastattempt' => ['default' => time()]
+				'remainingattempts' => [ 'default' => 5 ],
+				'lastattempt' => [ 'default' => 0 ],
 			],
 		];
 	}
@@ -76,6 +76,22 @@ class User extends AbstractEntity
 	{
 		$this->token = Token::createNew($this, Token::SESSION);
 		$this->token->save();
+	}
+
+	public function isLocked(): bool
+	{
+		if (time() > $this->lastattempt + $this->app->config('lockout_time'))
+			$this->remainingattempts = $this->app->config('max_login_attempts');
+		return $this->remainingattempts == 0;
+	}
+
+	public function failLogin(): void
+	{
+		if (time() > $this->lastattempt + $this->app->config('lockout_time'))
+			$this->remainingattempts = $this->app->config('max_login_attempts');
+		if ($this->remainingattempts > 0)
+			$this->remainingattempts--;
+		$this->lastattempt = time();
 	}
 
 	public function getSessioncount(): int

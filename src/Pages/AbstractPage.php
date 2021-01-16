@@ -267,9 +267,11 @@ abstract class AbstractPage
 			return;
 
 		$replace = [];
-		if (!empty($params))
-			foreach ($params as $key => $value)
-				$replace['{{' . $key . '}}'] = $value;
+		$params['useremail'] = $to;
+		$params['username'] = $toname;
+		$params['tmplname'] = $template;
+		foreach ($params as $key => $value)
+			$replace['{{' . $key . '}}'] = $value;
 
 		$subject='';
 		$txtmsg = $this->getTxtMail($template, $subject, $replace);

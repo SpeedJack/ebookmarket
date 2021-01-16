@@ -75,45 +75,35 @@ class AccountPage extends AbstractPage
 				throw new InvalidValueException(
 					'Submitted an invalid username or password.',
 					$this->visitor->getRoute(),
-					'Invalid username or password. Maybe your account is inibited! Try to check your email!');
+					'Invalid username or password. Maybe your account has been locked, check your email!');
 
 			$user = User::get('username', $username);
-			if(!$user)
+			if (!$user)
 				throw new InvalidValueException(
 					'Submitted a wrong username or password.',
 					$this->visitor->getRoute(),
-					'Invalid username or password. Maybe your account is inibited! Try to check your email!');
-			if($user->remainingattempts === 0){
-				if($user->lastattempt + $this->app->config('inibition_time') > time()){
-					throw new InvalidValueException(
-						'Submitted a wrong username or password.',
-						$this->visitor->getRoute(),
-						'Invalid username or password. Maybe your account is inibited! Try to check your email!');
-				} else {
-					$user->remainingattempts = $this->app->config('max_login_attempts');
-				}
-			}
-			
-			$user->lastattempt = time();
-			$user->save();
-			if (!$user->verifyPassword($password)){
-				if($user->remainingattempts > 0){
-					$user->remainingattempts--;
-					if($user->remainingattempts === 0)
-					//invio email
-					$this->sendmail($user->email, $user->username, 'accountinibited', [
-						'username' => $user->username, 
-						'end_of_inibition' => 
-							date('j M Y H:i:s',$user->lastattempt + $this->app->config('inibition_time'))
-						]);
-				}
+					'Invalid username or password. Maybe your account has been locked, check your email!');
+
+			$failed = !$user->verifyPassword($password);
+			$shouldmail = $failed && $user->remainingattempts > 0;
+			if ($failed) {
+				$user->failLogin();
 				$user->save();
+			}
+			if ($user->isLocked()) {
+				$failed = true;
+				if ($shouldmail)
+					$this->sendmail($user->email, $user->username,
+						'accountlocked', [
+							'unlocktime' => date('j M Y H:i:s', $user->lastattempt + $this->app->config('lockout_time')),
+						]);
+			}
+			if ($failed)
 				throw new InvalidValueException(
 					'Submitted a wrong username or password.',
 					$this->visitor->getRoute(),
-					'Invalid username or password. Maybe your account is inibited! Try to check your email!');
-			}
-			$user->remainingattempts = $this->app->config('max_login_attempts');	
+					'Invalid username or password. Maybe your account has been locked, check your email!');
+			$user->remainingattempts = $this->app->config('max_login_attempts');
 			$user->save();
 			if (!$user->valid)
 				throw new InvalidValueException(
@@ -195,10 +185,7 @@ class AccountPage extends AbstractPage
 
 			if ($alreadyIn !== null
 				&& strcasecmp($alreadyIn->username, $username) === 0) {
-				$this->sendmail($email, $alreadyIn->username,
-					'usernametaken', [
-					'username' => $username,
-				]);
+				$this->sendmail($email, $alreadyIn->username, 'usernametaken');
 			} else {
 				$user = new User();
 				$user->username = $username;
@@ -214,7 +201,6 @@ class AccountPage extends AbstractPage
 				]);
 
 				$this->sendmail($user->email, $user->username, 'verify', [
-					'username' => $user->username,
 					'verifylink' => $verifyLink,
 				]);
 			}
@@ -284,7 +270,6 @@ class AccountPage extends AbstractPage
 				'token' => $token->usertoken,
 			]);
 			$this->sendmail($user->email, $user->username, 'recovery', [
-				'username' => $user->username,
 				'recoverylink' => $recoverylink,
 			]);
 			$this->show('message', [
@@ -356,9 +341,7 @@ class AccountPage extends AbstractPage
 				$user->password = $password;
 				$user->remainingattempts = $this->app->config('max_login_attempts');
 				$user->save();
-				$this->sendmail($user->email, $user->username, 'passwordchanged', [
-					'username' => $user->username,
-				]);
+				$this->sendmail($user->email, $user->username, 'passwordchanged');
 				$this->show('message', [
 					'title' => 'Password changed!',
 					'message' => 'Your password has been successfully changed!',
@@ -390,9 +373,7 @@ class AccountPage extends AbstractPage
 			$user->password = $password;
 			$user->save();
 			$token->delete();
-			$this->sendmail($user->email, $user->username, 'passwordchanged', [
-				'username' => $user->username,
-			]);
+			$this->sendmail($user->email, $user->username, 'passwordchanged');
 			$this->show('message', [
 				'title' => 'Password changed!',
 				'message' => 'Your password has been successfully changed! Now, <a href="' . $this->app->buildLink('/login') . '">Login into your account!</a>.',

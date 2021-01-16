@@ -25,6 +25,10 @@
 //$config['verify_token_expire_time'] = 24*60*60;
 //$config['recovery_token_expire_time'] = 2*60*60;
 //$config['csrf_token_expire_time'] = 30*60;
+//$config['buystep_token_expire_time'] = 10*60;
+
+//$config['max_login_attempts'] = 5;
+//$config['lockout_time'] = 15*60;
 
 //$config['log_level'] = 6;
 //$config['error_reporting'] = E_ALL;
