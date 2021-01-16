@@ -1,5 +1,4 @@
-# PHP 7.3 is the oldest, still supported, PHP version
-FROM php:7.3-apache
+FROM php:apache
 
 # Locale unicode support
 RUN apt-get update && apt-get install -y libicu-dev locales sendmail \
