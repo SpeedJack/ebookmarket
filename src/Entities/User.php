@@ -89,9 +89,10 @@ class User extends AbstractEntity
 	{
 		if (time() > $this->lastattempt + $this->app->config('lockout_time'))
 			$this->remainingattempts = $this->app->config('max_login_attempts');
-		if ($this->remainingattempts > 0)
+		if ($this->remainingattempts > 0) {
 			$this->remainingattempts--;
-		$this->lastattempt = time();
+			$this->lastattempt = time();
+		}
 	}
 
 	public function getSessioncount(): int
