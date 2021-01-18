@@ -11,6 +11,7 @@ use EbookMarket\{
 use PHPMailer\PHPMailer\{
 	PHPMailer,
 	Exception,
+	SMTP,
 };
 
 require 'vendor/PHPMailer/src/PHPMailer.php';
@@ -29,6 +30,7 @@ class MailerService
 		$mail = new PHPMailer(true);
 		try {
 			$mail->isSMTP();
+			$mail->SMTPDebug = SMTP::DEBUG_OFF;
 			$mail->Host = $mailcfg['smtp_host'];
 			$mail->SMTPAuth = true;
 			$mail->Username = $mailcfg['smtp_username'];

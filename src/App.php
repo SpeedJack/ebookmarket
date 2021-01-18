@@ -99,7 +99,7 @@ class App extends AbstractSingleton
 				'recovery_token_expire_time' => 2*60*60,
 				'csrf_token_expire_time' => 30*60,
 				'buystep_token_expire_time' => 10*60,
-				'min_password_strength' => 4,
+				'min_password_strength' => 3,
 				'max_login_attempts' => 5,
 				'lockout_time' => 15*60,
 				'grecaptcha_secretkey' => '',

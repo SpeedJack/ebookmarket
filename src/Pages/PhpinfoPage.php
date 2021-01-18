@@ -15,7 +15,7 @@ class PhpinfoPage extends AbstractPage
 	public function actionIndex(): void
 	{
 		/* Disable page used for testing */
-		//throw new InvalidRouteException('phpinfo/index', null, null, 404);
+		throw new InvalidRouteException($this->visitor->getRoute());
 		phpinfo();
 	}
 

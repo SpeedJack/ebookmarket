@@ -11,7 +11,7 @@ class LoripsumPage extends AbstractPage
 	public function actionIndex(): void
 	{
 		/* Disable page used for testing */
-		//throw new InvalidRouteException($this->visitor->getRoute(), null, null, 404);
+		throw new InvalidRouteException($this->visitor->getRoute());
 		$this->setTitle('EbookMarket - Test Page');
 		$this->show('loripsum');
 	}

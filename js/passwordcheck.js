@@ -21,7 +21,7 @@ function validatePassword()
 		result = {score: 0, feedback : feedback};
 	}
 
-	minstrength = 4;
+	var minstrength = 3;
 	if (this.hasAttribute('data-minpwdstrength'))
 		minstrength = parseInt(this.getAttribute('data-minpwdstrength'));
 	setStrength(result, minstrength);
@@ -55,7 +55,7 @@ function setStrength(result = null, minstrength)
 	if (result)
 		strengthbar.appendChild(document.createElement('span'));
 
-	if (score < minstrength)
+	if (score >= minstrength)
 		message = '';
 	else if (!message)
 		message = 'Password too weak.'

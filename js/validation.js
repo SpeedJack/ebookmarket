@@ -69,10 +69,8 @@ function validatePasswordMatch()
 	if (!passwordfield || !confirmfield)
 		return;
 	if (passwordfield.value === confirmfield.value) {
-		passwordfield.setCustomValidity('');
 		confirmfield.setCustomValidity('');
 		return;
 	}
-	passwordfield.setCustomValidity('Passwords do not match.');
 	confirmfield.setCustomValidity('Passwords do not match.');
 }
