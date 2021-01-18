@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace EbookMarket\Entities;
 
+use EbookMarket\App;
+
 class Token extends AbstractEntity
 {
 	public const SESSION = 'SESSION';
@@ -168,8 +170,15 @@ class Token extends AbstractEntity
 	public function deleteOthers(): void
 	{
 		$this->db->query('DELETE FROM `' . $this->structure['table'] . '`'
-			. ' WHERE (id <> ? AND type = ?) OR expiretime <= ?',
-			$this->id, $this->type, time());
+			. ' WHERE (userid = ? AND id <> ? AND type = ?) OR expiretime <= ?',
+			$this->userid, $this->id, $this->type, time());
+	}
+
+	public static function deleteByUserAndType(User $user, string $type): void
+	{
+		App::getInstance()->db()->query('DELETE FROM `' . self::getStructure()['table']  . '`'
+			. ' WHERE (userid = ? AND type = ?) OR expiretime <= ?',
+			$user->id, $type, time());
 	}
 
 	private static function generateToken(): string

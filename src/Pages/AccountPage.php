@@ -103,6 +103,7 @@ class AccountPage extends AbstractPage
 					'Invalid username or password. Maybe your account has been locked, check your email!');
 			$user->remainingattempts = $this->app->config('max_login_attempts');
 			$user->save();
+			$user->removeRecoveryTokens();
 			if (!$user->valid)
 				throw new InvalidValueException(
 					'Unverified user tryied to login.',

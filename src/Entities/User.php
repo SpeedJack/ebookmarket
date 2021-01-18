@@ -104,4 +104,9 @@ class User extends AbstractEntity
 		]);
 		return empty($tokens) ? 0 : count($tokens);
 	}
+
+	public function removeRecoveryTokens(): void
+	{
+		Token::deleteByUserAndType($this, Token::RECOVERY);
+	}
 }

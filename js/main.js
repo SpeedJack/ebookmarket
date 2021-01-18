@@ -87,6 +87,8 @@ function showModal(content)
 	var modal = document.getElementById('modal-box');
 	if (!modal)
 		return;
+	if (typeof grecaptcha !== 'undefined')
+		grecaptcha.reset();
 	modal.innerHTML = content;
 	modal.classList.add('show');
 	modalshown = true;
