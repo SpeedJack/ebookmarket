@@ -35,8 +35,8 @@ The application works also under Windows or Mac: just install it manually
 (docker does not work due to networking limitations in these systems).
 
 To enable HTTPS, you can use the [certificate](docker/web/certs/localhost.crt)
-and the [private key](docker/web/private/localhost.key) we provided; or create
-your own keys (see below).
+and the [private key](docker/web/private/localhost.key) we provided (not
+provided in the public git repo); or create your own keys (see below).
 
 ### Configuration
 
@@ -54,7 +54,7 @@ The most important configuration directives are at the top of the file.
 
 To avoid the browser warning about the missing certificate, add the [CA
 certificate](docker/web/rootCA.crt) to the list of trusted root CA certificates
-of your browser.
+of your browser (not provided in the public git repo: create your own).
 
 Alternatively, you can create your own certificates: follow the instructions
 available in the [Dockerfile](docker/web/Dockerfile).
