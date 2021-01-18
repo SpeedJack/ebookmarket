@@ -2,15 +2,19 @@ document.getElementById('password').addEventListener('keyup', validatePassword);
 
 function validatePassword()
 {
+	var minstrength = 3;
+	if (this.hasAttribute('data-minpwdstrength'))
+		minstrength = parseInt(this.getAttribute('data-minpwdstrength'));
+
 	var password = this.value;
 	if (!password || password.length === 0) {
-		setStrength();
+		setStrength(null, minstrength);
 		return;
 	}
 
 	var result = zxcvbn(password);
 	if (!result) {
-		setStrength();
+		setStrength(null, minstrength);
 		return;
 	}
 
@@ -21,13 +25,11 @@ function validatePassword()
 		result = {score: 0, feedback : feedback};
 	}
 
-	var minstrength = 3;
-	if (this.hasAttribute('data-minpwdstrength'))
-		minstrength = parseInt(this.getAttribute('data-minpwdstrength'));
+	
 	setStrength(result, minstrength);
 }
 
-function setStrength(result = null, minstrength)
+function setStrength(result = null, minstrength = 3)
 {
 	var score = 0;
 	var message = '';
