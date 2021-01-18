@@ -67,7 +67,7 @@ class BookPage extends AbstractPage
 		]);
 	}
 
-	protected function getBuyStepToken(bool $steptwo = false, Book $book): string
+	protected function getBuyStepToken(Book $book, bool $steptwo = false): string
 	{
 		$type = $steptwo ? Token::BUYSTEP2 : Token::BUYSTEP1;
 		$token = Token::get([
@@ -250,7 +250,7 @@ class BookPage extends AbstractPage
 				'bought' => true,
 			]);
 
-		$buystep2 = $this->getBuyStepToken(true, $book);
+		$buystep2 = $this->getBuyStepToken($book, true);
 		$token->delete();
 		$this->showModal('books/buy', [
 			'steptoken' => $buystep2,

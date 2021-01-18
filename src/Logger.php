@@ -42,7 +42,7 @@ class Logger
 		static::log(self::LVL_ERR, $message);
 	}
 
-	public function exception(?\Throwable $ex = null): void
+	public static function exception(?\Throwable $ex = null): void
 	{
 		/* NOTE: this also logs control flow exceptions as errors */
 		$method = '';

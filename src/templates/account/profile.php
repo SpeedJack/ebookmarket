@@ -10,7 +10,7 @@
 	<label for="oldpassword">Current Password</label>
 	<input id="oldpassword" name="oldpassword" type="password" autocomplete="off" minlength="8" required>
 	<label for="password">New Password</label>
-	<input id="password" type="password" name="password" autocomplete="off" minlength="8" required>
+	<input id="password" type="password" name="password" autocomplete="off" minlength="8" data-minpwdstrength="<?= $app->config('min_password_strength') ?>" required>
 	<label for="password-confirm">Confirm New Password</label>
 	<input id="password-confirm" type="password" name="password-confirm" autocomplete="off" minlength="8" required>
 	<input type="hidden" name="csrftoken" value="<?= $this->getCsrfToken() ?>">

@@ -12,7 +12,7 @@
 		<?php if ($visitor->isLoggedIn()): ?>
 			<form id="buy-form" autocomplete="off" action="<?= $app->buildLink('/buy') ?>" method="POST">
 				<input type="hidden" name="id" value="<?= $book->id ?>">
-				<input type="hidden" name="steptoken" value="<?= $this->getBuyStepToken(false, $book) ?>">
+				<input type="hidden" name="steptoken" value="<?= $this->getBuyStepToken($book, false) ?>">
 				<input type="hidden" name="csrftoken" value="<?= $this->getCsrfToken() ?>">
 				<button type="submit">Buy Book</button>
 			</form>

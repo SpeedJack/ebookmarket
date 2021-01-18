@@ -41,15 +41,14 @@ class Token extends AbstractEntity
 	}
 
 	public static function createNew(User $user, string $type, ?Book $book = null): self
-	{	
-		if(($type === self::BUYSTEP1 || $type === self::BUYSTEP2) && !$book)
+	{
+		if (($type === self::BUYSTEP1 || $type === self::BUYSTEP2) && !$book)
 			return null;
 		$token = new Token();
 		$token->user = $user;
 		$token->type = $type;
-		if(($type === self::BUYSTEP1 || $type === self::BUYSTEP2)) {
+		if (($type === self::BUYSTEP1 || $type === self::BUYSTEP2))
 			$token->book = $book;
-		}
 		return $token;
 	}
 

@@ -244,9 +244,6 @@ class AccountPage extends AbstractPage
 			$this->enableRecaptcha();
 			$this->setTitle('EbookMarket - Password Recovery');
 			$this->addCss('form');
-			$this->addCss('passwordcheck');
-			$this->addJs('vendor/zxcvbn');
-			$this->addJs('passwordcheck');
 			$this->addJs('recovery');
 			$this->show('account/recovery');
 		case Visitor::METHOD_POST:
