@@ -25,7 +25,6 @@ function validatePassword()
 		result = {score: 0, feedback : feedback};
 	}
 
-	
 	setStrength(result, minstrength);
 }
 
