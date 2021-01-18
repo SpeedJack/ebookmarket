@@ -8,7 +8,8 @@ class User extends AbstractEntity
 {
 	private $token;
 
-	public function __construct(?array $data = null){
+	public function __construct(?array $data = null)
+	{
 		parent::__construct($data);
 		if(isset($data) && !empty($data))
 			return;

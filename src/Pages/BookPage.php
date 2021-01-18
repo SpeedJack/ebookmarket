@@ -99,8 +99,8 @@ class BookPage extends AbstractPage
 
 	public function actionLibrary(): void
 	{
-		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->visitor->assertUser();
+		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->setActiveMenu('My Library');
 		$this->setTitle('EbookMarket - My Library');
 		$this->showBooks(true);
@@ -108,6 +108,7 @@ class BookPage extends AbstractPage
 
 	public function actionView(): void
 	{
+		$this->visitor->assertUser();
 		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->setActiveMenu('Shop');
 		$id = $this->visitor->param('id', Visitor::METHOD_GET);
@@ -139,7 +140,7 @@ class BookPage extends AbstractPage
 		}
 		$this->setTitle('EbookMarket - ' . $book->title);
 		$this->addCss('book');
-		if (!$bought){
+		if (!$bought) {
 			$this->addJs('buyform');
 			$this->addCss('form');
 		}
@@ -152,9 +153,8 @@ class BookPage extends AbstractPage
 
 	public function actionDownload(): void
 	{
+		$this->visitor->assertUser();
 		Visitor::assertMethod(Visitor::METHOD_GET);
-		if(!$this->visitor->isLoggedIn())
-			$this->redirect('account/login');
 		$id = $this->visitor->param('id', Visitor::METHOD_GET);
 		$fmt = $this->visitor->param('fmt', Visitor::METHOD_GET);
 		if (empty($id))
@@ -198,43 +198,39 @@ class BookPage extends AbstractPage
 		header('Content-Disposition: attachment; filename="' . $filename . '"');
 		header('Content-Transfer-Encoding: binary');
 		header('Accept-Ranges: bytes');
-	    //Try to avoid download issues------------------------------------------
 		header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 		header("Cache-Control: post-check=0, pre-check=0", false);
 		header("Pragma: no-cache");
-		//------------------------------------------------------------------------
 		header('Content-Length: ' . filesize($file));
 		readfile($file);
 	}
 
 	public function actionBuy(): void
 	{
+		$this->visitor->assertUser();
 		$this->visitor->assertAjax();
-
-		if(!$this->visitor->isLoggedIn())
-			$this->redirect('account/login');
 		$this->setActiveMenu('Shop');
 		$this->setTitle('EbookMarket - Buy');
 		$id = $this->visitor->param('id', Visitor::METHOD_POST);
 		$steptoken = $this->visitor->param('steptoken', Visitor::METHOD_POST);
 		$token = Token::get($steptoken);
 		ErrorPage::reload(true);
-		if(!$token || !$token->validateType(Token::BUYSTEP1) ||
+		if (!$token || !$token->validateType(Token::BUYSTEP1) ||
 			!$token->authenticate($steptoken, Token::BUYSTEP1))
 			throw new InvalidValueException(
-				'Invalid Request',
+				'Auth error while user trying to buy.',
 				$this->visitor->getRoute(),
 				'Invalid Request');
-		if(!$id)
+		if (!$id)
 			throw new InvalidValueException(
-				'Invalid Request',
+				'User did not submitted an id for the book he wants to buy.',
 				$this->visitor->getRoute(),
 				'Invalid Request');
 
 		$book = Book::get(intval($id));
 		if (!$book)
 			throw new InvalidValueException(
-				'Invalid Request',
+				'Can not find the book requested by the user.',
 				$this->visitor->getRoute(),
 				'Invalid Request');
 
@@ -261,9 +257,8 @@ class BookPage extends AbstractPage
 
 	public function actionFinish(): void
 	{
+		$this->visitor->assertUser();
 		$this->visitor->assertAjax();
-		if(!$this->visitor->isLoggedIn())
-			$this->redirect('account/login');
 		$this->setActiveMenu('Shop');
 		$this->setTitle('EbookMarket - Payment Result');
 		$steptoken = $this->visitor->param('steptoken', Visitor::METHOD_POST);
@@ -276,14 +271,14 @@ class BookPage extends AbstractPage
 			!$token->authenticate($steptoken, Token::BUYSTEP2)
 		)
 			throw new InvalidValueException(
-				'Invalid Request',
+				'Auth error while user trying to buy.',
 				$this->visitor->getRoute(),
 				'Invalid Request');
 
 		$book = $token->book;
 		if (!$book)
 			throw new InvalidValueException(
-				'Invalid Request',
+				'Token found but not bound to a book.',
 				$this->visitor->getRoute(),
 				'Invalid Request');
 
@@ -291,13 +286,13 @@ class BookPage extends AbstractPage
 
 		if (empty($cc_number) || empty($cc_cv2) || empty($expiration))
 			throw new InvalidValueException(
-				'Invalid Request',
+				'User submitted invalid credit card details.',
 				$this->visitor->getRoute(),
 				'Invalid Request');
 
 		if (!FakePaymentService::submit($cc_number, $expiration, $cc_cv2, $book->price))
 			throw new InvalidValueException(
-				'Payment Rejected',
+				'Payment rejected by backend.',
 				$this->visitor->getRoute(),
 				'Sorry, your payment was rejected, please retry later');
 		$purchase = new Purchase();

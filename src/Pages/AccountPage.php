@@ -15,8 +15,7 @@ class AccountPage extends AbstractPage
 {
 	public function actionIndex(): void
 	{
-		if (!$this->visitor->isLoggedIn())
-			$this->redirect('/login');
+		$this->visitor->assertUser();
 		Visitor::assertMethod(Visitor::METHOD_GET);
 		$this->setTitle('EbookMarket - ' . $this->visitor->user()->username);
 		$this->addCss('form');
@@ -35,8 +34,7 @@ class AccountPage extends AbstractPage
 
 	public function actionSecure(): void
 	{
-		if (!$this->visitor->isLoggedIn())
-			$this->redirect('/login');
+		$this->visitor->assertUser();
 		$this->visitor->assertAjax();
 		$authtoken = $this->visitor->cookie('authtoken');
 		if ($authtoken === null)
@@ -223,8 +221,7 @@ class AccountPage extends AbstractPage
 
 	public function actionLogout(): void
 	{
-		if (!$this->visitor->isLoggedIn())
-			$this->redirect('/login');
+		$this->visitor->assertUser();
 		Visitor::assertMethod(Visitor::METHOD_GET);
 		if (!$this->visitor->verifyCsrfToken(Visitor::METHOD_GET))
 			throw new InvalidValueException(

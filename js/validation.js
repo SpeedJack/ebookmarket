@@ -1,13 +1,15 @@
 var usernamefield = document.getElementById('username');
 if (usernamefield)
 	usernamefield.addEventListener('change', validateLength);
+
 var emailfield = document.getElementById('email');
 if (emailfield)
 	emailfield.addEventListener('change', validateEmail);
+
 var passwordfield = document.getElementById('password');
-if (passwordfield) {
+if (passwordfield)
 	passwordfield.addEventListener('keyup', validatePasswordMatch);
-}
+
 var confirmfield = document.getElementById('password-confirm');
 if (confirmfield)
 	confirmfield.addEventListener('keyup', validatePasswordMatch);
@@ -15,12 +17,15 @@ if (confirmfield)
 var registerform = document.getElementById('register-form');
 if (registerform)
 	registerform.addEventListener('submit', submitForm);
+
 var loginform = document.getElementById('login-form');
 if (loginform)
 	loginform.addEventListener('submit', submitForm);
+
 var changepwdform = document.getElementById('changepwd-form');
 if (changepwdform)
 	changepwdform.addEventListener('submit', submitForm);
+
 var secureform = document.getElementById('secure-form');
 if (secureform)
 	secureform.addEventListener('submit', submitForm);

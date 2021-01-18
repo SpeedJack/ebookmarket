@@ -1,1 +1,3 @@
-document.getElementById('recovery-form').addEventListener('submit', submitForm);
+var recform = document.getElementById('recovery-form');
+if (recform)
+	recform.addEventListener('submit', submitForm);
