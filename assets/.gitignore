@@ -1,0 +1,5 @@
+ebooks/*.pdf
+ebooks/*.mobi
+ebooks/*.epub
+covers/*.jpg
+covers/*.png
