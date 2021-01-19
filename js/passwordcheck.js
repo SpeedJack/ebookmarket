@@ -74,7 +74,7 @@ function setStrength(result = null, minstrength = 3)
 function createMessage(message = "")
 {
 	document.getElementById("password").setCustomValidity(message);
-	document.getElementById("password").reportValidity();
+	//document.getElementById("password").reportValidity();
 }
 
 function createHints(hints = [])
