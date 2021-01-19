@@ -270,6 +270,7 @@ class AccountPage extends AbstractPage
 			$this->show('message', [
 				'title' => 'Check your email!',
 				'message' => 'We have sent you an email with the instructions to recover your account.',
+				'user' => $user,
 			]);
 		}
 	}
@@ -304,7 +305,8 @@ class AccountPage extends AbstractPage
 			$this->addCss('form');
 			$this->addJs('validation');
 			$this->show('account/changepassword', [
-				'token' => $usertoken, // TODO: token reuse is ok for security?
+				'token' => $usertoken,
+				'user' => $this->visitor->user(),
 			]);
 		case Visitor::METHOD_POST:
 			$this->visitor->assertAjax();

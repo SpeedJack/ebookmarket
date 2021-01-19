@@ -14,6 +14,8 @@
 	<label for="password-confirm">Confirm New Password</label>
 	<input id="password-confirm" type="password" name="password-confirm" autocomplete="off" minlength="8" required>
 	<input type="hidden" name="csrftoken" value="<?= $this->getCsrfToken() ?>">
+	<input type="hidden" name="username" id="username" value="<?= static::htmlEscapeQuotes($user->username) ?>">
+	<input type="hidden" name="email" id="email" value="<?= static::htmlEscapeQuotes($user->email) ?>">
 	<button type="submit">Save</button>
 </form>
 
