@@ -1,6 +1,6 @@
 document.getElementById('password').addEventListener('keyup', validatePassword);
-document.getElementById('username').addEventListtener('change', validatePassword);
-document.getElementById('email').addEventListener('change', validatePassword);
+document.getElementById('username').addEventListener('keyup', validatePassword);
+document.getElementById('email').addEventListener('keyup', validatePassword);
 
 function validatePassword()
 {
