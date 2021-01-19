@@ -293,7 +293,8 @@ class AccountPage extends AbstractPage
 					'User visited the recovery page with a non-existent token.',
 					$this->visitor->getRoute(),
 					'Invalid token.');
-			if($token->authenticate($usertoken, Token::RECOVERY) === null)
+			$user = $token->authenticate($usertoken, Token::RECOVERY);
+			if($user === null)
 				throw new InvalidValueException(
 					'User visited the recovery page with an invalid token.',
 					$this->visitor->getRoute(),
@@ -306,7 +307,7 @@ class AccountPage extends AbstractPage
 			$this->addJs('validation');
 			$this->show('account/changepassword', [
 				'token' => $usertoken,
-				'user' => $this->visitor->user(),
+				'user' => $user,
 			]);
 		case Visitor::METHOD_POST:
 			$this->visitor->assertAjax();
