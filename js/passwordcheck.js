@@ -1,18 +1,24 @@
 document.getElementById('password').addEventListener('keyup', validatePassword);
+document.getElementById('username').addEventListtener('change', validatePassword);
+document.getElementById('email').addEventListener('change', validatePassword);
 
 function validatePassword()
 {
 	var minstrength = 3;
-	if (this.hasAttribute('data-minpwdstrength'))
-		minstrength = parseInt(this.getAttribute('data-minpwdstrength'));
+	var passwordfield = document.getElementById('password');
+	if (passwordfield.hasAttribute('data-minpwdstrength'))
+		minstrength = parseInt(passwordfield.getAttribute('data-minpwdstrength'));
 
-	var password = this.value;
+	var username = document.getElementById('username').value;
+	var email = document.getElementById('email').value;
+	var password = passwordfield.value;
+
 	if (!password || password.length === 0) {
 		setStrength(null, minstrength);
 		return;
 	}
 
-	var result = zxcvbn(password);
+	var result = zxcvbn(password, [username, email]);
 	if (!result) {
 		setStrength(null, minstrength);
 		return;
