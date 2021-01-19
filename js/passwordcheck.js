@@ -1,4 +1,6 @@
 document.getElementById('password').addEventListener('keyup', validatePassword);
+document.getElementById('username').addEventListtener('change', validatePassword);
+document.getElementById('email').addEventListener('change', validatePassword);
 
 function validatePassword()
 {
@@ -6,13 +8,16 @@ function validatePassword()
 	if (this.hasAttribute('data-minpwdstrength'))
 		minstrength = parseInt(this.getAttribute('data-minpwdstrength'));
 
-	var password = this.value;
+	var username = document.getElementById('username').value;
+	var email = document.getElementById('email').value;
+	var password = document.getElementById('password').value;
+
 	if (!password || password.length === 0) {
 		setStrength(null, minstrength);
 		return;
 	}
 
-	var result = zxcvbn(password);
+	var result = zxcvbn(password, [username, email]);
 	if (!result) {
 		setStrength(null, minstrength);
 		return;
